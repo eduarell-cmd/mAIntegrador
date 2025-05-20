@@ -1,6 +1,23 @@
+# Python
 backend/venv/
 backend/env/
-frontend_web/node_modules/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.db
+
+# FastAPI env
+backend/.env
+
+# Node.js (React)
+frontend_web/node_modules/
+frontend_web/.env
+frontend_web/build/
+
+# VSCode settings
+.vscode/
+
+# General
+.DS_Store
 .env
