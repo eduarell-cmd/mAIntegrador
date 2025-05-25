@@ -16,7 +16,7 @@ app.add_middleware(
 
 @app.get("/")
 def welcome ():
-    return 'Hola papus, primera mierda de back'
+    return {"mensaje":"Hola papus, primera mierda de back"}
 
 @app.get("/login")
 def login():

@@ -4,7 +4,7 @@ function App() {
   const [mensaje, setMensaje] = useState("Cargando...")
 
   useEffect(() => {
-    fetch("http://localhost:8000/login")
+    fetch("http://localhost:8000")
       .then(response => response.json())
       .then(data => setMensaje(data.mensaje))
       .catch(err => setMensaje("No conecto padre"))
