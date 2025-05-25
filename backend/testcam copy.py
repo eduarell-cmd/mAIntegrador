@@ -1,7 +1,6 @@
 from deepface import DeepFace
 
 model_name = "Facenet512"
-umbral_confianza = 0.6
 
 # Lista de imágenes base (5 fotos de la misma persona)
 fotos_base = [

@@ -19,7 +19,6 @@ MarkupSafe==3.0.2
 mdurl==0.1.2
 motor==3.7.1
 orjson==3.10.18
-pip==25.0.1
 pydantic==2.11.4
 pydantic_core==2.33.2
 pydantic-extra-types==2.10.4
@@ -45,3 +44,4 @@ uvicorn==0.34.2
 tensorflow==2.19.0
 tf_keras==2.19.0
 deepface==0.0.93
+google-genai==1.16.1
