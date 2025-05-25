@@ -21,3 +21,5 @@ frontend_web/build/
 # General
 .DS_Store
 .env
+venv
+.venv
