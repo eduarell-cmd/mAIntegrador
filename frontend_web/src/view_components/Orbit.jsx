@@ -16,6 +16,7 @@ export default function Orbit() {
   };
 
   useEffect(() => {
+    console.log("Orbit montado 🚀");
     // ===== SCROLL & CIRCLES =====
     const progressEl = progressRef.current;
     const size = 50; // diámetro
