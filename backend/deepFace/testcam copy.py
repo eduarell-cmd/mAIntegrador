@@ -4,15 +4,15 @@ model_name = "Facenet512"
 
 # Lista de imágenes base (5 fotos de la misma persona)
 fotos_base = [
-    "D:/Downloads/liam1.jpg",
-    "D:/Downloads/liam2.jpg",
-    "D:/Downloads/liam3.jpg",
-    "D:/Downloads/liam4.jpg",
-    "D:/Downloads/liam5.jpg"
+    "backend/deepFace/fotos/liam1.jpeg",
+    "backend/deepFace/fotos/liam2.jpeg",
+    "backend/deepFace/fotos/liam3.jpeg",
+    "backend/deepFace/fotos/liam4.jpeg",
+    "backend/deepFace/fotos/liam5.jpeg"
 ]
 
 # Imagen a comparar (nueva imagen)
-imagen_a_comparar = "D:/Downloads/liam6.jpg"
+imagen_a_comparar = "backend/deepFace/fotos/liam6.jpeg"
 
 def comparar_imagenes(img1, img2, modelo):
     try:
