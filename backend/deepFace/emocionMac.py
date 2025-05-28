@@ -2,30 +2,50 @@ from deepface import DeepFace
 from PIL import Image
 import cv2
 import time
+import os
 
 model_name = "Facenet512"
 
+# Ruta donde guardar la nueva foto
+ruta_destino = 'backend/deepFace/fotos'
+nombre_archivo = 'foto_mac.jpg'
+ruta_guardado = os.path.join(ruta_destino, nombre_archivo)
+
+# Verificar si la carpeta existe, si no, la crea
+if not os.path.exists(ruta_destino):
+    os.makedirs(ruta_destino)
+
+# Iniciar cámara
 camara = cv2.VideoCapture(0)
 
-ret,imagen = camara.read()
+if not camara.isOpened():
+    print("❌ No se puede acceder a la cámara. Revisa permisos.")
+    exit()
+
+print("📸 Voltea a la cámara...")
+time.sleep(3)
+
+# Capturar imagen
+ret, imagen = camara.read()
 
 if ret:
-    print("Voltea a la camara")
-    time.sleep(3)
-    new_imagen = cv2.imwrite("foto.jpg", imagen)
-    print("✅ Foto guardada como 'foto.jpg'")
+    cv2.imwrite(ruta_guardado, imagen)
+    print(f"✅ Foto guardada correctamente en:\n{ruta_guardado}")
 else:
-    print("❌ No se pudo acceder a la cámara")
+    print("❌ No se pudo capturar la imagen.")
+    exit()
 
 camara.release()
 
+# Reducción de resolución para DeepFace
 def reducir_resolucion(path):
     try:
         img = Image.open(path).resize((224,224))
-        temp_path = f"temp_{path.split('/')[-1]}"
+        temp_path = f"temp_{os.path.basename(path)}"
         img.save(temp_path)
         return temp_path
-    except:
+    except Exception as e:
+        print(f"Error reduciendo resolución de {path}: {e}")
         return path
 
 # Lista de imágenes base (5 fotos de la misma persona)
@@ -37,8 +57,9 @@ fotos_base = [reducir_resolucion(foto) for foto in [
     "backend/deepFace/fotos/liam6.jpeg"
 ]]
 
-imagen_a_comparar = reducir_resolucion(new_imagen)
+imagen_a_comparar = reducir_resolucion(ruta_guardado)
 
+# Función para comparar dos imágenes
 def comparar_imagenes(img1, img2, modelo):
     try:
         resultado = DeepFace.verify(
@@ -54,13 +75,12 @@ def comparar_imagenes(img1, img2, modelo):
 
 coincidencias = 0
 
-print(f"Comparando la imagen nueva con las 5 fotos base...")
+print("\n🔍 Comparando la imagen nueva con las 5 fotos base...")
 print("-" * 50)
 
 for i, foto_base in enumerate(fotos_base):
     es_misma_persona, distancia = comparar_imagenes(foto_base, imagen_a_comparar, model_name)
-    print(f"Comparación {i+1} con {foto_base}:")
-    print(f"¿Coincide?: {es_misma_persona}")
+    print(f"Comparación {i+1} con {foto_base}: ¿Coincide? {es_misma_persona}")
     
     if es_misma_persona:
         coincidencias += 1
@@ -69,19 +89,17 @@ for i, foto_base in enumerate(fotos_base):
 
 # Verificar si hay al menos 3/5 coincidencias
 if coincidencias >= 3:
-    print(f"\nRESULTADO FINAL: La imagen nueva SÍ es la misma persona (coincidencias: {coincidencias}/5)")
-    
-    # Analizar la emoción de la imagen nueva
+    print(f"\n✅ RESULTADO FINAL: Es la misma persona (coincidencias: {coincidencias}/5)")
+
     try:
         analisis = DeepFace.analyze(
-            img_path=imagen_a_comparar, 
-            actions=['emotion'], 
+            img_path=imagen_a_comparar,
+            actions=['emotion'],
             enforce_detection=False
         )
         emocion = analisis[0]['dominant_emotion']
-
-        print(f"Emoción detectada: {emocion}")
+        print(f"😊 Emoción detectada: {emocion}")
     except Exception as e:
-        print(f"\nError al analizar emoción: {str(e)}")
+        print(f"⚠️ Error al analizar emoción: {str(e)}")
 else:
-    print(f"\nRESULTADO FINAL: La imagen nueva NO es la misma persona (coincidencias: {coincidencias}/5)")
+    print(f"\n❌ RESULTADO FINAL: NO es la misma persona (coincidencias: {coincidencias}/5)")
