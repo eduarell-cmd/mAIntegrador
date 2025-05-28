@@ -1,0 +1,158 @@
+html {
+  overflow-x: hidden;
+}
+
+body {
+    background-color: rgb(18, 18, 19);
+    background: linear-gradient(120deg, rgb(18,18,19), black);
+    margin: 0;
+    padding: 0;
+    height: 300%;
+    width: 100vw;
+}
+
+section {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.circle1, .circle2, .circle3, .circle4, .circle5 {
+    height: 50vh;
+    width: 50vh;
+    border-radius: 50%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* display: flex;
+    justify-content: center;
+    align-items: center; */
+    pointer-events: none;
+    filter: blur(200px);
+    z-index: 0;
+}
+
+.circle1 {
+  background-color: #ff5f79ff;
+}
+
+.circle2 {
+  background-color: rgb(164, 55, 207);
+}
+
+.circle3 {
+  background-color: #ff5f79ff;
+  scale: 1.3;
+  filter: blur(150px);
+  opacity: 0;
+  transition: opacity 1s ease;
+  top: 0;
+}
+
+.circle4 {
+  background-color: #d20972ff;
+  filter: blur(150px);
+  scale: 1.1;
+  top: 0;
+  left: 64%;
+  transition: opacity 1s ease;
+  opacity: 0;
+}
+
+.circle5 {
+  background-color: #ab4ff6ff;
+  filter: blur(150px);
+  scale: 1.4;
+  top: 20%;
+  left: 90%;
+  transition: opacity 1s ease;
+  opacity: 0;
+}
+
+.displayCircle {
+  opacity: 1;
+}
+
+.title {
+    color: white;
+    font-size: 10rem;
+    text-align: center;
+    font-weight: 100;
+    animation: reveal 2s;
+}
+.subtitle {
+    color: rgb(212, 212, 214);
+    font-size: 5rem;
+    font-weight: 100;
+}
+
+@keyframes reveal {
+    from {
+      opacity: 0;
+      clip-path: inset(45% 20% 45% 20%);
+    }
+    50% {
+      opacity: 1;
+      clip-path: inset(0% 0% 0% 0%);
+    }
+  }
+
+.title, .subtitle {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+.hidden {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 2s ease, transform 2s ease;
+}
+
+.fade-in {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+footer {
+  height: 50vh;
+  background: linear-gradient(180deg, rgb(32, 32, 32), rgb(61, 61, 61));
+}
+
+/*--------------------- PROGRESS BAR ---------------- ASSETS -------------*/
+
+#progress {
+  position: fixed;
+  left: 0; top: 0;
+  width: 100%; height: 3px;
+  border-bottom-right-radius: 15vh;
+  background: rgba(255, 255, 255, 0.712);
+  background: linear-gradient(90deg, black, white);
+  z-index: 2000;
+}
+
+.cursor {
+  position: fixed;
+  height: 50px;
+  width: 50px;
+  border-radius: 100%;
+  background-color: white;
+  margin-left: -22px;
+  margin-top: -22px;
+  transform: translate(0, 0);
+  z-index: 1000;
+  backdrop-filter: grayscale(1);
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+.interactive {
+  transition:cubic-bezier(0.68, -0.6, 0.32, 1.6) 0.5s;
+}
+.interactive:hover {
+  scale: 1.1;
+}
