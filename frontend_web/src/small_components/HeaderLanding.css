@@ -1,0 +1,66 @@
+.header {
+    height: 10vh; width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 0 2rem;
+    z-index: 100;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.424), rgba(0, 0, 0, 0.23), rgba(0, 0, 0, 0));
+}
+
+* {
+    font-size: 1.2rem;
+}
+
+a {
+    font-style: normal;
+    color: white;
+    transition: ease-in-out 0.2s;
+    font-weight: 400;
+}
+a:hover {
+    cursor: pointer;
+    scale: 1.1;
+    filter: drop-shadow(rgba(255, 255, 255, 0.783) 0 0 3px);
+    color: white;
+}
+
+ul {
+    height: 100%; width: 90%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+}
+
+.sections {
+    height: 100%; width: 30vw;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+}
+
+.loginBtn {
+    height: 70%; width: 9vw;
+    display: grid;
+    grid-template-columns: 55% auto;
+    justify-items: center;
+    align-items: center;
+    border-radius: 10vh;
+    background: linear-gradient(110deg, #d20972ff, #020211);
+}
+
+.loginBtn:hover {
+    box-shadow: rgba(255, 255, 255, 0.506) 0 0 12px;
+}
+
+.loginBtnCircle {
+    height: 6vh; width: 6vh;
+    margin-left: 10px;
+    background-color: white;
+    border-radius: 50%;
+}

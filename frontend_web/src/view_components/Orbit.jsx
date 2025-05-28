@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import './Orbit.css';
 import NextButton from '../small_components/next_button';
+import { HeaderLanding } from '../small_components/HeaderLanding';
 
 export default function Orbit() {
   // Referencias a los elementos que mueves por JS
@@ -17,12 +18,19 @@ export default function Orbit() {
   useEffect(() => {
     console.log("Orbit montado 🚀");
     // ===== SCROLL & CIRCLES =====
+    const progressEl = progressRef.current;
     const size = 50; // diámetro
 
     function onScroll() {
       const scrollTop = window.scrollY;
       const maxScroll = document.body.scrollHeight - window.innerHeight;
-      const prog = scrollTop / maxScroll;
+      const prog = Math.min(1, scrollTop / maxScroll);
+
+      // — actualizar la barra de progreso ——
+      if (progressEl) {
+        progressEl.style.transformOrigin = '0 0';
+        progressEl.style.transform = `scaleX(${prog})`;
+      }
 
       const { c1, c2, c3, c4, c5 } = circlesRef;
       // lógica de displayCircle
@@ -76,14 +84,6 @@ export default function Orbit() {
       observer.observe(el);
     });
 
-    // ===== PROGRESS BAR =====
-    const pb = progressRef.current;
-    pb.style.transformOrigin = '0% 50%';
-    pb.animate(
-      { transform: ['scaleX(0)', 'scaleX(1)'] },
-      { fill: 'forwards', timeline: new ScrollTimeline({ source: document.documentElement }) }
-    );
-
     // ===== CUSTOM CURSOR =====
     let mouseX = 0, mouseY = 0, currentX = 0, currentY = 0;
 
@@ -116,6 +116,7 @@ export default function Orbit() {
 
   return (
     <>
+      <HeaderLanding />
       <div className="cursor"   ref={cursorRef}   />
       <div id="progress"        ref={progressRef} />
       <div className="circle1"   ref={circlesRef.c1} />
