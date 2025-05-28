@@ -7,7 +7,7 @@ import os
 model_name = "Facenet512"
 
 # Ruta donde guardar la nueva foto
-ruta_destino = 'backend/deepFace/fotos'
+ruta_destino = '/Users/danielbeltran/Desktop/mAIntegrador/backend/deepFace/fotos'
 nombre_archivo = 'foto_mac.jpg'
 ruta_guardado = os.path.join(ruta_destino, nombre_archivo)
 
@@ -37,19 +37,20 @@ else:
 
 camara.release()
 
-# Reducción de resolución para DeepFace
-def reducir_resolucion(path):
+# Reducción de resolución (guardada en el mismo directorio)
+def reducir_resolucion(path, output_dir):
     try:
-        img = Image.open(path).resize((224,224))
-        temp_path = f"temp_{os.path.basename(path)}"
+        img = Image.open(path).resize((224, 224))
+        nombre_archivo = os.path.basename(path)
+        temp_path = os.path.join(output_dir, f"temp_{nombre_archivo}")
         img.save(temp_path)
         return temp_path
     except Exception as e:
-        print(f"Error reduciendo resolución de {path}: {e}")
+        print(f"❌ Error reduciendo resolución de {path}: {e}")
         return path
 
-# Lista de imágenes base (5 fotos de la misma persona)
-fotos_base = [reducir_resolucion(foto) for foto in [
+# Lista de imágenes base (reescala y guarda en la misma carpeta)
+fotos_base = [reducir_resolucion(foto, ruta_destino) for foto in [
     "backend/deepFace/fotos/liam1.jpeg",
     "backend/deepFace/fotos/liam2.jpeg",
     "backend/deepFace/fotos/liam3.jpeg",
@@ -57,7 +58,7 @@ fotos_base = [reducir_resolucion(foto) for foto in [
     "backend/deepFace/fotos/liam6.jpeg"
 ]]
 
-imagen_a_comparar = reducir_resolucion(ruta_guardado)
+imagen_a_comparar = reducir_resolucion(ruta_guardado, ruta_destino)
 
 # Función para comparar dos imágenes
 def comparar_imagenes(img1, img2, modelo):
@@ -70,7 +71,7 @@ def comparar_imagenes(img1, img2, modelo):
         )
         return resultado['verified'], resultado['distance']
     except Exception as e:
-        print(f"Error al comparar {img2}: {str(e)}")
+        print(f"❌ Error al comparar {img2}: {str(e)}")
         return False, 1.0
 
 coincidencias = 0
