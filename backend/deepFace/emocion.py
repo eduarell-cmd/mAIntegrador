@@ -11,7 +11,8 @@ ret,imagen = camara.read()
 if ret:
     print("Voltea a la camara")
     time.sleep(3)
-    new_imagen = cv2.imwrite("foto.jpg", imagen)
+    new_imagen_path = "backend/deepFace/fotos/"
+    cv2.imwrite(new_imagen_path, imagen)
     print("✅ Foto guardada como 'foto.jpg'")
 else:
     print("❌ No se pudo acceder a la cámara")
@@ -29,14 +30,14 @@ def reducir_resolucion(path):
 
 # Lista de imágenes base (5 fotos de la misma persona)
 fotos_base = [reducir_resolucion(foto) for foto in [
-    "backend/deepFace/fotos/liam1.jpeg",
-    "backend/deepFace/fotos/liam2.jpeg",
-    "backend/deepFace/fotos/liam3.jpeg",
-    "backend/deepFace/fotos/jacob1.jpeg",
-    "backend/deepFace/fotos/liam6.jpeg"
+    "backend/deepFace/fotos/memo1.jpeg",
+    "backend/deepFace/fotos/memo2.jpeg",
+    "backend/deepFace/fotos/memo3.jpeg",
+    "backend/deepFace/fotos/memo4.jpeg",
+    "backend/deepFace/fotos/memo5.jpeg"
 ]]
 
-imagen_a_comparar = reducir_resolucion(new_imagen)
+imagen_a_comparar = reducir_resolucion(new_imagen_path)
 
 def comparar_imagenes(img1, img2, modelo):
     try:
@@ -44,7 +45,7 @@ def comparar_imagenes(img1, img2, modelo):
             img1_path=img1,
             img2_path=img2,
             model_name=modelo,
-            enforce_detection=False
+            enforce_detection=True
         )
         return resultado['verified'], resultado['distance']
     except Exception as e:
@@ -75,7 +76,7 @@ if coincidencias >= 3:
         analisis = DeepFace.analyze(
             img_path=imagen_a_comparar, 
             actions=['emotion'], 
-            enforce_detection=False
+            enforce_detection=True
         )
         emocion = analisis[0]['dominant_emotion']
 
