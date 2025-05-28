@@ -8,6 +8,7 @@ model_name = "Facenet512"
 camara = cv2.VideoCapture(0)
 
 ret,imagen = camara.read()
+
 if ret:
     print("Voltea a la camara")
     time.sleep(3)
