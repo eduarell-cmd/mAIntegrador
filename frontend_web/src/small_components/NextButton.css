@@ -1,0 +1,17 @@
+.btn-primary {
+    height: 4rem; width: 18vw;
+    background:linear-gradient(90deg, #ff5f79ff, #ab4ff6ff);
+    border-radius: 10vh;
+    box-shadow: rgba(255, 255, 255, 0.671) 0 0 10px;
+    font-size: 1.5rem;
+    transition: ease-in-out 0.2s;
+    border: none;
+    margin-bottom: 5rem;
+    margin-bottom: 5rem;
+    margin-left: 5rem;
+}
+
+.btn-primary:hover {
+    scale: 1.04;
+    box-shadow: pink 0 0 12px;
+}

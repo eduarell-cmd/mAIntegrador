@@ -58,9 +58,9 @@ export default function Login() {
         <label>
           Genero:
           <input type="radio" name='masculine' id='masculine' value="masculine"/>
-          <label>Hombre</label>
+          <label>H</label>
           <input type="radio" name='femenine' id='femenine' value="femenine"/>
-          <label>Mujer</label>
+          <label>M</label>
         </label>
         <br/>
         <label>
