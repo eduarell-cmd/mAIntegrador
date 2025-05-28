@@ -1,7 +1,22 @@
 from deepface import DeepFace
 from PIL import Image
+import cv2
+import time
 
 model_name = "Facenet512"
+
+camara = cv2.VideoCapture(0)
+
+ret,imagen = camara.read()
+if ret:
+    print("Voltea a la camara")
+    time.sleep(3)
+    new_imagen = cv2.imwrite("foto.jpg", imagen)
+    print("✅ Foto guardada como 'foto.jpg'")
+else:
+    print("❌ No se pudo acceder a la cámara")
+
+camara.release()
 
 def reducir_resolucion(path):
     try:
@@ -21,7 +36,7 @@ fotos_base = [reducir_resolucion(foto) for foto in [
     "backend/deepFace/fotos/liam6.jpeg"
 ]]
 
-imagen_a_comparar = reducir_resolucion("backend/deepFace/fotos/liam5.jpeg")
+imagen_a_comparar = reducir_resolucion(new_imagen)
 
 def comparar_imagenes(img1, img2, modelo):
     try:
