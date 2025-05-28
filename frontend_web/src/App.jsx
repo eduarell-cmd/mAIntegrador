@@ -1,22 +1,18 @@
 import { useEffect, useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+//------ VISTA DE LANDING ------
+import Landing from './view_components/Landing';
+import Login from './view_components/Login'
 
 function App() {
-  const [mensaje, setMensaje] = useState("Cargando...")
-
-  useEffect(() => {
-    fetch("http://localhost:8000")
-      .then(response => response.json())
-      .then(data => setMensaje(data.mensaje))
-      .catch(err => setMensaje("No conecto padre"))
-  }, [])
-
   return (
-    <div>
-      <h1>Hola desde React!</h1>
-      <p>Mensaje del backend:</p>
-      <h2>{mensaje}</h2>
-    </div>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/"      element={<Landing />} />
+        <Route path="/login" element={<Login />}   />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App
