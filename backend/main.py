@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
-from backend.db.models import *
-from backend.db.db import personas_collection
+from db.models import *
+from db.db import personas_collection
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi.middleware.cors import CORSMiddleware
