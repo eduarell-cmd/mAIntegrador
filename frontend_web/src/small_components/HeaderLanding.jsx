@@ -6,11 +6,11 @@ export const HeaderLanding = () => {
   return (
     <div className='header'>
         
-            <a>M.AI</a>
+            <a href='#1'>M.AI</a>
             <li>
                 <div className='sections'>
-                    <a>Functionalities</a>
-                    <a>How it works</a>
+                    <a href='#2'>Functionalities</a>
+                    <a href='#3'>How it works</a>
                     <a>Team</a>
                 </div>
             </li>

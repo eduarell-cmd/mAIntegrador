@@ -1,0 +1,31 @@
+.fun-grid {
+    display: grid;
+    grid-template-rows:15% auto;
+    height: 100%; width: 100%;
+    background-color: rgba(255, 255, 255, 0.425);
+    align-items: center;
+    justify-items: center;
+}
+
+.funTitle {
+    font-size: 5rem;
+    font-weight: 400;
+}
+
+.gridFourElements {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    align-items: center;
+    justify-items: center;
+    height: 90%;
+    width: 85%;
+    background-color: rgba(127, 240, 255, 0.514);
+}
+
+.elementSquare {
+    height: 80%; width: 80%;
+    background-color: rgba(255, 32, 32, 0.479);
+    border-radius: 8vh;
+}
+
