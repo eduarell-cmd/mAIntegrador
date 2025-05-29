@@ -4,10 +4,6 @@ import './NextButton.css';
 
 export default function NextButton() {
   return (
-    <div>
-      <Link to="/login">
-        <button className="btn-primary">Dive In</button>
-      </Link>
-    </div>
+      <button className="btn-primary">Dive In</button>
   );
 }
