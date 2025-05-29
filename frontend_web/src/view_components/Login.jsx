@@ -56,20 +56,22 @@ export default function Login() {
         </label>
         <br/>
         <label>
-          Genero:
-          <input type="radio" name='masculine' id='masculine' value="masculine"/>
-          <label>H</label>
-          <input type="radio" name='femenine' id='femenine' value="femenine"/>
-          <label>M</label>
+          Género:
+          <input type="radio" name="gender" id="masculine" value="masculine" />
+          <label htmlFor="masculine">H</label>
+
+          <input type="radio" name="gender" id="feminine" value="feminine" />
+          <label htmlFor="feminine">M</label>
         </label>
+
         <br/>
         <label>
           Preferencias:
-          <input type="radio" name='gym' id='gym' value="gym"/>
+          <input type="checkbox" name='gym' id='gym' value="gym"/>
           <label>Gym</label>
-          <input type="radio" name='paint' id='paint' value="paint"/>
+          <input type="checkbox" name='paint' id='paint' value="paint"/>
           <label>Pintura</label>
-          <input type="radio" name='music' id='music' value="music"/>
+          <input type="checkbox" name='music' id='music' value="music"/>
           <label>Musica</label>
         </label>
         <br/>
