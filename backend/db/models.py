@@ -26,7 +26,7 @@ class User(BaseModel):
     sexo: str
     correo: str
     palabra_de_seguridad: str
-    contraseña: str
+    password: str
     class Config:
         allow_population_by_field_name = True
         json_encoders = {ObjectId: str}
