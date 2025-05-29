@@ -3,6 +3,8 @@ import './Orbit.css';
 import NextButton from '../small_components/next_button';
 import { HeaderLanding } from '../small_components/HeaderLanding';
 import { HomeLanding } from '../small_components/HomeLanding';
+import { Functionalities } from '../small_components/Functionalities';
+import { Confused } from '../small_components/Confused';
 
 export default function Orbit() {
   // Referencias a los elementos que mueves por JS
@@ -130,14 +132,20 @@ export default function Orbit() {
       <section id="1">
         <HomeLanding />
       </section>
+      <section id='2'>
+        <Functionalities />
+      </section>
+      <section id='3'>
+        <Confused />
+      </section>
 
       {/* Secciones 2 a 5 */}
-        {[2, 3, 4, 5].map(n => (
+        {[3, 4, 5].map(n => (
           <section key={n} id={`${n}`}>
             <h1 className="title interactive">
               {['A new era', 'In the way', 'Welcome to', 'mirrOS'][n - 2]}
             </h1>
-            {n === 2 && <h3 className="subtitle interactive">You see stuff</h3>}
+            {n === 3 && <h3 className="subtitle interactive">You see stuff</h3>}
           </section>
         ))}
     </>

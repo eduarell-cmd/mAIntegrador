@@ -1,0 +1,23 @@
+.confused-section {
+    height: 90%;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-direction: row;
+}
+
+.c-titles {
+    width: 40%;
+    height: 100%; 
+    text-align: start;
+}
+
+.img-mirror {
+    height: 100%; width: 40%;
+}
+
+.c-titles, .img-mirror {
+    background-color: rgba(255, 255, 255, 0.323);
+    border-radius: 10vh;
+}
