@@ -4,7 +4,7 @@ import './Functionalities.css'
 export const Functionalities = () => {
   return (
     <div className='fun-grid'>
-        <h1 className='title funTitle'>Functionalities</h1>
+        <h1 className='title funTitle interactive'>Functionalities</h1>
         <div className="gridFourElements">
             <div className="elementSquare square1">1</div>
             <div className="elementSquare square2">2</div>

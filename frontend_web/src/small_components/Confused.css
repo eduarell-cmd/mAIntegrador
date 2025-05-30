@@ -7,17 +7,39 @@
     flex-direction: row;
 }
 
+.c-titles, .img-mirror {
+    /* background-color: rgba(255, 255, 255, 0.323); */
+    border-radius: 10vh;
+}
 .c-titles {
     width: 40%;
     height: 100%; 
     text-align: start;
+    margin-left: 10rem;
 }
 
 .img-mirror {
     height: 100%; width: 40%;
+    /* background-color: rgba(13, 115, 231, 0.575); */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.c-titles, .img-mirror {
-    background-color: rgba(255, 255, 255, 0.323);
-    border-radius: 10vh;
+.img-mirror img {
+    height: 90%; width: auto;
+
+}
+
+
+.c-titles h1 {
+    font-size: 6rem;
+    font-weight: 200;
+    text-align: start;
+}
+
+.c-titles span {
+    font-style: oblique;
+    font-weight: 400;
+    font-size: 7rem;
 }

@@ -139,7 +139,7 @@ export default function Orbit() {
         <Confused />
       </section>
 
-      {/* Secciones 2 a 5 */}
+      {/* x numero de Secciones*/}
         {[3, 4, 5].map(n => (
           <section key={n} id={`${n}`}>
             <h1 className="title interactive">

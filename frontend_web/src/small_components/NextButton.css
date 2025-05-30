@@ -6,6 +6,7 @@
     font-size: 1.5rem;
     transition: ease-in-out 0.2s;
     border: none;
+    color: white;
 }
 
 .btn-primary:hover {
