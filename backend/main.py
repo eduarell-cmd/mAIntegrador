@@ -6,6 +6,7 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from validaciones.validaciones import *
 
 app = FastAPI()
 
@@ -28,16 +29,9 @@ def login():
     return {"mensaje": "Hola desde el backend papu 😎"}
 
 @app.get("/perfil/{id}",response_model=User)
-async def get_users(id: str):
-    try:
-        object_id = ObjectId(id)
-    except InvalidId:
-        raise HTTPException(status_code=400,detail="Invalid ID")
-    
-    usuario = await personas_collection.find_one({"_id": ObjectId(id)})
-    if usuario:
-        return User(**usuario)
-    raise HTTPException(status_code=404, detail="Usuario no encontrado")
+async def perfil(id: str):
+    usuario=await get(id)
+    return usuario
 
 @app.post("/signup")
 async def signup(persona: User):
