@@ -34,7 +34,7 @@ async def perfil(id: str):
     return usuario
 
 @app.post("/signup")
-async def signup(persona: User):
+async def signup(persona: UserCreate):
     try:
         querylogin = await personas_collection.insert_one(persona.model_dump())
         return {"mensaje":"Jalo el Sign up"}
