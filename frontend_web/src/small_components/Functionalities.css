@@ -2,7 +2,7 @@
     display: grid;
     grid-template-rows:15% auto;
     height: 100%; width: 100%;
-    background-color: rgba(255, 255, 255, 0.425);
+    /* background-color: rgba(255, 255, 255, 0.425); */
     align-items: center;
     justify-items: center;
 }
@@ -20,12 +20,22 @@
     justify-items: center;
     height: 90%;
     width: 85%;
-    background-color: rgba(127, 240, 255, 0.514);
+    /* background-color: rgba(127, 240, 255, 0.514); */
 }
 
 .elementSquare {
     height: 80%; width: 80%;
-    background-color: rgba(255, 32, 32, 0.479);
+    background-color: rgba(27, 27, 27, 0.871);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(38, 38, 38, 0.763);
     border-radius: 8vh;
+    transition: ease-in-out 0.3s;
+    z-index: 1;
+    box-shadow: rgba(72, 72, 72, 0.448) 1px 1px 1.5rem 2px;
+}
+
+.elementSquare:hover {
+    scale: 1.04;
+    box-shadow: rgba(72, 72, 72, 0.674) 1px 1px 2rem 4px;
 }
 
