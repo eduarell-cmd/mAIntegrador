@@ -1,6 +1,12 @@
 // src/pages/Login.jsx
 import React, { useState } from 'react';
+
 export default function Login() {
+  const [loginData, setLoginData] = useState({
+    email: '',
+    password: ''
+  });
+
   const [registerData, setRegisterData] = useState({
     nombre: '',
     edad: '',
@@ -10,6 +16,44 @@ export default function Login() {
     palabra_de_seguridad: '',
     password: '',
   });
+
+  const handleLoginChange = (e) => {
+    const { name, value } = e.target;
+    setLoginData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:8000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(loginData),
+      });
+
+      const data = await response.json();
+      console.log('Respuesta del backend:', data);
+      if (response.ok) {
+        // Guardar el token en localStorage si el backend lo devuelve
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+        }
+        alert('Login exitoso');
+        // Aquí puedes redirigir al usuario a otra página
+        // window.location.href = '/dashboard';
+      } else {
+        alert(data.message || 'Error en el login');
+      }
+    } catch (error) {
+      console.error('Error al hacer login:', error);
+      alert('Error al conectar con el servidor');
+    }
+  };
 
   const handleRegisterChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -66,14 +110,28 @@ export default function Login() {
 
       <h1>Iniciar Sesión</h1>
       
-      <form className='login_form' method='POST'>
+      <form className='login_form' onSubmit={handleLoginSubmit}>
         <label>
           Correo:
-          <input type="text" name="email" id='email'/>
+          <input 
+            type="email" 
+            name="email" 
+            id='email'
+            value={loginData.email}
+            onChange={handleLoginChange}
+            required
+          />
         </label>
         <label>
           Contraseña:
-          <input type="password" name="password" id='password'/>
+          <input 
+            type="password" 
+            name="password" 
+            id='password'
+            value={loginData.password}
+            onChange={handleLoginChange}
+            required
+          />
         </label>
         <button type="submit">Entrar</button>
       </form>
