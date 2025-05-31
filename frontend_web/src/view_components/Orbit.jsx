@@ -1,6 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import './Orbit.css';
 import NextButton from '../small_components/next_button';
+import { HeaderLanding } from '../small_components/HeaderLanding';
+import { HomeLanding } from '../small_components/HomeLanding';
+import { Functionalities } from '../small_components/Functionalities';
+import { Confused } from '../small_components/Confused';
 
 export default function Orbit() {
   // Referencias a los elementos que mueves por JS
@@ -17,12 +21,19 @@ export default function Orbit() {
   useEffect(() => {
     console.log("Orbit montado 🚀");
     // ===== SCROLL & CIRCLES =====
+    const progressEl = progressRef.current;
     const size = 50; // diámetro
 
     function onScroll() {
       const scrollTop = window.scrollY;
       const maxScroll = document.body.scrollHeight - window.innerHeight;
-      const prog = scrollTop / maxScroll;
+      const prog = Math.min(1, scrollTop / maxScroll);
+
+      // — actualizar la barra de progreso ——
+      if (progressEl) {
+        progressEl.style.transformOrigin = '0 0';
+        progressEl.style.transform = `scaleX(${prog})`;
+      }
 
       const { c1, c2, c3, c4, c5 } = circlesRef;
       // lógica de displayCircle
@@ -76,14 +87,6 @@ export default function Orbit() {
       observer.observe(el);
     });
 
-    // ===== PROGRESS BAR =====
-    const pb = progressRef.current;
-    pb.style.transformOrigin = '0% 50%';
-    pb.animate(
-      { transform: ['scaleX(0)', 'scaleX(1)'] },
-      { fill: 'forwards', timeline: new ScrollTimeline({ source: document.documentElement }) }
-    );
-
     // ===== CUSTOM CURSOR =====
     let mouseX = 0, mouseY = 0, currentX = 0, currentY = 0;
 
@@ -116,23 +119,35 @@ export default function Orbit() {
 
   return (
     <>
-      <div className="cursor"   ref={cursorRef}   />
-      <div id="progress"        ref={progressRef} />
+      <HeaderLanding />
+      <div className="cursor"    ref={cursorRef}   />
+      <div id="progress"         ref={progressRef} />
       <div className="circle1"   ref={circlesRef.c1} />
       <div className="circle2"   ref={circlesRef.c2} />
       <div className="circle3"   ref={circlesRef.c3} />
       <div className="circle4"   ref={circlesRef.c4} />
       <div className="circle5"   ref={circlesRef.c5} />
 
-      {[1,2,3,4].map(n => (
-        <section key={n} id={`${n}`}>
-          <h1 className="title interactive">
-            {['A new era','In the way','Welcome to','mirrOS'][n-1]}
-          </h1>
-          {n===2 && <h3 className="subtitle interactive">You see stuff</h3>}
-        </section>
-      ))}
-      <NextButton />
+      {/* Sección 1: solo HomeLanding */}
+      <section id="1">
+        <HomeLanding />
+      </section>
+      <section id='2'>
+        <Functionalities />
+      </section>
+      <section id='3'>
+        <Confused />
+      </section>
+
+      {/* x numero de Secciones*/}
+        {[4, 5].map(n => (
+          <section key={n} id={`${n}`}>
+            <h1 className="title interactive responsiveTitle">
+              {['Welcome to', 'mirrOS'][n - 2]}
+            </h1>
+            {/* {n === 3 && <h3 className="subtitle interactive">You see stuff</h3>} */}
+          </section>
+        ))}
     </>
   );
 }

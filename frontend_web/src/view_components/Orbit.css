@@ -1,5 +1,6 @@
 html {
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -130,8 +131,10 @@ footer {
   left: 0; top: 0;
   width: 100%; height: 3px;
   border-bottom-right-radius: 15vh;
-  background: rgba(255, 255, 255, 0.712);
   background: linear-gradient(90deg, black, white);
+  transform: scaleX(0);
+  transform-origin: 0 0;
+  pointer-events: none;
   z-index: 2000;
 }
 
@@ -146,6 +149,7 @@ footer {
   transform: translate(0, 0);
   z-index: 1000;
   backdrop-filter: grayscale(1);
+  -webkit-backdrop-filter: grayscale(1);
   mix-blend-mode: difference;
   pointer-events: none;
 }
@@ -156,3 +160,9 @@ footer {
 .interactive:hover {
   scale: 1.1;
 } 
+
+@media (max-width: 599px) {.responsiveTitle {font-size: 4rem;} .cursor {display: none;}}
+
+@media (min-width: 600px) and (max-width: 1023px) {.responsiveTitle {font-size: 7rem;}.cursor {display: none;}}
+
+@media (min-width: 1000px) and (max-width: 1423px) {.responsiveTitle {font-size: 2rem;}}
