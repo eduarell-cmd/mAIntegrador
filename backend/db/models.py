@@ -27,6 +27,17 @@ class User(BaseModel):
     correo: str
     palabra_de_seguridad: str
     password: str
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {ObjectId: str}
+    
+    model_config = {
+        "populate_by_name": True,  
+        "json_encoders": {ObjectId: str}
+    }
+
+class UserCreate(BaseModel):
+    nombre: str
+    edad: int
+    preferencias: str
+    sexo: str
+    correo: str
+    palabra_de_seguridad: str
+    password: str
