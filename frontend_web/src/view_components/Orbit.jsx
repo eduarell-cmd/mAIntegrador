@@ -143,9 +143,8 @@ export default function Orbit() {
         {[4, 5].map(n => (
           <section key={n} id={`${n}`}>
             <h1 className="title interactive responsiveTitle">
-              {['Welcome to', 'mirrOS'][n - 2]}
+              {n === 4 ? 'Welcome to' : 'mirrOS'}
             </h1>
-            {/* {n === 3 && <h3 className="subtitle interactive">You see stuff</h3>} */}
           </section>
         ))}
     </>
