@@ -1,15 +1,17 @@
+/* ===== Estilos globales del header (escritorio) ===== */
 .header {
-    height: 10vh; width: 100%;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 100;
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.424), rgba(0, 0, 0, 0.23), rgba(0, 0, 0, 0));
-    gap: 12%;
-    font-size: 1.2rem;
+  height: 10vh;
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.424), rgba(0, 0, 0, 0.23), rgba(0, 0, 0, 0));
+  gap: 25%;
+  font-size: 1.2rem;
 }
 
 a {
@@ -25,56 +27,165 @@ a:hover {
     color: white;
 }
 
-ul {
-    height: 100%; width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.headerList {
     list-style: none;
 }
 
-li {
-    width: 50%;
+.logo {
+  color: white;
+  font-style: normal;
+  text-decoration: none;
+  font-weight: 400;
+  transition: ease-in-out 0.2s;
+}
+.logo:hover {
+  scale: 1.1;
+  filter: drop-shadow(rgba(255, 255, 255, 0.783) 0 0 3px);
+  color: white;
+}
+
+/* En escritorio:
+   - .sections contiene los links horizontales
+   - .loginBtn es el botón “Log in”
+*/
+.sections {
     display: flex;
-    justify-content: center;
+    gap: 3rem;
     align-items: center;
 }
 
-.sections {
-    height: 100%; width: 30vw;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row;
+.sections a {
+  color: white;
+  text-decoration: none;
+  transition: ease-in-out 0.2s;
+}
+.sections a:hover {
+  scale: 1.1;
+  filter: drop-shadow(rgba(255, 255, 255, 0.783) 0 0 3px);
+  color: white;
 }
 
 .loginBtn {
-    height: 70%; width: 9rem;
-    display: grid;
-    grid-template-columns: 55% auto;
-    justify-items: center;
-    align-items: center;
-    border-radius: 10vh;
-    background: linear-gradient(115deg, #d20972ff, #11020f, #020211);
+  height: 70%;
+  width: 9rem;
+  display: grid;
+  grid-template-columns: 55% auto;
+  justify-items: center;
+  align-items: center;
+  border-radius: 10vh;
+  background: linear-gradient(115deg, #d20972ff, #11020f, #020211);
+  text-decoration: none;
+  color: white;
+  transition: box-shadow 0.2s ease;
 }
-
 .loginBtn:hover {
-    box-shadow: rgba(255, 255, 255, 0.506) 0 0 12px;
+  box-shadow: rgba(255, 255, 255, 0.506) 0 0 12px;
 }
-
 .loginBtnCircle {
-    height: 6vh; width: 6vh;
-    margin-left: 10px;
-    background-color: white;
-    border-radius: 50%;
-    background-image: url(../assets/icons/enter.png);
-    background-position: center;
-    background-size: 60%;
-    background-repeat: no-repeat;
+  height: 6vh;
+  width: 6vh;
+  margin-left: 10px;
+  background-color: white;
+  border-radius: 50%;
+  background-image: url(../assets/icons/enter.png);
+  background-position: center;
+  background-size: 60%;
+  background-repeat: no-repeat;
 }
 
-@media (max-width: 599px) {}
+/* ===== Estilos para el ícono “hamburguesa” (invisible en escritorio) ===== */
+.burger {
+  display: none;
+  background: none;
+  border: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 0;
+}
+.burger span {
+  display: block;
+  width: 25px;
+  height: 3px;
+  background: white;
+  border-radius: 2px;
+}
 
-@media (min-width: 600px) and (max-width: 1023px) {}
+/* ===== Estilos específicos para MÓVIL (<600px) ===== */
+@media (max-width: 599px) {
+  /* Ocultamos los elementos de escritorio (.sections + .loginBtn) */
+  .sections,
+  .header > .loginBtn {
+    display: none;
+  }
 
-@media (min-width: 1000px) and (max-width: 1423px) {}
+  .loginBtn {
+    width: 40%;
+    height: 55px;
+  }
+
+  /* Mostramos el botón hamburguesa */
+  .burger {
+    display: flex;
+  }
+
+  /* Contenedor que envuelve las opciones cuando menuOpen == true */
+  .burgerMenu {
+    height: 35vh;
+    position: absolute;
+    top: 10vh;             /* justo debajo del header */
+    left: 0;
+    margin: 0 5%;
+    width: 90%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    box-shadow: rgba(255, 255, 255, 0.271) 0 0 15px;
+    font-size: 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 1.5rem;
+    padding: 1rem 0;
+    z-index: 99;
+    border-radius: 10vh 2vh 10vh 10vh;
+  }
+  .burgerMenu a,
+  .burgerMenu .loginBtn {
+    color: #fff;
+    text-decoration: none;
+    transition: scale 0.2s ease, filter 0.2s ease;
+  }
+  .burgerMenu a:hover,
+  .burgerMenu .loginBtn:hover {
+    scale: 1.1;
+    filter: drop-shadow(rgba(255, 255, 255, 0.783) 0 0 3px);
+    color: #fff;
+  }
+}
+
+/* Animación de apertura */
+.burger.open span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.burger.open span:nth-child(2) {
+  opacity: 0;
+}
+.burger.open span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* ===== Estilos para TABLET (opcional) ===== */
+@media (min-width: 600px) and (max-width: 999px) {
+  /* Podrías ajustar gaps, tamaños, etc. para tablet */
+  .header {
+    gap: 8%;
+    font-size: 1.1rem;
+  }
+  .sections {
+    gap: 1.5rem;
+  }
+  .loginBtn {
+    width: 8rem;
+  }
+}
