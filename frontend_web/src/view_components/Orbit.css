@@ -160,3 +160,9 @@ footer {
 .interactive:hover {
   scale: 1.1;
 } 
+
+@media (max-width: 599px) {.responsiveTitle {font-size: 4rem;} .cursor {display: none;}}
+
+@media (min-width: 600px) and (max-width: 1023px) {.responsiveTitle {font-size: 7rem;}.cursor {display: none;}}
+
+@media (min-width: 1000px) and (max-width: 1423px) {.responsiveTitle {font-size: 2rem;}}

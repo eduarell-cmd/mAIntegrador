@@ -224,6 +224,16 @@
     margin: 1rem auto;
   }
 
+  /* .av1 {order: 5;}
+  .av2 {order: 3;}
+  .av3 {order: 4;}
+  .av4 {order: 2;}
+  .av5 {order: 1;} */
+
+  .div2 {
+    font-size: 0.8rem;
+  }
+
   .tablet-wrapper {
     display: grid;
     grid-template-columns: 1fr 2fr;
