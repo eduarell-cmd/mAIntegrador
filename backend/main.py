@@ -83,10 +83,24 @@ async def signup2(persona: UserCreate):
         print("Palabra de seguridad:", persona.palabra_de_seguridad)
         print("Password:", persona.password)
         
-        # Retornar los datos recibidos sin procesar
+        # Convertir UserCreate a User para guardar en la base de datos
+        user_data = persona.model_dump()
+        
+        # Guardar en la base de datos
+        result = await personas_collection.insert_one(user_data)
+        print(result)
+        # Verificar si se guardó correctamente
+        if not result.inserted_id:
+            raise HTTPException(
+                status_code=500,
+                detail="Error al guardar en la base de datos"
+            )
+        
+        # Retornar los datos guardados
         return {
-            "mensaje": "Datos recibidos en signup2",
-            "datos_recibidos": persona.model_dump()
+            "mensaje": "Datos guardados correctamente en la base de datos",
+            "datos_guardados": user_data,
+            "id": str(result.inserted_id)
         }
     except Exception as e:
         print("Error en signup2:", str(e))
