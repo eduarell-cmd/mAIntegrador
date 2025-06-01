@@ -19,7 +19,6 @@ class PyObjectId(ObjectId):
         return ObjectId(v)
     
 class User(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id")
     nombre: str
     edad: int
     preferencias: list[str]
@@ -32,12 +31,3 @@ class User(BaseModel):
         "populate_by_name": True,  
         "json_encoders": {ObjectId: str}
     }
-
-class UserCreate(BaseModel):
-    nombre: str
-    edad: int
-    preferencias: list[str]
-    sexo: str
-    correo: str
-    palabra_de_seguridad: str
-    password: str

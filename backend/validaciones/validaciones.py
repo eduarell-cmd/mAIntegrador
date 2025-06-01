@@ -8,13 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from validaciones.validaciones import *
 
-async def get(id: str):
-    try:
-        object_id = ObjectId(id)
-    except InvalidId:
-        raise HTTPException(status_code=400,detail="Invalid ID")
-    
-    usuario = await personas_collection.find_one({"_id": ObjectId(id)})
+async def get(nombre: str):
+    usuario = await personas_collection.find_one({"nombre": nombre})
     if usuario:
         return User(**usuario)
     raise HTTPException(status_code=404, detail="Usuario no encontrado")
