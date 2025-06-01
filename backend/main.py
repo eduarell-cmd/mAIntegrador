@@ -34,9 +34,38 @@ async def perfil(id: str):
     return usuario
 
 @app.post("/signup")
-async def signup(persona: UserCreate):
+async def signup(persona: User):
     try:
+        # Mostrar los datos recibidos en la consola
+        print("Datos recibidos en signup:")
+        print("Nombre:", persona.nombre)
+        print("Edad:", persona.edad)
+        print("Preferencias:", persona.preferencias)
+        print("Sexo:", persona.sexo)
+        print("Correo:", persona.correo)
+        print("Palabra de seguridad:", persona.palabra_de_seguridad)
+        print("Password:", persona.password)
+        
+        # Validar que todos los campos requeridos estén presentes
+        if not all([persona.nombre, persona.edad, persona.sexo, persona.correo, persona.palabra_de_seguridad, persona.password]):
+            raise HTTPException(
+                status_code=422,
+                detail="Todos los campos son requeridos"
+            )
+        
+        # Guardar en la base de datos
         querylogin = await personas_collection.insert_one(persona.model_dump())
-        return {"mensaje":"Jalo el Sign up"}
+        
+        return {
+            "mensaje": "Datos recibidos correctamente",
+            "datos_recibidos": persona.model_dump()
+        }
+    except HTTPException as he:
+        print("Error de validación:", str(he.detail))
+        raise he
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print("Error en signup:", str(e))
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al procesar el registro: {str(e)}"
+        )

@@ -36,7 +36,7 @@ class User(BaseModel):
 class UserCreate(BaseModel):
     nombre: str
     edad: int
-    preferencias: str
+    preferencias: list[str]
     sexo: str
     correo: str
     palabra_de_seguridad: str
