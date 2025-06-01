@@ -74,41 +74,78 @@ export default function Login() {
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
+
+    // Función de sanitización
+    const sanitizeInput = (input) => {
+      if (typeof input === 'string') {
+        return input.trim();
+      }
+      return input;
+    };
+
+    // Validaciones y sanitización
+    if (!registerData.nombre?.trim()) {
+      alert('El nombre es requerido');
+      return;
+    }
+
+    if (!registerData.correo?.trim()) {
+      alert('El correo es requerido');
+      return;
+    }
+
+    // Validación de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(registerData.correo)) {
+      alert('Por favor, ingrese un correo electrónico válido');
+      return;
+    }
+
+    // Validación de contraseña
+    if (!registerData.password || registerData.password.length < 2) {//subir a 8
+      alert('La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+
     if (registerData.password !== registerData.confirmarPassword) {
       alert('Las contraseñas no coinciden');
       return;
     }
-    //chech
+
+    // Validación de edad
+    const edad = parseInt(registerData.edad);
+    if (isNaN(edad) || edad < 18 || edad > 100) {
+      alert('Por favor, ingrese una edad válida (entre 18 y 100 años)');
+      return;
+    }
+
+    // Creación del payload con datos sanitizados
     const payload = {
-      nombre: registerData.nombre,
-      edad: parseInt(registerData.edad),
-      preferencias: registerData.preferencias,
-      sexo: registerData.sexo,
-      correo: registerData.correo,
-      palabra_de_seguridad: registerData.palabra_de_seguridad,
+      nombre: sanitizeInput(registerData.nombre),
+      edad: edad,
+      preferencias: registerData.preferencias, // Mantenemos como array
+      sexo: sanitizeInput(registerData.sexo),
+      correo: sanitizeInput(registerData.correo).toLowerCase(),
+      palabra_de_seguridad: sanitizeInput(registerData.palabra_de_seguridad),
       password: registerData.password
     };
-    
-    console.log('Datos que se envían al backend:', payload);
 
     try {
-      const res = await fetch('http://localhost:8000/signup', {
+      const res = await fetch('http://localhost:8000/signup2', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
       });
+
+      const data = await res.json();
       
       if (!res.ok) {
-        const errorData = await res.json();
-        console.error('Error del servidor:', errorData);
-        throw new Error(errorData.detail || 'Error en el registro');
+        throw new Error(data.detail || 'Error en el registro');
       }
-      
-      const data = await res.json();
-      console.log('Respuesta del backend:', data);
 
+      console.log('Respuesta del backend:', data);
       alert('Registro exitoso');
     } catch (error) {
       console.error('Error al registrarse:', error);

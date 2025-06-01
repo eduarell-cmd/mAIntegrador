@@ -22,7 +22,7 @@ class User(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id")
     nombre: str
     edad: int
-    preferencias: str
+    preferencias: list[str]
     sexo: str
     correo: str
     palabra_de_seguridad: str

@@ -69,3 +69,28 @@ async def signup(persona: User):
             status_code=500,
             detail=f"Error al procesar el registro: {str(e)}"
         )
+
+@app.post("/signup2")
+async def signup2(persona: UserCreate):
+    try:
+        # Mostrar los datos recibidos en la consola
+        print("\nDatos recibidos en signup2:")
+        print("Nombre:", persona.nombre)
+        print("Edad:", persona.edad)
+        print("Preferencias:", persona.preferencias)
+        print("Sexo:", persona.sexo)
+        print("Correo:", persona.correo)
+        print("Palabra de seguridad:", persona.palabra_de_seguridad)
+        print("Password:", persona.password)
+        
+        # Retornar los datos recibidos sin procesar
+        return {
+            "mensaje": "Datos recibidos en signup2",
+            "datos_recibidos": persona.model_dump()
+        }
+    except Exception as e:
+        print("Error en signup2:", str(e))
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al procesar los datos: {str(e)}"
+        )
