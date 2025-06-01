@@ -34,7 +34,7 @@ async def perfil(id: str):
     return usuario
 
 @app.post("/signup")
-async def signup(persona: User):
+async def signup(persona: UserCreate):
     try:
         # Mostrar los datos recibidos en la consola
         print("Datos recibidos en signup:")
