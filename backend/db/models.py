@@ -26,6 +26,10 @@ class UserBase(BaseModel):
     palabra_de_seguridad: str
     password: str
 
+class LoginInput(BaseModel):
+    correo:str
+    password:str
+
 class UserCreate(UserBase):
     pass
 

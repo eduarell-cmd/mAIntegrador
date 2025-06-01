@@ -7,6 +7,7 @@ from bson.errors import InvalidId
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from validaciones.validaciones import *
+import bcrypt
 
 app = FastAPI()
 
@@ -24,9 +25,10 @@ app.add_middleware(
 def welcome ():
     return {"mensaje":"Hola papus, primera mierda de back"}
 
-@app.get("/login")
-def login():
-    return {"mensaje": "Hola desde el backend papu 😎"}
+@app.post("/login", response_model=UserBase)
+async def login(data:LoginInput):
+    LogedUser= await loginsito(data)
+    return LogedUser
 
 @app.get("/perfil/{nombre}",response_model=User)
 async def perfil(nombre: str):
@@ -34,34 +36,9 @@ async def perfil(nombre: str):
     return usuario
 
 @app.post("/signup", response_model=User)
-async def signup2(persona: UserCreate):
-    try:
-        # Convertir UserCreate a diccionario para guardar en la base de datos
-        user_data = persona.model_dump()
-        
-        # Guardar en la base de datos
-        result = await personas_collection.insert_one(user_data)
-        
-        # Verificar si se guardó correctamente
-        if not result.inserted_id:
-            raise HTTPException(
-                status_code=500,
-                detail="Error al guardar en la base de datos"
-            )
-        
-        # Crear objeto User con el ID generado
-        created_user = User(
-            id=result.inserted_id,
-            **user_data
-        )
-        
-        return created_user
-    except Exception as e:
-        print("Error en signup:", str(e))
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error al procesar los datos: {str(e)}"
-        )
+async def signup(persona: UserCreate):
+    CreatedUser = await signupsito(persona)
+    return CreatedUser
     
 # @app.post("/signup", response_model=User)
 # async def signup(persona: UserCreate):

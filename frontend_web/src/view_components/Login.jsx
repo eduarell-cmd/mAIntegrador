@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 
 export default function Login() {
   const [loginData, setLoginData] = useState({
-    email: '',
+    correo: '',
     password: ''
   });
 
@@ -131,7 +131,7 @@ export default function Login() {
     };
 
     try {
-      const res = await fetch('http://localhost:8000/signup2', {
+      const res = await fetch('http://localhost:8000/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -162,9 +162,9 @@ export default function Login() {
           Correo:
           <input 
             type="email" 
-            name="email" 
-            id='email'
-            value={loginData.email}
+            name="correo" 
+            id='correo'
+            value={loginData.correo}
             onChange={handleLoginChange}
             required
           />

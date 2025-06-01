@@ -48,3 +48,4 @@ google-genai==1.16.1
 python-jose[cryptography]
 passlib[bcrypt]
 PyJWT
+bcrypt==4.3.0
