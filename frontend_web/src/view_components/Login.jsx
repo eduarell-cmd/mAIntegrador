@@ -1,15 +1,59 @@
 // src/pages/Login.jsx
 import React, { useState } from 'react';
+
 export default function Login() {
+  const [loginData, setLoginData] = useState({
+    email: '',
+    password: ''
+  });
+
   const [registerData, setRegisterData] = useState({
     nombre: '',
     edad: '',
-    preferencias: '',
+    preferencias: [],
     sexo: '',
     correo: '',
     palabra_de_seguridad: '',
-    password: '',
+    password: ''
   });
+
+  const handleLoginChange = (e) => {
+    const { name, value } = e.target;
+    setLoginData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:8000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(loginData),
+      });
+
+      const data = await response.json();
+      console.log('Respuesta del backend:', data);
+      if (response.ok) {
+        // Guardar el token en localStorage si el backend lo devuelve
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+        }
+        alert('Login exitoso');
+        // Aquí puedes redirigir al usuario a otra página
+        // window.location.href = '/dashboard';
+      } else {
+        alert(data.message || 'Error en el login');
+      }
+    } catch (error) {
+      console.error('Error al hacer login:', error);
+      alert('Error al conectar con el servidor');
+    }
+  };
 
   const handleRegisterChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -30,22 +74,64 @@ export default function Login() {
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-  if (registerData.password !== registerData.confirmarPassword) {
+
+    // Función de sanitización
+    const sanitizeInput = (input) => {
+      if (typeof input === 'string') {
+        return input.trim();
+      }
+      return input;
+    };
+
+    // Validaciones y sanitización
+    if (!registerData.nombre?.trim()) {
+      alert('El nombre es requerido');
+      return;
+    }
+
+    if (!registerData.correo?.trim()) {
+      alert('El correo es requerido');
+      return;
+    }
+
+    // Validación de email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(registerData.correo)) {
+      alert('Por favor, ingrese un correo electrónico válido');
+      return;
+    }
+
+    // Validación de contraseña
+    if (!registerData.password || registerData.password.length < 2) {//subir a 8
+      alert('La contraseña debe tener al menos 8 caracteres');
+      return;
+    }
+
+    if (registerData.password !== registerData.confirmarPassword) {
       alert('Las contraseñas no coinciden');
       return;
     }
+
+    // Validación de edad
+    const edad = parseInt(registerData.edad);
+    if (isNaN(edad) || edad < 18 || edad > 100) {
+      alert('Por favor, ingrese una edad válida (entre 18 y 100 años)');
+      return;
+    }
+
+    // Creación del payload con datos sanitizados
     const payload = {
-      nombre: registerData.nombre,
-      correo: registerData.correo,
-      mensaje: "Usuario registrado",
-      edad: registerData.edad,
-      palabra: registerData.palabra,
-      sexo: registerData.sexo,
-      preferencias: registerData.preferencias
+      nombre: sanitizeInput(registerData.nombre),
+      edad: edad,
+      preferencias: registerData.preferencias, // Mantenemos como array
+      sexo: sanitizeInput(registerData.sexo),
+      correo: sanitizeInput(registerData.correo).toLowerCase(),
+      palabra_de_seguridad: sanitizeInput(registerData.palabra_de_seguridad),
+      password: registerData.password
     };
 
     try {
-      const res = await fetch('http://localhost:8000/signup', {
+      const res = await fetch('http://localhost:8000/signup2', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -54,11 +140,16 @@ export default function Login() {
       });
 
       const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.detail || 'Error en el registro');
+      }
+
       console.log('Respuesta del backend:', data);
       alert('Registro exitoso');
     } catch (error) {
       console.error('Error al registrarse:', error);
-      alert('Error al enviar el formulario');
+      alert(`Error al enviar el formulario: ${error.message}`);
     }
   };
   return (
@@ -66,14 +157,28 @@ export default function Login() {
 
       <h1>Iniciar Sesión</h1>
       
-      <form className='login_form' method='POST'>
+      <form className='login_form' onSubmit={handleLoginSubmit}>
         <label>
           Correo:
-          <input type="text" name="email" id='email'/>
+          <input 
+            type="email" 
+            name="email" 
+            id='email'
+            value={loginData.email}
+            onChange={handleLoginChange}
+            required
+          />
         </label>
         <label>
           Contraseña:
-          <input type="password" name="password" id='password'/>
+          <input 
+            type="password" 
+            name="password" 
+            id='password'
+            value={loginData.password}
+            onChange={handleLoginChange}
+            required
+          />
         </label>
         <button type="submit">Entrar</button>
       </form>
@@ -111,14 +216,14 @@ export default function Login() {
         <br/>
         <label>
           Palabra de seguridad: 
-          <input type="password" name="palabra" value={registerData.palabra} onChange={handleRegisterChange} />
+          <input type="password" name="palabra_de_seguridad" value={registerData.palabra_de_seguridad} onChange={handleRegisterChange} />
         </label>
         <br/>
         <label>
           Género:
-          <input type="radio" name="genero" value="masculino" checked={registerData.genero === 'masculino'} onChange={handleRegisterChange} />
+          <input type="radio" name="sexo" value="masculino" checked={registerData.sexo === 'masculino'} onChange={handleRegisterChange} />
           <label htmlFor="masculine">H</label>
-          <input type="radio" name="genero" value="femenino" checked={registerData.genero === 'femenino'} onChange={handleRegisterChange} />
+          <input type="radio" name="sexo" value="femenino" checked={registerData.sexo === 'femenino'} onChange={handleRegisterChange} />
           <label htmlFor="feminine">M</label>
         </label>
 

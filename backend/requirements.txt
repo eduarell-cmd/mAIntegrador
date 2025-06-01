@@ -45,3 +45,6 @@ tensorflow==2.19.0
 tf_keras==2.19.0
 deepface==0.0.93
 google-genai==1.16.1
+python-jose[cryptography]
+passlib[bcrypt]
+PyJWT
