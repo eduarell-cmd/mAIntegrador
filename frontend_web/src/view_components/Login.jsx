@@ -10,11 +10,11 @@ export default function Login() {
   const [registerData, setRegisterData] = useState({
     nombre: '',
     edad: '',
-    preferencias: '',
+    preferencias: [],
     sexo: '',
     correo: '',
     palabra_de_seguridad: '',
-    password: '',
+    password: ''
   });
 
   const handleLoginChange = (e) => {
@@ -74,19 +74,22 @@ export default function Login() {
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-  if (registerData.password !== registerData.confirmarPassword) {
+    if (registerData.password !== registerData.confirmarPassword) {
       alert('Las contraseñas no coinciden');
       return;
     }
+    //chech
     const payload = {
       nombre: registerData.nombre,
-      correo: registerData.correo,
-      mensaje: "Usuario registrado",
-      edad: registerData.edad,
-      palabra: registerData.palabra,
+      edad: parseInt(registerData.edad),
+      preferencias: registerData.preferencias,
       sexo: registerData.sexo,
-      preferencias: registerData.preferencias
+      correo: registerData.correo,
+      palabra_de_seguridad: registerData.palabra_de_seguridad,
+      password: registerData.password
     };
+    
+    console.log('Datos que se envían al backend:', payload);
 
     try {
       const res = await fetch('http://localhost:8000/signup', {
@@ -96,13 +99,20 @@ export default function Login() {
         },
         body: JSON.stringify(payload),
       });
-
+      
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error('Error del servidor:', errorData);
+        throw new Error(errorData.detail || 'Error en el registro');
+      }
+      
       const data = await res.json();
       console.log('Respuesta del backend:', data);
+
       alert('Registro exitoso');
     } catch (error) {
       console.error('Error al registrarse:', error);
-      alert('Error al enviar el formulario');
+      alert(`Error al enviar el formulario: ${error.message}`);
     }
   };
   return (
@@ -169,14 +179,14 @@ export default function Login() {
         <br/>
         <label>
           Palabra de seguridad: 
-          <input type="password" name="palabra" value={registerData.palabra} onChange={handleRegisterChange} />
+          <input type="password" name="palabra_de_seguridad" value={registerData.palabra_de_seguridad} onChange={handleRegisterChange} />
         </label>
         <br/>
         <label>
           Género:
-          <input type="radio" name="genero" value="masculino" checked={registerData.genero === 'masculino'} onChange={handleRegisterChange} />
+          <input type="radio" name="sexo" value="masculino" checked={registerData.sexo === 'masculino'} onChange={handleRegisterChange} />
           <label htmlFor="masculine">H</label>
-          <input type="radio" name="genero" value="femenino" checked={registerData.genero === 'femenino'} onChange={handleRegisterChange} />
+          <input type="radio" name="sexo" value="femenino" checked={registerData.sexo === 'femenino'} onChange={handleRegisterChange} />
           <label htmlFor="feminine">M</label>
         </label>
 
