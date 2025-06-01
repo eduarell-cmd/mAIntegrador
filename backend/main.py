@@ -33,7 +33,7 @@ async def perfil(id: str):
     usuario=await get(id)
     return usuario
 
-@app.post("/signup")
+@app.post("/signup", response_model=User)
 async def signup(persona: UserCreate):
     try:
         # Mostrar los datos recibidos en la consola
@@ -46,20 +46,27 @@ async def signup(persona: UserCreate):
         print("Palabra de seguridad:", persona.palabra_de_seguridad)
         print("Password:", persona.password)
         
-        # Validar que todos los campos requeridos estén presentes
-        if not all([persona.nombre, persona.edad, persona.sexo, persona.correo, persona.palabra_de_seguridad, persona.password]):
-            raise HTTPException(
-                status_code=422,
-                detail="Todos los campos son requeridos"
-            )
+        # Convertir UserCreate a diccionario para guardar en la base de datos
+        user_data = persona.model_dump()
         
         # Guardar en la base de datos
-        querylogin = await personas_collection.insert_one(persona.model_dump())
+        result = await personas_collection.insert_one(user_data)
+        print(result)
         
-        return {
-            "mensaje": "Datos recibidos correctamente",
-            "datos_recibidos": persona.model_dump()
-        }
+        # Verificar si se guardó correctamente
+        if not result.inserted_id:
+            raise HTTPException(
+                status_code=500,
+                detail="Error al guardar en la base de datos"
+            )
+        
+        # Crear objeto User con el ID generado
+        created_user = User(
+            id=result.inserted_id,
+            **user_data
+        )
+        
+        return created_user
     except HTTPException as he:
         print("Error de validación:", str(he.detail))
         raise he
@@ -70,25 +77,15 @@ async def signup(persona: UserCreate):
             detail=f"Error al procesar el registro: {str(e)}"
         )
 
-@app.post("/signup2")
+@app.post("/signup2", response_model=User)
 async def signup2(persona: UserCreate):
     try:
-        # Mostrar los datos recibidos en la consola
-        print("\nDatos recibidos en signup2:")
-        print("Nombre:", persona.nombre)
-        print("Edad:", persona.edad)
-        print("Preferencias:", persona.preferencias)
-        print("Sexo:", persona.sexo)
-        print("Correo:", persona.correo)
-        print("Palabra de seguridad:", persona.palabra_de_seguridad)
-        print("Password:", persona.password)
-        
-        # Convertir UserCreate a User para guardar en la base de datos
+        # Convertir UserCreate a diccionario para guardar en la base de datos
         user_data = persona.model_dump()
         
         # Guardar en la base de datos
         result = await personas_collection.insert_one(user_data)
-        print(result)
+        
         # Verificar si se guardó correctamente
         if not result.inserted_id:
             raise HTTPException(
@@ -96,12 +93,13 @@ async def signup2(persona: UserCreate):
                 detail="Error al guardar en la base de datos"
             )
         
-        # Retornar los datos guardados
-        return {
-            "mensaje": "Datos guardados correctamente en la base de datos",
-            "datos_guardados": user_data,
-            "id": str(result.inserted_id)
-        }
+        # Crear objeto User con el ID generado
+        created_user = User(
+            id=result.inserted_id,
+            **user_data
+        )
+        
+        return created_user
     except Exception as e:
         print("Error en signup2:", str(e))
         raise HTTPException(
