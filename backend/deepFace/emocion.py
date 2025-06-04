@@ -35,11 +35,11 @@ def reducir_resolucion_array(path):
 
 # Carga y reduce todas las imágenes base
 fotos_base = [reducir_resolucion_array(foto) for foto in [
-    "backend/deepFace/fotos/gera1.jpg",
-    "backend/deepFace/fotos/gera2.jpg",
-    "backend/deepFace/fotos/gera3.jpg",
-    "backend/deepFace/fotos/gera4.jpg",
-    "backend/deepFace/fotos/gera5.jpg"
+    "backend/deepFace/fotos/alm1.jpg",
+    "backend/deepFace/fotos/alm2.jpg",
+    "backend/deepFace/fotos/alm3.jpg",
+    "backend/deepFace/fotos/alm4.jpg",
+    "backend/deepFace/fotos/alm5.jpg"
 ]]
 
 # Imagen capturada para comparar
@@ -71,7 +71,7 @@ for i, foto_base in enumerate(fotos_base):
         coincidencias += 1
     print("-" * 30)
 
-if coincidencias >= 2:
+if coincidencias >= 3:
     print(f"\n✅ RESULTADO FINAL: Es la misma persona ({coincidencias}/5 coincidencias)")
 
     try:
