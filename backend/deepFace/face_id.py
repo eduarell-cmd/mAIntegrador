@@ -16,10 +16,11 @@ def reducir_resolucion_array(path):
         print(f"Error reduciendo resolución de {path}: {e}")
         return None
 
-# Cargar imagen base y codificación
-known_image = face_recognition.load_image_file("backend/deepFace/fotos/rorro1.jpg")
+# Cargar imagen conocida y obtener su codificación facial
+known_image = face_recognition.load_image_file("deepFace/fotos/gera1.jpg")
 known_face_encoding = face_recognition.face_encodings(known_image)[0]
 known_face_encodings = [known_face_encoding]
+known_face_names = ["Gera"]  # o el nombre que quieras asociar
 
 # Tomar UNA foto
 camara = cv2.VideoCapture(0)
