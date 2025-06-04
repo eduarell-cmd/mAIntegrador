@@ -283,7 +283,7 @@
   }
 }
 
-@media (min-width: 1000px) and (max-width: 1423px) {
+@media (min-width: 1023px) and (max-width: 1475px) {
     .avatars {
         height: 100%;
         width: 80%;
