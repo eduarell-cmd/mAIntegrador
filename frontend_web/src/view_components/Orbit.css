@@ -6,8 +6,7 @@ html {
 body {
     background-color: rgb(18, 18, 19);
     background: linear-gradient(120deg, rgb(18,18,19), black);
-    margin: 0;
-    padding: 0;
+    margin: 0; padding: 0;
     height: 300%;
     width: 100vw;
 }
@@ -20,6 +19,9 @@ section {
   align-items: center;
   flex-direction: column;
 }
+
+.section-margin {margin: 5rem 0;}
+.home {margin: 0;}
 
 .circle1, .circle2, .circle3, .circle4, .circle5 {
     height: 50vh;
@@ -161,8 +163,8 @@ footer {
   scale: 1.1;
 } 
 
-@media (max-width: 599px) {.responsiveTitle {font-size: 4rem;} .cursor {display: none;}}
+@media (max-width: 599px) {.responsiveTitle {font-size: 4rem;} .cursor {display: none;} section {height: fit-content;}}
 
-@media (min-width: 600px) and (max-width: 1023px) {.responsiveTitle {font-size: 7rem;}.cursor {display: none;}}
+@media (min-width: 600px) and (max-width: 1023px) {.responsiveTitle {font-size: 7rem;}.cursor {display: none;} section {height: fit-content;}}
 
 @media (min-width: 1000px) and (max-width: 1423px) {.responsiveTitle {font-size: 2rem;}}

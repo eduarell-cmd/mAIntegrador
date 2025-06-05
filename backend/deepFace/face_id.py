@@ -4,8 +4,7 @@ from PIL import Image
 import cv2
 import time
 import numpy as np
-
-model_name = "Facenet512"
+import os
 
 def reducir_resolucion_array(path):
     try:
@@ -15,57 +14,83 @@ def reducir_resolucion_array(path):
         print(f"Error reduciendo resolución de {path}: {e}")
         return None
 
-# Cargar imagen conocida y obtener su codificación facial
-known_image = face_recognition.load_image_file("deepFace/fotos/david.jpg")
-known_face_encoding = face_recognition.face_encodings(known_image)[0]
+def verificar_rostro():
+    model_name = "Facenet512"
+    resultado = {
+        "es_misma_persona": False,
+        "emociones": {},
+        "error": None
+    }
 
-# Lista de codificaciones conocidas y nombres correspondientes
-known_face_encodings = [known_face_encoding]
-known_face_names = ["David"]  # o el nombre que quieras asociar
+    try:
+        # Cargar imagen conocida y obtener su codificación facial
+        known_image = face_recognition.load_image_file("deepFace/fotos/gera1.jpg")
+        known_face_encoding = face_recognition.face_encodings(known_image)[0]
+        known_face_encodings = [known_face_encoding]
 
-# Cargar imagen desconocida y obtener sus codificaciones
-# Toma una foto desde la cámara
-camara = cv2.VideoCapture(0)
-if not camara.isOpened():
-    print("❌ No se pudo acceder a la cámara")
-    new_imagen_path = None
-else:
-    print("Voltea a la cámara")
-    time.sleep(3)  # Espera 3 segundos con la cámara activa
-    ret, imagen = camara.read()
-    if ret:
-        new_imagen_path = "deepFace/fotos/foto.jpeg"
-        cv2.imwrite(new_imagen_path, imagen)
-        print("✅ Foto guardada como 'foto.jpeg'")
-    else:
-        print("❌ No se pudo capturar la imagen")
-        new_imagen_path = None
-    camara.release()    
+        # Tomar UNA foto
+        camara = cv2.VideoCapture(0)
+        foto_path = "../backend/deepFace/fotos/foto.jpg"
 
-imagen_a_comparar = reducir_resolucion_array(new_imagen_path)
+        if not camara.isOpened():
+            resultado["error"] = "❌ No se pudo acceder a la cámara"
+            return resultado
+        else:
+            print("Voltea a la cámara...")
+            time.sleep(2)
+            ret, imagen = camara.read()
+            if ret:
+                cv2.imwrite(foto_path, imagen)
+                print("📸 Foto tomada")
+            else:
+                print("❌ No se pudo capturar la foto")
+                foto_path = None
+        camara.release()
 
-# Cargar la imagen desconocida
-if new_imagen_path is None:
-    print("❌ No se pudo tomar una foto, usando imagen de prueba.")
-else:
-    unknown_image = face_recognition.load_image_file(new_imagen_path)
+        # Verificar si se tomó la foto
+        if foto_path is None or not os.path.exists(foto_path):
+            resultado["error"] = "❌ No se capturó ninguna foto, saliendo del proceso."
+            return resultado
+        else:
+            # Comparar con la imagen base
+            unknown_image = face_recognition.load_image_file(foto_path)
+            unknown_face_encodings = face_recognition.face_encodings(unknown_image)
 
-# Obtener codificaciones faciales de la imagen desconocida
-unknown_face_encodings = face_recognition.face_encodings(unknown_image)
+            es_misma_persona = False
 
-# Comparar cada cara detectada en la imagen desconocida
-for face_encoding in unknown_face_encodings:
-    # Comparar con las caras conocidas
-    matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
-    name = "Unknown"
+            for face_encoding in unknown_face_encodings:
+                matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=0.45)
+                if True in matches:
+                    es_misma_persona = True
+                    print("✅ ES LA MISMA PERSONA")
+                    break
 
-    # Si hay alguna coincidencia, obtener el nombre
-    if True in matches:
-        first_match_index = matches.index(True)
-        name = known_face_names[first_match_index]
-        #Obtener emocion de la imagen
-        result = DeepFace.analyze(new_imagen_path, actions=['emotion'], enforce_detection=False)
-        emotion = result[0]['dominant_emotion']
-        print(f"Detected: {name} with emotion: {emotion}")
-    else:
-        print("❌ No se reconoció a la persona en la imagen.")
+            resultado["es_misma_persona"] = es_misma_persona
+
+            if es_misma_persona:
+                # Reducir resolución para el análisis
+                img_array = reducir_resolucion_array(foto_path)
+                if img_array is not None:
+                    try:
+                        result = DeepFace.analyze(img_array, actions=['emotion'], enforce_detection=False)
+                        emociones = result[0]['emotion']
+                        resultado["emociones"] = {k: round(v, 2) for k, v in emociones.items()}
+                        print("📊 Distribución de emociones:")
+                        for emotion, score in emociones.items():
+                            print(f"  {emotion}: {score:.2f}%")
+                        print(f"🧠 Emoción dominante: {result[0]['dominant_emotion']}")
+                    except Exception as e:
+                        resultado["error"] = f"❌ Error al analizar la emoción: {e}"
+            else:
+                print("❌ NO ES LA MISMA PERSONA")
+
+            # Eliminar la foto temporal
+            try:
+                os.remove(foto_path)
+                print(f"🗑️ Foto eliminada: {foto_path}")
+            except Exception as e:
+                print(f"❌ No se pudo eliminar {foto_path}: {e}")
+    except Exception as e:
+        resultado["error"] = f"❌ Error general: {e}"
+
+    return resultado

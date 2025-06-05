@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from validaciones.validaciones import *
 import bcrypt
+import json
+from deepFace.face_id import verificar_rostro
 
 app = FastAPI()
 
@@ -23,7 +25,9 @@ app.add_middleware(
 
 @app.get("/")
 def welcome ():
-    return {"mensaje":"Hola papus, primera mierda de back"}
+    resultado = verificar_rostro()
+    print(json.dumps(resultado, indent=4, ensure_ascii=False))
+    return {"mensaje":resultado}
 
 @app.post("/login", response_model=UserBase)
 async def login(data:LoginInput):

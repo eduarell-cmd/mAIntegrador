@@ -1,0 +1,42 @@
+.ReadySection {
+    height: 100%; width: 100%;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.purple-container {
+    height: 65%; width: 75%; border-radius: 10vh;
+    background: linear-gradient(125deg, #fce5cdff, #ab4ff6ff, #ab4ff6ff);
+    display: grid; justify-items: center; align-items: center;
+    box-shadow: rgba(31, 31, 31, 0.612) 1px 1px 16px;
+    grid-template-columns: 40% 60%;
+    flex-wrap: wrap;
+}
+
+.phone {
+    height: 45vh; width: 45vh;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(125deg, #fce5cdff, #ab4ff6ff, #ab4ff6ff);
+}
+
+.phone img {
+    transform: scale(1.4) rotate(-15deg);
+    filter: drop-shadow(rgba(0, 0, 0, 0.462) 1px 1px 5px);
+    transition: ease-in-out 0.2s;
+}
+
+.phone img:hover {
+    scale: 1.04;
+}
+
+.ready-texts {
+    height: 100%; width: 100%;
+    display: flex; justify-content: space-evenly;
+    align-items: center; flex-direction: column;
+}
+
+.ready-texts h2 {
+    font-size: 3rem; font-weight: 600; margin: 0;
+}
+.ready-texts p {
+    font-size: 1.62rem; margin: 0;
+}

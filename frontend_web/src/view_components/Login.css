@@ -1,0 +1,13 @@
+.login-page {
+    height: 100vh; width: 100vw;
+}
+
+.login-title {
+    margin: 0;
+}
+
+.btn-container {
+    position: fixed;
+    bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+}
