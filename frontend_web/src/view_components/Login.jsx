@@ -1,5 +1,9 @@
 // src/pages/Login.jsx
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { CirclesBackground } from '../small_components/CirclesBackground';
+import './Login.css';
+
 
 export default function Login() {
   const [loginData, setLoginData] = useState({
@@ -153,9 +157,12 @@ export default function Login() {
     }
   };
   return (
-     <div className="login-page">
+    
+    <div className="login-page">
 
-      <h1>Iniciar Sesión</h1>
+      <CirclesBackground />
+
+      <h1 className='login-title'>Iniciar Sesión</h1>
       
       <form className='login_form' onSubmit={handleLoginSubmit}>
         <label>
@@ -240,6 +247,16 @@ export default function Login() {
         <br/>
         <button type="submit">REGISTRARSE</button>
       </form>
+
+      <div className="btn-container">
+
+        <Link to="/login" className="loginBtn">
+          Mirror View
+          <div className="loginBtnCircle"></div>
+        </Link>
+
+      </div>
+      
 
     </div>
   );

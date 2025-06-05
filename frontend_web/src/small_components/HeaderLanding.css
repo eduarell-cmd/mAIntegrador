@@ -58,6 +58,8 @@ a:hover {
   color: white;
   text-decoration: none;
   transition: ease-in-out 0.2s;
+  filter: drop-shadow(black 0 0 6px);
+
 }
 .sections a:hover {
   scale: 1.1;
