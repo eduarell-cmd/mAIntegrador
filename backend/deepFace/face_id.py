@@ -30,10 +30,10 @@ def verificar_rostro():
 
         # Tomar UNA foto
         camara = cv2.VideoCapture(0)
-        foto_path = "../backend/deepFace/fotos/foto.jpg"
+        foto_path = "deepFace/fotos/foto.jpg"
 
         if not camara.isOpened():
-            resultado["error"] = "❌ No se pudo acceder a la cámara"
+            resultado["error"] = "No se pudo acceder a la cámara"
             return resultado
         else:
             print("Voltea a la cámara...")
@@ -49,7 +49,7 @@ def verificar_rostro():
 
         # Verificar si se tomó la foto
         if foto_path is None or not os.path.exists(foto_path):
-            resultado["error"] = "❌ No se capturó ninguna foto, saliendo del proceso."
+            resultado["error"] = "No se capturó ninguna foto."
             return resultado
         else:
             # Comparar con la imagen base
@@ -68,12 +68,12 @@ def verificar_rostro():
             resultado["es_misma_persona"] = es_misma_persona
 
             if es_misma_persona:
-                # Reducir resolución para el análisis
                 img_array = reducir_resolucion_array(foto_path)
                 if img_array is not None:
                     try:
                         result = DeepFace.analyze(img_array, actions=['emotion'], enforce_detection=False)
                         emociones = result[0]['emotion']
+                        resultado["emocion_dominante"] = result[0]['dominant_emotion']
                         resultado["emociones"] = {k: round(v, 2) for k, v in emociones.items()}
                         print("📊 Distribución de emociones:")
                         for emotion, score in emociones.items():
