@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Landing from './view_components/Landing';
 import Login from './view_components/Login'
 import Orbit from './view_components/Orbit'; 
+import Mirror from './view_components/Mirror';
 
 // TEST ----------------------
 // export default function App() {
@@ -16,9 +17,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Orbit />} />
+        <Route path="/"          element={<Orbit />}   />
         <Route path="/kaka"      element={<Landing />} />
-        <Route path="/login" element={<Login />}   />
+        <Route path="/login"     element={<Login />}   />
+        <Route path="/Mirror"    element={<Mirror />}  />
       </Routes>
     </BrowserRouter>
   );

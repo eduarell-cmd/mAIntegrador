@@ -1,0 +1,25 @@
+.CirclesBackground {
+    height: 100vh; width: 100vw;
+    /* background-color: rgba(14, 128, 228, 0.371); */
+    z-index: -1;
+    margin: 0;
+    position: fixed;
+    pointer-events: none;
+}
+
+.circleBG1, .circleBG2 {
+    height: 50rem; width: 50rem;
+    border-radius: 50%;
+    position: absolute;
+    filter: blur(250px);
+}
+
+.circleBG1 {
+    background-color: #ff5f79ff;
+    top: -50%; right: -10%;
+}
+
+.circleBG2 {
+    background-color: #ab4ff6ff;
+    bottom: -40%; left: -10%;
+}

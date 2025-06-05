@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './HomeLanding.css';
 import girlImg from '../assets/images/final-girl-grid-endpoint.png';
-import girlImgMedia from '../assets/images/grid-landing-girl.png'
+import girlImgMedia from '../assets/images/grid-landing-girl.png';
 import NextButton from './next_button';
 
 export const HomeLanding = () => {
@@ -65,9 +65,9 @@ export const HomeLanding = () => {
         <p>Welcome, Sabrina!</p>
       </div>
 
-      <div className="buttonPosition">
+      <a href='#6' className="buttonPosition">
         <NextButton />
-      </div>
+      </a>
     </div>
   );
 };

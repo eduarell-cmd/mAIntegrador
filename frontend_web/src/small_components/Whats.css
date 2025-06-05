@@ -1,0 +1,41 @@
+.WhatsSection {
+    display: flex; z-index: 1;
+    align-items: center; justify-content: space-between;
+    height: 100%; width: 60%; max-width: 75rem; 
+    /* background-color: rgba(245, 245, 220, 0.308); */
+    flex-wrap: wrap;
+    margin: 0 auto;
+}
+
+.w-title {
+    flex: 1 1 40%; min-width: 20rem;
+    height: fit-content; width: 40%;
+    font-size: 6rem; font-weight: 400;
+    text-align: start;
+    margin-bottom: 0;
+    
+}
+
+.project-description {
+    height: fit-content; width: 40%;
+    text-align: justify; line-height: 2.5rem;
+    font-weight: 200; font-size: 1.5rem;
+    margin-bottom: 0;
+}
+
+@media (max-width: 800px) {
+    .WhatsSection {
+        /* Opción: seguir teniendo 100% del ancho del padre o un porcentaje mayor */
+        width: 90%;                     /* Para que ocupe casi todo el ancho en móvil */
+    }
+    .w-title,
+    .project-description {
+        flex: 1 1 100%;                 /* Cada uno ocupa línea completa */
+        min-width: 0;                   /* Ya no se necesita mínimo en esta capa */
+    }
+    .w-title {
+        font-size: 4rem;
+        margin-bottom: 2rem;            /* Separación vertical entre título y párrafo */
+    }
+    .project-description {font-size: 1rem;}
+}
