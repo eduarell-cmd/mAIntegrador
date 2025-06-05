@@ -42,7 +42,7 @@ export const HeaderLanding = () => {
       )}
 
       {/**
-       * En mobile (<600px), sólo mostramos el ícono “burger”. 
+       * En mobile (<600px), mostramos el ícono “burger”. 
        * Cuando menuOpen == true, renderizamos un menú desplegable con clase .burgerMenu 
        */}
       {isMobile && (

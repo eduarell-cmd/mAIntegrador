@@ -5,6 +5,9 @@ import { HeaderLanding } from '../small_components/HeaderLanding';
 import { HomeLanding } from '../small_components/HomeLanding';
 import { Functionalities } from '../small_components/Functionalities';
 import { Confused } from '../small_components/Confused';
+import { Whats } from '../small_components/Whats';
+import { Worries } from '../small_components/Worries';
+import { Ready } from '../small_components/Ready';
 
 export default function Orbit() {
   // Referencias a los elementos que mueves por JS
@@ -129,23 +132,31 @@ export default function Orbit() {
       <div className="circle5"   ref={circlesRef.c5} />
 
       {/* Sección 1: solo HomeLanding */}
-      <section id="1">
+      <section id="1" className='home'>
         <HomeLanding />
       </section>
-      <section id='2'>
+      <section id='2' className='section-margin'>
         <Functionalities />
       </section>
-      <section id='3'>
+      <section id='3' className='section-margin'>
         <Confused />
+      </section>
+      <section id="4" className='section-margin'>
+        <Whats />
+      </section>
+      <section id="5" className='section-margin'>
+        <Worries />
+      </section>
+      <section id="6" className='section-margin'>
+        <Ready />
       </section>
 
       {/* x numero de Secciones*/}
-        {[4, 5].map(n => (
+        {[7, 8].map(n => (
           <section key={n} id={`${n}`}>
             <h1 className="title interactive responsiveTitle">
-              {['Welcome to', 'mirrOS'][n - 2]}
+              {n === 7 ? 'Welcome to' : 'M.AI'}
             </h1>
-            {/* {n === 3 && <h3 className="subtitle interactive">You see stuff</h3>} */}
           </section>
         ))}
     </>
