@@ -24,10 +24,27 @@ app.add_middleware(
 
 
 @app.get("/")
-def welcome ():
+def welcome():
     resultado = verificar_rostro()
-    print(json.dumps(resultado, indent=4, ensure_ascii=False))
-    return {"mensaje":resultado}
+
+    def convertir(obj):
+        if isinstance(obj, dict):
+            return {k: convertir(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convertir(elem) for elem in obj]
+        elif hasattr(obj, 'item'):
+            return obj.item()
+        else:
+            return obj
+
+    resultado_convertido = convertir(resultado)
+
+    try:
+        print(json.dumps(resultado_convertido, indent=4, ensure_ascii=False))
+    except Exception as e:
+        print(e)
+
+    return {"mensaje": resultado_convertido}
 
 @app.post("/login", response_model=UserBase)
 async def login(data:LoginInput):
