@@ -30,7 +30,7 @@ export const HeaderLanding = () => {
             <div className="sections">
               <a href="#2">Functionalities</a>
               <a href="#3">How it works</a>
-              <a>Team</a>
+              <a href="#6">Dive</a>
             </div>
           </li>
           <Link to="/login" className="loginBtn">
@@ -61,7 +61,7 @@ export const HeaderLanding = () => {
             <div className="burgerMenu">
               <a href="#2">Functionalities</a>
               <a href="#3">How it works</a>
-              <a>Team</a>
+              <a href="#5">Dive</a>
               <Link to="/login" className="loginBtn">
                 Log in
                 <div className="loginBtnCircle"></div>

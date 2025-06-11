@@ -4,12 +4,17 @@ import { Link } from 'react-router-dom';
 import { CirclesBackground } from '../small_components/CirclesBackground';
 import './Login.css';
 
+import closedEye from '../assets/icons/closedEye.png';
+import openEye from '../assets/icons/openedEye.png';
+
 
 export default function Login() {
   const [loginData, setLoginData] = useState({
     correo: '',
     password: ''
   });
+
+  const [showPassword, setShowPassword] = useState(false);
 
   const [registerData, setRegisterData] = useState({
     nombre: '',
@@ -27,6 +32,10 @@ export default function Login() {
       ...prev,
       [name]: value
     }));
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(prev => !prev);
   };
 
   const handleLoginSubmit = async (e) => {
@@ -156,6 +165,7 @@ export default function Login() {
       alert(`Error al enviar el formulario: ${error.message}`);
     }
   };
+
   return (
     
     <div className="login-page">
@@ -163,31 +173,42 @@ export default function Login() {
       <CirclesBackground />
 
       <h1 className='login-title'>Iniciar Sesión</h1>
+
+      {/* ---------------------- login FORM ------------------ */}
       
       <form className='login_form' onSubmit={handleLoginSubmit}>
-        <label>
-          Correo:
+        <h1 className="formTitle">Log in</h1>
+        <label className='entryArea'>
           <input 
             type="email" 
             name="correo" 
             id='correo'
+            placeholder=" "
             value={loginData.correo}
             onChange={handleLoginChange}
             required
           />
+          <div className="labelLine">E-mail</div>
         </label>
-        <label>
-          Contraseña:
+        <label className='entryArea passwordArea'>
           <input 
-            type="password" 
+            type={showPassword ? "text" : "password"} 
             name="password" 
             id='password'
+            placeholder=" "
             value={loginData.password}
             onChange={handleLoginChange}
             required
           />
+          <div className="labelLine">Password</div>
+          <img 
+            src={showPassword ? openEye : closedEye} 
+            alt={showPassword ? 'Hide password' : 'Show password'}
+            className="toggleIcon"
+            onClick={togglePasswordVisibility}
+          />
         </label>
-        <button type="submit">Entrar</button>
+        <button className='' type="submit">Entrar</button>
       </form>
 
       <h1>Registrate perro</h1>
@@ -247,6 +268,8 @@ export default function Login() {
         <br/>
         <button type="submit">REGISTRARSE</button>
       </form>
+
+      <button id='backend-test' className='backend-test'>boton de backend</button>  
 
       <div className="btn-container">
 
