@@ -23,8 +23,8 @@ app.add_middleware(
 )
 
 
-@app.get("/")
-def welcome():
+@app.get("/facerecog")
+def face():
     resultado = verificar_rostro()
 
     def convertir(obj):

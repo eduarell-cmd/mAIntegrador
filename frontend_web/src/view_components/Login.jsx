@@ -166,6 +166,32 @@ export default function Login() {
     }
   };
 
+const handleVerificarRostroSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await fetch("http://localhost:8000/facerecog");
+    const data = await res.json();
+    console.log("Respuesta del backend:", data);
+
+    // Dependiendo de cómo venga la respuesta del backend:
+    if (typeof data.mensaje === 'string') {
+      if (data.mensaje.toLowerCase().includes("voltea") || data.mensaje.toLowerCase().includes("mirar")) {
+        alert("👀 Por favor, voltea hacia la cámara");
+      } else {
+        alert(data.mensaje);
+      }
+    } else if (data.mensaje?.estado === "no_detectado") {
+      alert("👀 No se detectó tu rostro. Por favor, mira a la cámara.");
+    } else {
+      alert("✅ Rostro detectado correctamente.");
+    }
+
+  } catch (err) {
+    console.error("Error al llamar al backend:", err);
+    alert("❌ Error al conectar con el servidor.");
+  }
+};
+
   return (
     
     <div className="login-page">
@@ -269,7 +295,10 @@ export default function Login() {
         <button type="submit">REGISTRARSE</button>
       </form>
 
-      <button id='backend-test' className='backend-test'>boton de backend</button>  
+      <form onSubmit={handleVerificarRostroSubmit}>
+        <button type="submit" id='backend-test' className='backend-test'>boton de backend</button>
+      </form>
+        
 
       <div className="btn-container">
 

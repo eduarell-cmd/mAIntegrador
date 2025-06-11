@@ -15,7 +15,7 @@
 /* ---------------------- BUTTON TEST -------------------------- */
 .backend-test {
     background-color: white;
-    position: absolute;
+    position: fixed;
     top: 50%; left: 50%;
     translate: -50% -50%;
     opacity: 0.2;
