@@ -123,6 +123,7 @@ export default function Orbit() {
   return (
     <>
       <HeaderLanding />
+      
       <div className="cursor"    ref={cursorRef}   />
       <div id="progress"         ref={progressRef} />
       <div className="circle1"   ref={circlesRef.c1} />
