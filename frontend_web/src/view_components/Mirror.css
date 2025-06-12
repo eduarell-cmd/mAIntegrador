@@ -1,0 +1,49 @@
+.MirrorView {
+    height: 100vh; width: 100vw;
+    display: flex;
+    align-items: center; justify-content: space-evenly;
+    background-color: black;
+    flex-direction: column;
+}
+
+.MirrorView h1 {
+    font-size: 6rem;
+    color: white;
+}
+
+.weather-section {
+    border: 3px solid white;
+    border-radius: 5vh;
+    padding: 0 2rem;
+    display: flex;
+    flex-direction: row;
+    gap: 3rem;
+}
+
+/* ------------========== NOTIFICATION =========----------- */
+
+.tip-notification {
+    /* background-color: rgba(255, 255, 255, 0.235); */
+    border-radius: 5vh;
+    border: 3px solid white;
+    padding: 3rem 5rem;
+    display: grid;
+    grid-template-columns: 20% 2% 78%; 
+    align-items: center; justify-content: center;
+    gap: 2rem;
+    height: fit-content;
+    width: 40rem;
+}
+
+.verticalLine {
+    height: 90%;
+    width: 2px; background-color: white;
+}
+
+.tip-icon {
+    height: 100%; width: 100%;
+    display: flex; 
+    justify-content: center; align-items: center;
+}
+
+.tip-icon img {height: auto; width: 70%;}

@@ -341,7 +341,7 @@ export default function Login() {
 
       <div className="btn-container">
 
-        <Link to="/login" className="loginBtn">
+        <Link to="/Mirror" className="loginBtn">
           Mirror View
           <div className="loginBtnCircle"></div>
         </Link>
