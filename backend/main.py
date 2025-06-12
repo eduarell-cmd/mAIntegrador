@@ -23,8 +23,8 @@ app.add_middleware(
 )
 
 
-@app.get("/")
-def welcome():
+@app.get("/facerecog")
+def face():
     resultado = verificar_rostro()
 
     def convertir(obj):
@@ -60,7 +60,7 @@ async def perfil(nombre: str):
 async def signup(persona: UserCreate):
     CreatedUser = await signupsito(persona)
     return CreatedUser
-    
+
 # @app.post("/signup", response_model=User)
 # async def signup(persona: UserCreate):
 #     try:
