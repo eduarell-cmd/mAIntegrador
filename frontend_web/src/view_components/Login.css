@@ -60,7 +60,7 @@
     top: 50%; left: 40%;
     translate: -50% -50%;
     z-index: 10;
-    transition: ease-in-out 1.5s;
+    transition: ease-in-out 0.5s;
 }
 
 .openLF .test-btn {visibility: hidden;}
@@ -174,7 +174,7 @@ input:valid + .labelLine {
     flex-direction: column; align-items: center;
     top: 50%; left: 62%;
     translate: -50% -50%;
-    transition: ease-in-out 1.5s;
+    transition: ease-in-out 0.5s;
     z-index: 1;
 }
 
@@ -208,7 +208,7 @@ input:valid + .labelLine {
     box-shadow: rgba(0, 0, 0, 0.842) 2px 2px 20px;
     display: flex; justify-content: space-between;
     flex-direction: column; align-items: center;
-    transition: ease-in-out 1.5s;
+    transition: ease-in-out 0.5s;
     z-index: 10;
 }
 
@@ -264,7 +264,7 @@ input:valid + .labelLine {
     top: 50%; left: 60%;
     translate: -50% -50%;
     z-index: 1;
-    transition: ease-in-out 1.5s;
+    transition: ease-in-out 0.5s;
 }
 
 /* .ease-trans {transition: ease-in-out;} */
