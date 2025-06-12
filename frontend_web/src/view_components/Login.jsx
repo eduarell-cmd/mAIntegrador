@@ -175,53 +175,31 @@ export default function Login() {
     }
   };
 
-  // 2) handleToggle usando Web Animations API
-  const handleToggle = async () => {
-    setShowLogin(prev => !prev);
-    // if (showLogin) {
-    //   // ——— Animar el login saliendo ———
-    //   await loginRef.current
-    //     .animate([
-    //       { transform: 'translateX(0) scale(1)', backgroundColor: '#fce5cdff' },
-    //       { transform: 'translateX(0)', height:'40rem', background: 'linear-gradient(45deg, #fce5cdff, #ab4ff6ff)' }
-    //     ], { duration: 400, easing: 'ease' })
-    //     .finished;
+const handleVerificarRostroSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await fetch("http://localhost:8000/facerecog");
+    const data = await res.json();
+    console.log("Respuesta del backend:", data);
 
-    //   // Bajamos el zIndex y cambiamos la clase
-    //   // loginRef.current.style.zIndex = 1;
-    //   setShowLogin(false);
+    // Dependiendo de cómo venga la respuesta del backend:
+    if (typeof data.mensaje === 'string') {
+      if (data.mensaje.toLowerCase().includes("voltea") || data.mensaje.toLowerCase().includes("mirar")) {
+        alert("👀 Por favor, voltea hacia la cámara");
+      } else {
+        alert(data.mensaje);
+      }
+    } else if (data.mensaje?.estado === "no_detectado") {
+      alert("👀 No se detectó tu rostro. Por favor, mira a la cámara.");
+    } else {
+      alert("✅ Rostro detectado correctamente.");
+    }
 
-    //   // ——— Animar el register entrando ———
-    //   // Preconfiguramos su zIndex alto
-    //   // registerRef.current.style.zIndex = 10;
-    //   await registerRef.current
-    //     .animate([
-    //       { transform: 'translateX(50px) scale(0.8)', backgroundColor: 'pink' },
-    //       { transform: 'translateX(0) scale(1)', backgroundColor: '#fce5cdff' }
-    //     ], { duration: 400, easing: 'ease' })
-    //     .finished;
-    // } else {
-    //   // ——— Animar el register saliendo ———
-    //   await registerRef.current
-    //     .animate([
-    //       { transform: 'translateX(0) scale(1)', backgroundColor: '#fce5cdff' },
-    //       { transform: 'translateX(-50px) scale(0.8)', background: 'rgba(128, 128, 128, 0.4)' }
-    //     ], { duration: 400, easing: 'ease' })
-    //     .finished;
-
-    //   // registerRef.current.style.zIndex = 1;
-    //   setShowLogin(true);
-
-    //   // ——— Animar el login entrando ———
-    //   // loginRef.current.style.zIndex = 10;
-    //   await loginRef.current
-    //     .animate([
-    //       { transform: 'translateX(-50px) scale(0.8)', backgroundColor: 'pink' },
-    //       { transform: 'translateX(0) scale(1)', backgroundColor: '#fce5cdff' }
-    //     ], { duration: 400, easing: 'ease' })
-    //     .finished;
-    // }
-  };
+  } catch (err) {
+    console.error("Error al llamar al backend:", err);
+    alert("❌ Error al conectar con el servidor.");
+  }
+};
 
   return (
     
@@ -337,7 +315,10 @@ export default function Login() {
           <p className="altern-p">Create one down here</p>
       </form>
 
-      <button id='backend-test' className='backend-test'>boton de backend</button>  
+      <form onSubmit={handleVerificarRostroSubmit}>
+        <button type="submit" id='backend-test' className='backend-test'>boton de backend</button>
+      </form>
+        
 
       <div className="btn-container">
 
