@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
+from dotenv import load_dotenv
 import os
-MONGO_URL = os.getenv("MONGO_URL","mongodb+srv://Eduardo12:holapapu@clustereduardo.hw818rh.mongodb.net/?retryWrites=true&w=majority&appName=ClusterEduardo")
+MONGO_URL = os.getenv("MONGO_URL")
 
 client = AsyncIOMotorClient(MONGO_URL)
 db = client["PruebasIntegrador"]
