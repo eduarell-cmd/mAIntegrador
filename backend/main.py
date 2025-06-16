@@ -10,7 +10,7 @@ from validaciones.validaciones import *
 import bcrypt
 import json
 from deepFace.face_id import verificar_rostro
-
+from horaapi import *
 app = FastAPI()
 
 # Habilitar CORS para permitir que el frontend se conecte
@@ -23,8 +23,8 @@ app.add_middleware(
 )
 
 
-@app.get("/")
-def welcome():
+@app.get("/facerecog")
+def face():
     resultado = verificar_rostro()
 
     def convertir(obj):
@@ -60,7 +60,12 @@ async def perfil(nombre: str):
 async def signup(persona: UserCreate):
     CreatedUser = await signupsito(persona)
     return CreatedUser
-    
+
+@app.get("/mirror")
+async def dayandtime():
+    dia, _ = obtener_dia_hora_formateada()
+    return {"dia":dia}
+
 # @app.post("/signup", response_model=User)
 # async def signup(persona: UserCreate):
 #     try:
