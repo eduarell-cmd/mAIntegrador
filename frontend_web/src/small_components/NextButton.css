@@ -1,5 +1,5 @@
 .btn-primary {
-    height: 4rem; width: 18vh;
+    height: 4rem; padding: 0 1.8rem;
     background:linear-gradient(90deg, #ff5f79ff, #ab4ff6ff);
     border-radius: 10vh;
     box-shadow: rgba(255, 255, 255, 0.671) 0 0 10px;

@@ -80,9 +80,11 @@ a:hover {
   color: white;
   transition: box-shadow 0.2s ease;
 }
+
 .loginBtn:hover {
   box-shadow: rgba(255, 255, 255, 0.506) 0 0 12px;
 }
+
 .loginBtnCircle {
   height: 6vh;
   width: 6vh;
