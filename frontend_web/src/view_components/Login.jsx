@@ -18,7 +18,7 @@ export default function Login() {
   const [showLogin, setShowLogin] = useState(true);
 
   const handleToggle = () => {
-  setShowLogin(prev => !prev);
+     setShowLogin(prev => !prev);
   };
 
   // 1. referencias de lso forms
