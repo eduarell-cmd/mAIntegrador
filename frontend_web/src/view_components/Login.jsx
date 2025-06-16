@@ -17,9 +17,9 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
 
-  // const handleToggle = () => {
-  //   setShowLogin(prev => !prev);
-  // };
+  const handleToggle = () => {
+     setShowLogin(prev => !prev);
+  };
 
   // 1. referencias de lso forms
   const loginRef = useRef(null);

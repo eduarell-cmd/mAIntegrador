@@ -1,6 +1,7 @@
 .ReadySection {
     height: 100%; width: 100%;
     display: flex; align-items: center; justify-content: center;
+    z-index: 1;
 }
 
 .purple-container {
@@ -25,7 +26,7 @@
 }
 
 .phone img:hover {
-    scale: 1.04;
+    transform: rotate(-17deg) scale(1.5);
 }
 
 .ready-texts {
@@ -40,3 +41,89 @@
 .ready-texts p {
     font-size: 1.62rem; margin: 0;
 }
+
+@media (max-width: 599px) {
+
+    .purple-container {
+    height: 50rem; width: 75%;
+    padding: 1.5rem;
+    border-radius: 8vh;
+    display: grid; justify-items: center; align-items: center;
+    box-shadow: rgba(31, 31, 31, 0.612) 1px 1px 16px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 40% 60%;
+    flex-wrap: wrap;
+    }
+    .phone {
+        height: 25vh; width: 25vh;
+    }
+
+    .phone img {
+        transform: scale(0.6) rotate(-15deg);
+        transition: ease-in-out 0.2s;
+    }
+    .phone img:hover {
+        transform: rotate(-4deg) scale(0.7);
+    }
+
+    .ready-texts {
+    height: 100%; width: 100%;
+    text-align: center;
+    }
+
+    .ready-texts h2 {
+        font-size: 1.5rem;
+    }
+    .ready-texts p {
+        font-size: 1em;
+    }
+
+
+}
+
+@media (min-width: 600px) and (max-width: 1023px) {
+    .purple-container {
+    height: 50rem; width: 75%;
+    padding: 1.5rem;
+    border-radius:12vh;
+    display: grid; justify-items: center; align-items: center;
+    box-shadow: rgba(31, 31, 31, 0.612) 1px 1px 16px;
+    grid-template-columns: 1fr;
+    grid-template-rows: 40% 60%;
+    flex-wrap: wrap;
+    }
+    .phone {
+        height: 35vh; width: 35vh;
+    }
+
+    .phone img {
+        transform: scale(0.7) rotate(-15deg);
+        transition: ease-in-out 0.2s;
+    }
+    .phone img:hover {
+        transform: rotate(-4deg) scale(0.8);
+    }
+
+    .ready-texts {
+    height: 100%; width: 100%;
+    text-align: center;
+    }
+
+    .ready-texts h2 {
+        font-size: 2rem;
+    }
+    .ready-texts p {
+        font-size: 1.2em;
+    }
+}
+
+@media (min-width: 1000px) and (max-width: 1423px) {
+    .ready-texts h2 {
+        font-size: 2.3rem;
+    }
+    .ready-texts p {
+        font-size: 1.2em;
+    }
+}
+
+
