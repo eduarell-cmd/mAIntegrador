@@ -8,6 +8,8 @@ import WeatherIcon from '../assets/icons/weather.png'
 export default function Mirror() {
   const [dia, setDia] = useState("Loading...");
   const [hora, setHora] = useState("");
+  const [temperatura, setTemperatura] = useState(null);
+  const [clima, setClima] = useState("Loading...");
 
   // Obtener el día del backend
   useEffect(() => {
@@ -30,6 +32,17 @@ export default function Mirror() {
     return () => clearInterval(timer);
   }, []);
 
+  // Obtener clima desde el backend FastAPI
+  useEffect(() => {
+    fetch("http://localhost:8000/weather")
+      .then(res => res.json())
+      .then(data => {
+        setTemperatura(data.temperature);
+        setClima(data.condition);
+      })
+      .catch(err => console.error("Error al obtener clima:", err));
+  }, []);
+
   return (
     <div className="MirrorView">
         <h1>Bienvenido, <span>Dittrichgod!</span></h1>
@@ -39,7 +52,7 @@ export default function Mirror() {
         </div>
         <div className="weather-section">
           <img src={WeatherIcon} alt="weather" />
-          <h2 className="date">Today's weather is: <span>Cloudy</span></h2>
+          <h2 className="date">Today's weather is: <span>{clima} ({temperatura}°C)</span></h2>
         </div>
         <div className="tip-notification">
             <div className="tip-icon"><img src={NotiIcon} alt="" /></div>
