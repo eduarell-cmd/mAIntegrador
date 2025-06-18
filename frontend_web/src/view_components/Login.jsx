@@ -213,6 +213,7 @@ const handleVerificarRostroSubmit = async (e) => {
       
       <form className={ showLogin ? 'openLF' : 'closedLF' } onSubmit={handleLoginSubmit} ref={loginRef}>
         <h1 className="formTitle eas">Log in</h1>
+        <a className='alternate-forms' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Create an account' : 'Login'}</a> 
         <label className='entryArea eas'>
           <input 
             type="email" 
@@ -259,6 +260,7 @@ const handleVerificarRostroSubmit = async (e) => {
 
       <form className={ showLogin ? 'closedRF' : 'openRF' } onSubmit={handleRegisterSubmit} ref={loginRef}>
         <h1 className="formTitle">Sign up</h1>
+        <a className='alternate-forms' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Create an account' : 'Log in'}</a> 
         <label className='entryArea'>
           <input required type="text" name="nombre" value={registerData.nombre} onChange={handleRegisterChange} />
           <div className="labelLine">Name</div>
@@ -319,7 +321,6 @@ const handleVerificarRostroSubmit = async (e) => {
         <button type="submit" id='backend-test' className='backend-test'>boton de backend</button>
       </form>
         
-
       <div className="btn-container">
 
         <Link to="/Mirror" className="loginBtn">

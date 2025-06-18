@@ -14,7 +14,7 @@ export const Functionalities = () => {
               <div className="f-icon"><img src={manageIcon} alt="" /></div>
               <div className="f-text">
                 <h3 className="f-mini-title">Manage</h3>
-                <p className="f-mini-text">Now, you can see entirely how you are feeling.</p>
+                <p className="f-mini-text">Now, you can see <span className='f-s-red'>entirely</span> how you are feeling.</p>
               </div>
             </div>
             <div className="elementSquare square2">

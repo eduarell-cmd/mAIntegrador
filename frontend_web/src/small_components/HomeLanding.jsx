@@ -3,6 +3,11 @@ import './HomeLanding.css';
 import girlImg from '../assets/images/final-girl-grid-endpoint.png';
 import girlImgMedia from '../assets/images/grid-landing-girl.png';
 import NextButton from './next_button';
+import avatar1 from '../assets/images/avatar1.png';
+import avatar2 from '../assets/images/avatar2.png';
+import avatar3 from '../assets/images/avatar3.png';
+import avatar4 from '../assets/images/avatar5.png';
+import mainavatar from '../assets/images/mainavatar.png';
 
 export const HomeLanding = () => {
   const [isTablet, setIsTablet] = useState(false);
@@ -56,11 +61,11 @@ export const HomeLanding = () => {
 
       <div className="div4">
         <div className="avatars">
-          <div className="avatar av1"></div>
-          <div className="avatar av2"></div>
-          <div className="avatar av3"></div>
-          <div className="avatar av4"></div>
-          <div className="avatar av5"></div>
+          <div className="avatar av1 CA"><img src={mainavatar} alt="" /></div>
+          <div className="avatar av2 WA"><img src={avatar1} alt="" /></div>
+          <div className="avatar av3 WA"><img src={avatar2} alt="" /></div>
+          <div className="avatar av4 WA"><img src={avatar3} alt="" /></div>
+          <div className="avatar av5 WA"><img src={avatar4} alt="" /></div>
         </div>
         <p>Welcome, Sabrina!</p>
       </div>
