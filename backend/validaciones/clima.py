@@ -14,10 +14,10 @@ async def get_weather():
         response = await client.get(url, headers=headers)
         data = response.json()
 
-        weather = data["properties"]["timeseries"][0]["data"]
+        weather = data["properties"]["timeseries"][1]["data"]
         temp = weather["instant"]["details"]["air_temperature"]
         condition = weather["next_1_hours"]["summary"]["symbol_code"]
-
+        print(temp)
         return await {
             "temperature": temp,
             "condition": condition

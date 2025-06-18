@@ -69,7 +69,9 @@ async def dayandtime():
 
 @app.get("/weather")
 async def weather():
+    print("/weather")
     clima = get_weather()
+    print(clima)
 # @app.post("/signup", response_model=User)
 # async def signup(persona: UserCreate):
 #     try:
