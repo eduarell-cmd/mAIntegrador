@@ -3,9 +3,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 // Importa tus pantallas correctamente desde app/tabs
-import HomeScreen from './tabs/index';
-import ExploreScreen from './tabs/explore';
-import ProfileScreen from './tabs/profile';
+import HomeScreen from './app/(tabs)/index';
+import ExploreScreen from './app/(tabs)/explore';
+import ProfileScreen from './app/(tabs)/_layout';
 
 const Tab = createBottomTabNavigator();
 
