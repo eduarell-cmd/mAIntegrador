@@ -12,6 +12,7 @@ import json
 from deepFace.face_id import verificar_rostro
 from validaciones.horaapi import *
 from validaciones.clima import *
+from gemini import geminiprompt
 app = FastAPI()
 
 # Habilitar CORS para permitir que el frontend se conecte
@@ -70,6 +71,13 @@ async def weather():
 @app.get("/emocion")
 async def emotion():
     emocion=verificar_rostro()
+
+@app.get("/geminiprompt")
+async def consejo():
+    texto = await geminiprompt()  
+    return {"consejo": texto}
+
+
 # @app.post("/signup", response_model=User)
 # async def signup(persona: UserCreate):
 #     try:
