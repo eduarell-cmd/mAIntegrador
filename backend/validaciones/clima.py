@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-import httpx
+import httpx 
 import os
 from dotenv import load_dotenv
 import requests
@@ -18,7 +18,7 @@ async def get_weather():
         temp = weather["instant"]["details"]["air_temperature"]
         condition = weather["next_1_hours"]["summary"]["symbol_code"]
         print(temp)
-        return await {
+        return {
             "temperature": temp,
-            "condition": condition
+            "condition": condition    
         }
