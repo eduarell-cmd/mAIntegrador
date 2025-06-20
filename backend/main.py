@@ -7,7 +7,7 @@ from bson.errors import InvalidId
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from validaciones.validaciones import *
-import bcrypt
+import bcrypt # type: ignore
 import json
 from deepFace.face_id import verificar_rostro
 from validaciones.horaapi import *
@@ -69,9 +69,10 @@ async def dayandtime():
 
 @app.get("/weather")
 async def weather():
-    print("/weather")
-    clima = get_weather()
+    print("---------------------------------/weather-----------------------------")
+    clima = await get_weather()
     print(clima)
+    return clima
 # @app.post("/signup", response_model=User)
 # async def signup(persona: UserCreate):
 #     try:
