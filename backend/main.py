@@ -12,6 +12,7 @@ import json
 from deepFace.face_id import verificar_rostro
 from validaciones.horaapi import *
 from validaciones.clima import *
+from gemini import geminiprompt
 app = FastAPI()
 
 # Habilitar CORS para permitir que el frontend se conecte
@@ -22,7 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.get("/facerecog")
 def face():
@@ -39,13 +39,8 @@ def face():
             return obj
 
     resultado_convertido = convertir(resultado)
+    return resultado_convertido
 
-    try:
-        print(json.dumps(resultado_convertido, indent=4, ensure_ascii=False))
-    except Exception as e:
-        print(e)
-
-    return {"mensaje": resultado_convertido}
 
 @app.post("/login", response_model=UserBase)
 async def login(data:LoginInput):
@@ -72,6 +67,17 @@ async def weather():
     print("/weather")
     clima = get_weather()
     print(clima)
+
+@app.get("/emocion")
+async def emotion():
+    emocion=verificar_rostro()
+
+@app.get("/geminiprompt")
+async def consejo():
+    texto = await geminiprompt()  
+    return {"consejo": texto}
+
+
 # @app.post("/signup", response_model=User)
 # async def signup(persona: UserCreate):
 #     try:
