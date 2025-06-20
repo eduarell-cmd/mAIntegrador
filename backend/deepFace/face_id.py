@@ -93,4 +93,5 @@ def verificar_rostro():
     except Exception as e:
         resultado["error"] = f"❌ Error general: {e}"
 
+    print(resultado)
     return resultado
