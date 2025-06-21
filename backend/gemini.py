@@ -3,7 +3,8 @@ from google.genai import types
 import os
 from dotenv import load_dotenv
 import json
-from face_id import verificar_rostro
+from deepFace.faceid import verificar_rostro
+from fastapi import HTTPException  
 
 async def geminiprompt():
     load_dotenv()
@@ -13,11 +14,10 @@ async def geminiprompt():
     datos_emociones = verificar_rostro()
 
     if datos_emociones["error"]:
-        print(f"Hubo un error al verificar el rostro o las emociones: {datos_emociones['error']}")
-        exit()
+        raise HTTPException(status_code=400, detail=f"Error en verificación: {datos_emociones['error']}")
+
     elif not datos_emociones["es_misma_persona"]:
-        print("La persona detectada no coincide con la persona conocida. No se generará una recomendación.")
-        exit()
+        raise HTTPException(status_code=403, detail="Rostro no coincide con la persona registrada.")
 
     emociones_para_prompt = {
         "es_misma_persona": datos_emociones["es_misma_persona"],

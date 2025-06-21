@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from validaciones.validaciones import *
 import bcrypt # type: ignore
 import json
-from deepFace.face_id import verificar_rostro
+from deepFace.faceid import verificar_rostro
 from validaciones.horaapi import *
 from validaciones.clima import *
 from gemini import geminiprompt
@@ -18,7 +18,7 @@ app = FastAPI()
 # Habilitar CORS para permitir que el frontend se conecte
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Cambia si React corre en otro puerto
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

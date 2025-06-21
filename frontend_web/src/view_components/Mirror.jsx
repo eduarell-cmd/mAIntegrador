@@ -10,8 +10,9 @@ export default function Mirror() {
   const [hora, setHora] = useState("");
   const [temperatura, setTemperatura] = useState(null);
   const [clima, setClima] = useState("Loading...");
-  const [emocion, setEmocion] = useState(null);
-  const [consejo, setConsejo] = useState(null);
+  const [emocion, setEmocion] = useState(null); // Keep as null initially
+  const [consejo, setConsejo] = useState(null); // Keep as null initially
+
   // Obtener el día del backend
   useEffect(() => {
     fetch("http://localhost:8000/mirror")
@@ -44,31 +45,36 @@ export default function Mirror() {
       .catch(err => console.error("Error al obtener clima:", err));
   }, []);
 
-  // Tu función original, sin modificaciones
-const handleVerificarRostroSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const res = await fetch("http://localhost:8000/facerecog");
-    const data = await res.json();
-    console.log("Respuesta del backend:", data);
+  // Modificada la función handleVerificarRostroSubmit
+  const handleVerificarRostroSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("http://localhost:8000/facerecog");
+      const data = await res.json();
+      console.log("Respuesta del backend:", data);
 
-    const emocionDominante = data?.mensaje?.emocion_dominante;
-    setEmocion(emocionDominante);
+      // Extract emotion directly from the root of the data object
+      const emocionDominante = data?.emocion_dominante; // Corrected access
+      setEmocion(emocionDominante);
 
-    if (data.mensaje?.es_misma_persona) {
-      alert(`✅ Rostro detectado correctamente. Emoción: ${emocionDominante}`);
-      const respGemini = await fetch("http://localhost:8000/geminiprompt");
-      const dataGemini = await respGemini.json();
-      setConsejo(dataGemini.consejo); 
-    } else {
-      alert("👀 No se detectó tu rostro o no coincide con el registrado.");
+      if (data?.es_misma_persona) { // Use optional chaining for es_misma_persona as well
+        alert(`✅ Rostro detectado correctamente. Emoción: ${emocionDominante}`);
+        const respGemini = await fetch("http://localhost:8000/geminiprompt");
+        const dataGemini = await respGemini.json();
+        setConsejo(dataGemini.consejo);
+      } else {
+        alert("👀 No se detectó tu rostro o no coincide con el registrado.");
+        setEmocion(null); // Reset emotion if not the same person or not detected
+        setConsejo(null); // Reset consejo
+      }
+
+    } catch (err) {
+      console.error("Error al llamar al backend:", err);
+      alert("❌ Error al conectar con el servidor.");
+      setEmocion(null); // Reset on error
+      setConsejo(null); // Reset on error
     }
-
-  } catch (err) {
-    console.error("Error al llamar al backend:", err);
-    alert("❌ Error al conectar con el servidor.");
-  }
-};
+  };
 
   return (
     <div className="MirrorView">
