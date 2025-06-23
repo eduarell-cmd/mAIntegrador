@@ -36,6 +36,7 @@ export default function Mirror() {
 
   // Obtener clima desde backend
   useEffect(() => {
+    console.log("Fetch al Clima")
     fetch("http://localhost:8000/weather")
       .then(res => res.json())
       .then(data => {
