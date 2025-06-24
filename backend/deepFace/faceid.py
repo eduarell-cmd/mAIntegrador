@@ -24,7 +24,7 @@ def verificar_rostro():
 
     try:
         # Cargar imagen conocida y obtener su codificación facial
-        known_image = face_recognition.load_image_file("deepFace/fotos/eduardo.jpg")
+        known_image = face_recognition.load_image_file("deepFace/fotos/tempedu.jpg")
         known_face_encoding = face_recognition.face_encodings(known_image)[0]
         known_face_encodings = [known_face_encoding]
 
@@ -93,4 +93,5 @@ def verificar_rostro():
     except Exception as e:
         resultado["error"] = f"❌ Error general: {e}"
 
+    print(resultado)
     return resultado
