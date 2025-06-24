@@ -247,9 +247,9 @@ const handleVerificarRostroSubmit = async (e) => {
         <h3 className='p-forgot eas'>Forgot password?</h3>
         <button className='btn-send eas' type="submit">Login</button>
         {/* SECTION DE DISPLAY NONE PARA CAJA GRIS */}
-        <button className='test-btn' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Register' : 'Login'}</button> 
+        <a className='test-btn' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Register' : 'Login'}</a> 
         <h2 className='altern-h2'>Welcome back</h2>
-        <p className="altern-p">You’ve been missed. <br /> Ready to dive back in?</p>
+        <p className="altern-p">You've been missed. <br /> Ready to dive back in?</p>
       </form>
 
       {/* <h1>Registrate perro</h1> */}
@@ -311,14 +311,14 @@ const handleVerificarRostroSubmit = async (e) => {
           <label>Música</label>
         </label> */}
         <button className='btn-send' type="submit">Register</button>
-        <button className='test-btn' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Register' : 'Login'}</button> 
+        <a className='test-btn' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Register' : 'Login'}</a> 
       {/* SECCION PARA DISPLAY NONE DEL CONTENEDOR DE CAJA GRIS */}
           <h2 className='altern-h2'>No account?</h2>
           <p className="altern-p">Create one down here</p>
       </form>
 
       <form onSubmit={handleVerificarRostroSubmit}>
-        <button type="submit" id='backend-test' className='backend-test'>boton de backend</button>
+        {/* <button type="submit" id='backend-test' className='backend-test'>boton de backend</button> */}
       </form>
         
       <div className="btn-container">

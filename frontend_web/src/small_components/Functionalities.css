@@ -35,6 +35,7 @@
     display: grid;
     justify-content: center; align-items: center;
     grid-template-columns: 1fr 1fr;
+    text-align: justify;
 }
 
 .elementSquare:hover {
@@ -44,7 +45,8 @@
 
 .square1, .square4 {box-shadow: rgba(195, 11, 11, 0.827) 1px 1px 1.5rem 2px;}
 .square2, .square3 {box-shadow: rgba(140, 10, 176, 0.766) 1px 1px 1.5rem 2px;}
-
+.f-s-red {color: rgb(240, 71, 71); filter: drop-shadow(rgb(255, 97, 97) 0 0 10px);}
+.f-s-blue {color: rgb(81, 81, 247); filter: drop-shadow(rgb(114, 196, 255) 0 0 10px);}
 /* TEXTS */
 
 .f-text {
@@ -55,7 +57,7 @@
 
 .f-mini-title {
     font-size: 1.5rem;
-    font-weight: 200;
+    font-weight: 400;
     font-style: oblique;
     margin: 5% 0;
 }
