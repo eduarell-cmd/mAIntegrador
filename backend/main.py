@@ -39,7 +39,12 @@ def face():
             return obj
 
     resultado_convertido = convertir(resultado)
-    return resultado_convertido
+    try:
+        print(json.dumps(resultado_convertido, indent=4, ensure_ascii=False))
+    except Exception as e:
+        print(e)
+
+    return {"mensaje": resultado_convertido}
 
 
 @app.post("/login", response_model=UserBase)

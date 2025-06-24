@@ -47,35 +47,41 @@ export default function Mirror() {
   }, []);
 
   // Modificada la función handleVerificarRostroSubmit
-  const handleVerificarRostroSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch("http://localhost:8000/facerecog");
-      const data = await res.json();
-      console.log("Respuesta del backend:", data);
+const handleVerificarRostroSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await fetch("http://localhost:8000/geminiprompt");
 
-      // Extract emotion directly from the root of the data object
-      const emocionDominante = data?.emocion_dominante; // Corrected access
-      setEmocion(emocionDominante);
-
-      if (data?.es_misma_persona) { // Use optional chaining for es_misma_persona as well
-        alert(`✅ Rostro detectado correctamente. Emoción: ${emocionDominante}`);
-        const respGemini = await fetch("http://localhost:8000/geminiprompt");
-        const dataGemini = await respGemini.json();
-        setConsejo(dataGemini.consejo);
-      } else {
-        alert("👀 No se detectó tu rostro o no coincide con el registrado.");
-        setEmocion(null); // Reset emotion if not the same person or not detected
-        setConsejo(null); // Reset consejo
-      }
-
-    } catch (err) {
-      console.error("Error al llamar al backend:", err);
-      alert("❌ Error al conectar con el servidor.");
-      setEmocion(null); // Reset on error
-      setConsejo(null); // Reset on error
+    if (!res.ok) {
+      const error = await res.json();
+      alert(`❌ ${error.detail}`);
+      setEmocion(null);
+      setConsejo(null);
+      return;
     }
-  };
+
+    const data = await res.json();
+    console.log("Respuesta de Gemini:", data);
+
+    // Puedes mostrar emoción si backend la devuelve también
+    if (data.consejo?.error) {
+      alert(`❌ ${data.consejo.error}`);
+      setConsejo(null);
+      setEmocion(null);
+      return;
+    }
+    
+    const emocionDetectada = data.consejo?.emocion || "emocion detectada";
+    setEmocion(emocionDetectada);
+    setConsejo(data.consejo?.consejo);
+
+  } catch (err) {
+    console.error("Error al conectar con Gemini:", err);
+    alert("❌ Error al conectar con el servidor.");
+    setEmocion(null);
+    setConsejo(null);
+  }
+};
 
   return (
     <div className="MirrorView">
