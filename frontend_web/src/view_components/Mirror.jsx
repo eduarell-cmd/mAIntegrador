@@ -81,7 +81,7 @@ export default function Mirror() {
     <div className="MirrorView">
       <CirclesBackground />
 
-      <h1>Bienvenido, <span>Dittrichgod!</span></h1>
+      <h1>Bienvenido, <span>DittrichDog!</span></h1>
 
       <div className="weather-section">
         <h2 className="date">Today is: <span>{dia}</span></h2>
