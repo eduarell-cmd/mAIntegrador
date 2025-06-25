@@ -14,14 +14,26 @@ async def geminiprompt():
     datos_emociones = verificar_rostro()
 
     if datos_emociones["error"]:
-        raise HTTPException(status_code=400, detail=f"Error en verificación: {datos_emociones['error']}")
+        return {
+        "consejo": None,
+        "emocion": None,
+        "error": datos_emociones["error"]
+        }
 
     elif not datos_emociones["es_misma_persona"]:
-        raise HTTPException(status_code=403, detail="Rostro no coincide con la persona registrada.")
+        return {
+        "consejo": None,
+        "emocion": None,
+        "error": "Rostro no coincide con la persona registrada."
+        }
+
+    emociones_limpias = {
+        k: float(v) for k, v in datos_emociones["emociones"].items()
+    }
 
     emociones_para_prompt = {
         "es_misma_persona": datos_emociones["es_misma_persona"],
-        "emociones": datos_emociones["emociones"],
+        "emociones": emociones_limpias,
         "error": datos_emociones["error"],
         "emocion_dominante": datos_emociones["emocion_dominante"]
     }
@@ -34,4 +46,8 @@ async def geminiprompt():
         contents=prompt_text
     )
 
-    return response.text
+    return {
+    "consejo": response.text,
+    "emocion": datos_emociones["emocion_dominante"],
+    "error": None
+    }

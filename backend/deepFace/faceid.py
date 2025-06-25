@@ -24,16 +24,16 @@ def verificar_rostro():
 
     try:
         # Cargar imagen conocida y obtener su codificación facial
-        known_image = face_recognition.load_image_file("deepFace/fotos/tempedu.jpg")
+        known_image = face_recognition.load_image_file("deepFace/fotos/gera.jpg")
         known_face_encoding = face_recognition.face_encodings(known_image)[0]
         known_face_encodings = [known_face_encoding]
 
         # Tomar UNA foto
         camara = cv2.VideoCapture(0)
-        foto_path = "deepFace/fotos/foto.jpg"
+        foto_path = "../backend/deepFace/fotos/foto.jpg"
 
         if not camara.isOpened():
-            resultado["error"] = "No se pudo acceder a la cámara"
+            resultado["error"] = "❌ No se pudo acceder a la cámara"
             return resultado
         else:
             print("Voltea a la cámara...")
@@ -49,7 +49,7 @@ def verificar_rostro():
 
         # Verificar si se tomó la foto
         if foto_path is None or not os.path.exists(foto_path):
-            resultado["error"] = "No se capturó ninguna foto."
+            resultado["error"] = "❌ No se capturó ninguna foto, saliendo del proceso."
             return resultado
         else:
             # Comparar con la imagen base
@@ -68,13 +68,14 @@ def verificar_rostro():
             resultado["es_misma_persona"] = es_misma_persona
 
             if es_misma_persona:
+                # Reducir resolución para el análisis
                 img_array = reducir_resolucion_array(foto_path)
                 if img_array is not None:
                     try:
                         result = DeepFace.analyze(img_array, actions=['emotion'], enforce_detection=False)
                         emociones = result[0]['emotion']
-                        resultado["emocion_dominante"] = result[0]['dominant_emotion']
                         resultado["emociones"] = {k: round(v, 2) for k, v in emociones.items()}
+                        resultado["emocion_dominante"] = result[0]['dominant_emotion']
                         print("📊 Distribución de emociones:")
                         for emotion, score in emociones.items():
                             print(f"  {emotion}: {score:.2f}%")
@@ -93,5 +94,4 @@ def verificar_rostro():
     except Exception as e:
         resultado["error"] = f"❌ Error general: {e}"
 
-    print(resultado)
     return resultado
