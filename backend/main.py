@@ -30,7 +30,7 @@ app.add_middleware(
 )
 
 # Incluir las rutas de autenticación
-app.include_router(auth_router)
+app.include_router(auth_router)# Evaluar como funciona esta linea
 
 @app.get("/facerecog")
 def face():

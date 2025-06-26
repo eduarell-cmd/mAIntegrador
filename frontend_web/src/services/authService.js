@@ -34,7 +34,8 @@ class AuthService {
         try {
             console.log('🔄 Iniciando login...');
             
-            const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {//revisar este endpoint, creo que se llama solo 8000/login
+
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
