@@ -216,7 +216,7 @@ const handleVerificarRostroSubmit = async (e) => {
         <a className='alternate-forms' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Create an account' : 'Login'}</a> 
         <label className='entryArea eas'>
           <input 
-            type="email" 
+            type="text" 
             name="correo" 
             id='correo'
             placeholder=" "
