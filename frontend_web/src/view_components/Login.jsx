@@ -1,12 +1,14 @@
 // src/pages/Login.jsx
 import React, { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CirclesBackground } from '../small_components/CirclesBackground';
 import './Login.css';
 
 import closedEye from '../assets/icons/closedEye.png';
 import openEye from '../assets/icons/openedEye.png';
 
+// Importar el servicio de autenticación
+import authService from '../services/authService';
 
 export default function Login() {
   const [loginData, setLoginData] = useState({
@@ -16,9 +18,14 @@ export default function Login() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const navigate = useNavigate();
 
   const handleToggle = () => {
      setShowLogin(prev => !prev);
+     setError(''); // Limpiar errores al cambiar de formulario
   };
 
   // 1. referencias de lso forms
@@ -32,7 +39,8 @@ export default function Login() {
     sexo: '',
     correo: '',
     palabra_de_seguridad: '',
-    password: ''
+    password: '',
+    confirmarPassword: ''
   });
 
   const handleLoginChange = (e) => {
@@ -41,6 +49,7 @@ export default function Login() {
       ...prev,
       [name]: value
     }));
+    setError(''); // Limpiar errores al escribir
   };
 
   const togglePasswordVisibility = () => {
@@ -49,31 +58,23 @@ export default function Login() {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch('http://localhost:8000/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(loginData),
-      });
+    setLoading(true);
+    setError('');
 
-      const data = await response.json();
-      console.log('Respuesta del backend:', data);
-      if (response.ok) {
-        // Guardar el token en localStorage si el backend lo devuelve
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-        }
-        alert('Login exitoso');
-        // Aquí puedes redirigir al usuario a otra página
-        // window.location.href = '/dashboard';
-      } else {
-        alert(data.message || 'Error en el login');
-      }
+    try {
+      // Usar el nuevo servicio de autenticación
+      const result = await authService.login(loginData.correo, loginData.password);
+      
+      console.log('✅ Login exitoso:', result);
+      
+      // Redirigir al usuario a la página principal o dashboard
+      navigate('/dashboard'); // Cambiar por la ruta que prefieras
+      
     } catch (error) {
-      console.error('Error al hacer login:', error);
-      alert('Error al conectar con el servidor');
+      console.error('❌ Error en login:', error);
+      setError(error.message || 'Error en el login. Verifica tus credenciales.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -92,10 +93,13 @@ export default function Login() {
     } else {
       setRegisterData((prev) => ({ ...prev, [name]: value }));
     }
+    setError(''); // Limpiar errores al escribir
   };
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
 
     // Función de sanitización
     const sanitizeInput = (input) => {
@@ -107,37 +111,43 @@ export default function Login() {
 
     // Validaciones y sanitización
     if (!registerData.nombre?.trim()) {
-      alert('El nombre es requerido');
+      setError('El nombre es requerido');
+      setLoading(false);
       return;
     }
 
     if (!registerData.correo?.trim()) {
-      alert('El correo es requerido');
+      setError('El correo es requerido');
+      setLoading(false);
       return;
     }
 
     // Validación de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(registerData.correo)) {
-      alert('Por favor, ingrese un correo electrónico válido');
+      setError('Por favor, ingrese un correo electrónico válido');
+      setLoading(false);
       return;
     }
 
     // Validación de contraseña
-    if (!registerData.password || registerData.password.length < 2) {//subir a 8
-      alert('La contraseña debe tener al menos 8 caracteres');
+    if (!registerData.password || registerData.password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres');
+      setLoading(false);
       return;
     }
 
     if (registerData.password !== registerData.confirmarPassword) {
-      alert('Las contraseñas no coinciden');
+      setError('Las contraseñas no coinciden');
+      setLoading(false);
       return;
     }
 
     // Validación de edad
     const edad = parseInt(registerData.edad);
     if (isNaN(edad) || edad < 18 || edad > 100) {
-      alert('Por favor, ingrese una edad válida (entre 18 y 100 años)');
+      setError('Por favor, ingrese una edad válida (entre 18 y 100 años)');
+      setLoading(false);
       return;
     }
 
@@ -145,7 +155,7 @@ export default function Login() {
     const payload = {
       nombre: sanitizeInput(registerData.nombre),
       edad: edad,
-      preferencias: registerData.preferencias, // Mantenemos como array
+      preferencias: registerData.preferencias,
       sexo: sanitizeInput(registerData.sexo),
       correo: sanitizeInput(registerData.correo).toLowerCase(),
       palabra_de_seguridad: sanitizeInput(registerData.palabra_de_seguridad),
@@ -153,25 +163,19 @@ export default function Login() {
     };
 
     try {
-      const res = await fetch('http://localhost:8000/signup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
+      // Usar el nuevo servicio de autenticación
+      const result = await authService.signup(payload);
       
-      if (!res.ok) {
-        throw new Error(data.detail || 'Error en el registro');
-      }
-
-      console.log('Respuesta del backend:', data);
-      alert('Registro exitoso');
+      console.log('✅ Registro exitoso:', result);
+      
+      // Redirigir al usuario a la página principal o dashboard
+      navigate('/dashboard'); // Cambiar por la ruta que prefieras
+      
     } catch (error) {
-      console.error('Error al registrarse:', error);
-      alert(`Error al enviar el formulario: ${error.message}`);
+      console.error('❌ Error en registro:', error);
+      setError(error.message || 'Error en el registro. Intenta nuevamente.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -213,6 +217,22 @@ const handleVerificarRostroSubmit = async (e) => {
       
       <form className={ showLogin ? 'openLF' : 'closedLF' } onSubmit={handleLoginSubmit} ref={loginRef}>
         <h1 className="formTitle eas">Log in</h1>
+        
+        {/* Mostrar errores */}
+        {error && (
+          <div className="error-message" style={{
+            color: '#ff4444',
+            backgroundColor: '#ffe6e6',
+            padding: '10px',
+            borderRadius: '5px',
+            marginBottom: '15px',
+            fontSize: '14px',
+            textAlign: 'center'
+          }}>
+            {error}
+          </div>
+        )}
+        
         <label className='entryArea eas'>
           <input 
             type="email" 
@@ -222,6 +242,7 @@ const handleVerificarRostroSubmit = async (e) => {
             value={loginData.correo}
             onChange={handleLoginChange}
             required
+            disabled={loading}
           />
           <div className="labelLine eas">E-mail</div>
         </label>
@@ -234,6 +255,7 @@ const handleVerificarRostroSubmit = async (e) => {
             value={loginData.password}
             onChange={handleLoginChange}
             required
+            disabled={loading}
           />
           <div className="labelLine eas">Password</div>
           <img 
@@ -244,11 +266,13 @@ const handleVerificarRostroSubmit = async (e) => {
           />
         </label>
         <h3 className='p-forgot eas'>Forgot password?</h3>
-        <button className='btn-send eas' type="submit">Login</button>
+        <button className='btn-send eas' type="submit" disabled={loading}>
+          {loading ? 'Iniciando sesión...' : 'Login'}
+        </button>
         {/* SECTION DE DISPLAY NONE PARA CAJA GRIS */}
-        <button className='test-btn' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Register' : 'Login'}</button> 
+        <button className='test-btn' id='alternate-forms' onClick={handleToggle} disabled={loading}>{showLogin ? 'Register' : 'Login'}</button> 
         <h2 className='altern-h2'>Welcome back</h2>
-        <p className="altern-p">You’ve been missed. <br /> Ready to dive back in?</p>
+        <p className="altern-p">You've been missed. <br /> Ready to dive back in?</p>
       </form>
 
       {/* <h1>Registrate perro</h1> */}
@@ -259,33 +283,49 @@ const handleVerificarRostroSubmit = async (e) => {
 
       <form className={ showLogin ? 'closedRF' : 'openRF' } onSubmit={handleRegisterSubmit} ref={loginRef}>
         <h1 className="formTitle">Sign up</h1>
+        
+        {/* Mostrar errores */}
+        {error && (
+          <div className="error-message" style={{
+            color: '#ff4444',
+            backgroundColor: '#ffe6e6',
+            padding: '10px',
+            borderRadius: '5px',
+            marginBottom: '15px',
+            fontSize: '14px',
+            textAlign: 'center'
+          }}>
+            {error}
+          </div>
+        )}
+        
         <label className='entryArea'>
-          <input required type="text" name="nombre" value={registerData.nombre} onChange={handleRegisterChange} />
+          <input required type="text" name="nombre" value={registerData.nombre} onChange={handleRegisterChange} disabled={loading} />
           <div className="labelLine">Name</div>
         </label>
         <br/>
         <label className='entryArea'>
-          <input required type="number" name="edad" value={registerData.edad} onChange={handleRegisterChange} />
+          <input required type="number" name="edad" value={registerData.edad} onChange={handleRegisterChange} disabled={loading} />
           <div className="labelLine">Age</div>
         </label>
         <br/>
         <label className='entryArea'>
-          <input required type="email" name="correo" value={registerData.correo} onChange={handleRegisterChange} />
+          <input required type="email" name="correo" value={registerData.correo} onChange={handleRegisterChange} disabled={loading} />
           <div className="labelLine">E-mail</div>
         </label>
         <br/>
         <label className='entryArea'>
-          <input required type="password" name="password" value={registerData.password} onChange={handleRegisterChange} />
+          <input required type="password" name="password" value={registerData.password} onChange={handleRegisterChange} disabled={loading} />
           <div className="labelLine">Password</div>
         </label>
         <br/>
         <label className='entryArea'>
-          <input required type="password" name="confirmarPassword" value={registerData.confirmarPassword} onChange={handleRegisterChange} />
+          <input required type="password" name="confirmarPassword" value={registerData.confirmarPassword} onChange={handleRegisterChange} disabled={loading} />
           <div className="labelLine">Confirm Password</div>
         </label>
         <br/>
         <label className='entryArea'>
-          <input required type="password" name="palabra_de_seguridad" value={registerData.palabra_de_seguridad} onChange={handleRegisterChange} />
+          <input required type="password" name="palabra_de_seguridad" value={registerData.palabra_de_seguridad} onChange={handleRegisterChange} disabled={loading} />
           <div className="labelLine">Security word</div>
         </label>
         <br/>
@@ -308,8 +348,10 @@ const handleVerificarRostroSubmit = async (e) => {
           <input type="checkbox" name="preferencias" value="music" checked={registerData.preferencias.includes("music")} onChange={handleRegisterChange}/>
           <label>Música</label>
         </label> */}
-        <button className='btn-send' type="submit">Register</button>
-        <button className='test-btn' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Register' : 'Login'}</button> 
+        <button className='btn-send' type="submit" disabled={loading}>
+          {loading ? 'Registrando...' : 'Register'}
+        </button>
+        <button className='test-btn' id='alternate-forms' onClick={handleToggle} disabled={loading}>{showLogin ? 'Register' : 'Login'}</button> 
       {/* SECCION PARA DISPLAY NONE DEL CONTENEDOR DE CAJA GRIS */}
           <h2 className='altern-h2'>No account?</h2>
           <p className="altern-p">Create one down here</p>
