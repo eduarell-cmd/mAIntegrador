@@ -217,6 +217,7 @@ const handleVerificarRostroSubmit = async (e) => {
       
       <form className={ showLogin ? 'openLF' : 'closedLF' } onSubmit={handleLoginSubmit} ref={loginRef}>
         <h1 className="formTitle eas">Log in</h1>
+        <a className='alternate-forms' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Create an account' : 'Login'}</a> 
         
         {/* Mostrar errores */}
         {error && (
@@ -235,7 +236,7 @@ const handleVerificarRostroSubmit = async (e) => {
         
         <label className='entryArea eas'>
           <input 
-            type="email" 
+            type="text" 
             name="correo" 
             id='correo'
             placeholder=" "
@@ -270,7 +271,7 @@ const handleVerificarRostroSubmit = async (e) => {
           {loading ? 'Iniciando sesión...' : 'Login'}
         </button>
         {/* SECTION DE DISPLAY NONE PARA CAJA GRIS */}
-        <button className='test-btn' id='alternate-forms' onClick={handleToggle} disabled={loading}>{showLogin ? 'Register' : 'Login'}</button> 
+        <a className='test-btn' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Register' : 'Login'}</a> 
         <h2 className='altern-h2'>Welcome back</h2>
         <p className="altern-p">You've been missed. <br /> Ready to dive back in?</p>
       </form>
@@ -283,22 +284,7 @@ const handleVerificarRostroSubmit = async (e) => {
 
       <form className={ showLogin ? 'closedRF' : 'openRF' } onSubmit={handleRegisterSubmit} ref={loginRef}>
         <h1 className="formTitle">Sign up</h1>
-        
-        {/* Mostrar errores */}
-        {error && (
-          <div className="error-message" style={{
-            color: '#ff4444',
-            backgroundColor: '#ffe6e6',
-            padding: '10px',
-            borderRadius: '5px',
-            marginBottom: '15px',
-            fontSize: '14px',
-            textAlign: 'center'
-          }}>
-            {error}
-          </div>
-        )}
-        
+        <a className='alternate-forms' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Create an account' : 'Log in'}</a> 
         <label className='entryArea'>
           <input required type="text" name="nombre" value={registerData.nombre} onChange={handleRegisterChange} disabled={loading} />
           <div className="labelLine">Name</div>
@@ -348,20 +334,17 @@ const handleVerificarRostroSubmit = async (e) => {
           <input type="checkbox" name="preferencias" value="music" checked={registerData.preferencias.includes("music")} onChange={handleRegisterChange}/>
           <label>Música</label>
         </label> */}
-        <button className='btn-send' type="submit" disabled={loading}>
-          {loading ? 'Registrando...' : 'Register'}
-        </button>
-        <button className='test-btn' id='alternate-forms' onClick={handleToggle} disabled={loading}>{showLogin ? 'Register' : 'Login'}</button> 
+        <button className='btn-send' type="submit">Register</button>
+        <a className='test-btn' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Register' : 'Login'}</a> 
       {/* SECCION PARA DISPLAY NONE DEL CONTENEDOR DE CAJA GRIS */}
           <h2 className='altern-h2'>No account?</h2>
           <p className="altern-p">Create one down here</p>
       </form>
 
       <form onSubmit={handleVerificarRostroSubmit}>
-        <button type="submit" id='backend-test' className='backend-test'>boton de backend</button>
+        {/* <button type="submit" id='backend-test' className='backend-test'>boton de backend</button> */}
       </form>
         
-
       <div className="btn-container">
 
         <Link to="/Mirror" className="loginBtn">

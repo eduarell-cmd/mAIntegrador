@@ -1,0 +1,303 @@
+
+
+.ProfileView {
+    min-height: 100vh; width: 100vw;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+}
+
+/* =============== GENERAL VIEW FOR ELEMENTSS ============= */
+
+.user-info, .user-tip, .user-weekly, .monthly-record, .user-emotion, .daily-emotions {
+    border-radius: 6vh;
+    background-color: rgba(255, 255, 255, 0.3);
+    border: 2px solid gray;
+    box-shadow: rgba(255, 255, 255, 0.177) 0 0 12px;
+}
+
+/* =================== LEFT PROFILE SECTION =============== */
+
+.left-p-section {
+    height: 95%; width: 95%;
+    display: grid; 
+    grid-template-rows: 40% 30% 30%;
+    justify-items: center;
+    align-items: center;
+    /* background: rgba(255, 21, 239, 0.237); */
+    margin: auto;
+}
+
+.user-info, .user-tip, .user-weekly {
+    height: 90%; width: 90%;
+    /* background-color: rgba(0, 255, 242, 0.268); */
+}
+
+.user-info {
+    display: grid;
+    grid-template-columns: 35% 65%;
+    justify-items: center;
+    align-items: center;
+    position: relative;
+}
+
+.user-info h1, .user-info h3 {
+    font-weight: 600;
+}
+
+.user-info h1 {font-size: 2.5rem;}
+
+.p-img {
+    height: 10rem; width: 10rem;
+    border-radius: 50%;
+    background-color: rgba(128, 128, 128, 0.607);
+    overflow: hidden;
+}
+
+.p-img img {
+    height: 100%; width: 100%;
+}
+
+.p-settings {
+    position: absolute;
+    height: 3rem;
+    width: 3rem;
+    border-radius: 50%;
+    background-color: rgba(128, 128, 128, 0.607);
+    bottom: 10%;
+    left: 85%;
+    transition: ease-in-out 0.2s;
+}
+
+.p-settings:hover {
+    scale: 1.08;
+    background-color: rgba(90, 90, 90, 0.807);
+    box-shadow: rgba(64, 64, 64, 0.856) 0 0 8px;
+    cursor: pointer;
+}
+
+.p-settings img {
+    height: 50%; width: 50%;
+}
+
+/*--------------------- user tip ----------------- */
+
+.user-tip {
+    height: 75%;
+    display: grid;
+    grid-template-columns: 28% 3% 1fr 15%;
+    justify-items: center;
+    align-items: center;
+}
+
+.emotion-container {
+    height: 15vh; width: 15vh;
+    border-radius: 50%;
+    background-color: rgba(128, 128, 128, 0.3);
+    position: relative;
+    z-index: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: ease-in-out 0.25s;
+}
+
+.emotion-container::before {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  inset: 0;
+  background: linear-gradient(#ff6234ff, #ab4ff6ff) border-box;
+  
+  padding: 15%; /* borde de 5% del tamaño total */
+  -webkit-mask: 
+    radial-gradient(farthest-side, transparent calc(100% - 15%), white 100%);
+  -webkit-mask-composite: destination-in;
+          mask-composite: intersect;
+}
+
+.emotion-container img {
+    height: 75%; width: 75%;
+    
+}
+
+.v-line {
+    height: 70%; width: 2px;
+    background-color: rgb(208, 208, 208);
+    border-radius: 1vh;
+}
+
+.h-line {
+    height: 2px; width: 75%;
+    background-color: rgb(208, 208, 208);
+    border-radius: 5vh;
+}
+
+.tip-text-zone {
+    height: 100%; width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.arrows-container {
+    height: 90%; width: 90%;
+    margin: auto;
+    flex-direction: column;
+}
+
+.up-arrow {transform: rotate(180deg);}
+
+.down-arrow {}
+
+.up-arrow, .down-arrow {
+    height: 30%; width: auto;
+    transition: ease-in-out 0.2s;
+}
+
+.up-arrow:hover, .down-arrow:hover {
+    scale: 1.15;
+    filter: drop-shadow(white 0 0 2px);
+    cursor: pointer;
+}
+.user-weekly {
+    height: 75%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    align-items: center;
+    justify-items: center;
+}
+
+.weekly-emotion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    transition: ease-in-out 0.2s;
+}
+
+.weekly-emotion:hover {
+    scale: 1.25;
+    filter: drop-shadow(rgba(255, 255, 255, 0.3) 0 0 8px);
+}
+
+.weekly-emotion .emotion-container {
+    height: 4rem; width: 4rem;
+    border-radius: 50%;
+}
+
+.weekly-emotion h3 {
+    margin: 1rem 0 0 0;
+}
+
+
+
+/* =================== RIGHT PROFILE SECTION =============== */
+
+.right-p-section {
+    height: 95%; width: 95%;
+    display: grid; 
+    grid-template-rows: 40% 60%;
+    justify-items: center;
+    align-items: center;
+    /* background: rgba(255, 21, 239, 0.237); */
+    margin: auto;
+}
+
+.tracking-section {
+    height: 95%; width: 95%;
+    display: flex;
+    justify-content: space-between; align-items: center;
+    /* background-color: rgba(255, 32, 32, 0.242); */
+}
+
+.K {
+    height: 100%; width: 72%;
+    justify-content: space-between;
+}
+
+.monthly-record {
+    height: 95%; width: 45%;
+    display: grid;
+    justify-items: center; align-items: center;
+    grid-template-rows: 18% 10% 2% auto 2% 15%;
+    /* background-color: rgba(0, 255, 242, 0.268); */
+}
+
+.tracked-empty {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    align-items: center;
+    height: 100%; width: 100%;
+}
+
+.every-day {
+    display: grid;
+    height: 100%;
+    width: 80%;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    justify-items: center;
+    align-items: center;
+}
+
+.every-day .active-circle-day, .every-day .empty-circle-day {
+    height: 18px; width: 18px;
+    transition: ease-in-out 0.2s;
+}
+.every-day .active-circle-day:hover, .every-day .empty-circle-day:hover {
+    scale: 1.2;
+}
+
+.active-circle-day {
+    height: 10px; width: 10px;
+    border-radius: 50%;
+    background: linear-gradient(210deg, #ff5f79ff, #ff5f79ff, #d20972ff, #d400ff);
+}
+
+.empty-circle-day {
+    height: 10px; width: 10px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, rgb(109, 109, 109), rgb(227, 227, 227));
+}
+
+.user-emotion {
+    height: 95%; width: 45%;
+    /* background-color: rgba(0, 255, 242, 0.268); */
+    display: grid;
+    grid-template-rows: 20% auto 20%;
+    align-items: center;
+    justify-items: center;
+}
+
+.user-emotion h2 {
+    font-weight: 400;
+}
+
+.daily-emotions {
+    height: 85%; width: 95%;
+    /* background-color: rgba(0, 255, 242, 0.268); */
+}
+
+@media (max-width: 599px) {
+    .ProfileView {
+    min-height: 200vh;
+}
+}
+
+@media (min-width: 600px) and (max-width: 1023px) {
+    .ProfileView {
+    min-height: 200vh;
+}
+}
+
+/* SUPER HOVER OF ELEMENTS */
+
+.user-info, .user-tip, .user-weekly, .monthly-record, .user-emotion, .daily-emotions {
+    transition: ease-in-out 0.2s;
+}
+
+.user-info:hover, .user-tip:hover, .user-weekly:hover, .monthly-record:hover, .user-emotion:hover, .daily-emotions:hover {
+    border: solid 2px rgba(255, 255, 255, 0.737);
+}
