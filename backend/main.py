@@ -13,16 +13,24 @@ from deepFace.faceid import verificar_rostro
 from validaciones.horaapi import *
 from validaciones.clima import *
 from gemini import geminiprompt
+
+# Importar el sistema de autenticación
+from auth.auth_routes import auth_router
+from auth.middleware import get_current_user, get_current_user_optional
+
 app = FastAPI()
 
 # Habilitar CORS para permitir que el frontend se conecte
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Incluir las rutas de autenticación
+app.include_router(auth_router)# Evaluar como funciona esta linea
 
 @app.get("/facerecog")
 def face():
@@ -39,8 +47,12 @@ def face():
             return obj
 
     resultado_convertido = convertir(resultado)
-    return resultado_convertido
+    try:
+        print(json.dumps(resultado_convertido, indent=4, ensure_ascii=False))
+    except Exception as e:
+        print(e)
 
+    return {"mensaje": resultado_convertido}
 
 @app.post("/login", response_model=UserBase)
 async def login(data:LoginInput):
@@ -48,7 +60,18 @@ async def login(data:LoginInput):
     return LogedUser
 
 @app.get("/perfil/{nombre}",response_model=User)
-async def perfil(nombre: str):
+async def perfil(nombre: str, current_user: dict = Depends(get_current_user)):
+    """
+    Ruta protegida que requiere autenticación
+    Solo usuarios autenticados pueden acceder a su perfil
+    """
+    # Verificar que el usuario solo pueda acceder a su propio perfil
+    if current_user.get("nombre") != nombre:
+        raise HTTPException(
+            status_code=403,
+            detail="No tienes permisos para acceder a este perfil"
+        )
+    
     usuario=await get(nombre)
     return usuario
 
@@ -70,7 +93,6 @@ async def weather():
 
     return clima
 
-
 @app.get("/emocion")
 async def emotion():
     emocion=verificar_rostro()
@@ -80,7 +102,38 @@ async def consejo():
     texto = await geminiprompt()  
     return {"consejo": texto}
 
+# Nueva ruta protegida de ejemplo
+@app.get("/protected-data")
+async def get_protected_data(current_user: dict = Depends(get_current_user)):
+    """
+    Ejemplo de ruta protegida que requiere autenticación
+    """
+    return {
+        "message": f"Hola {current_user.get('nombre')}, esta es información protegida",
+        "user_data": {
+            "nombre": current_user.get("nombre"),
+            "correo": current_user.get("correo"),
+            "session_id": current_user.get("session_id")
+        }
+    }
 
+# Ruta opcional (puede ser accedida con o sin autenticación)
+@app.get("/public-data")
+async def get_public_data(current_user: dict = Depends(get_current_user_optional)):
+    """
+    Ejemplo de ruta que puede ser accedida con o sin autenticación
+    """
+    if current_user:
+        return {
+            "message": "Información pública",
+            "user_authenticated": True,
+            "user_name": current_user.get("nombre")
+        }
+    else:
+        return {
+            "message": "Información pública",
+            "user_authenticated": False
+        }
 
 # @app.post("/signup", response_model=User)
 # async def signup(persona: UserCreate):
