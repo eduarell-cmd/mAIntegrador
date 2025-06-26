@@ -34,9 +34,5 @@ class UserCreate(UserBase):
     pass
 
 class User(UserBase):
-    id: Optional[PyObjectId] = Field(alias="_id")
+  print()
     
-    model_config = {
-        "populate_by_name": True,  
-        "json_encoders": {ObjectId: str}
-    }

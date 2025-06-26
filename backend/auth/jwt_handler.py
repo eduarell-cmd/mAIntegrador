@@ -27,6 +27,7 @@ class JWTHandler:
     def __init__(self):
         # Clave secreta para firmar los tokens (en producción debe estar en variables de entorno)
         self.secret_key = os.getenv("JWT_SECRET_KEY", "tu_clave_secreta_super_segura_cambiala_en_produccion")
+        print(f"[DEBUG] JWT_SECRET_KEY usada por el backend: {self.secret_key}")
         
         # Algoritmo de firma
         self.algorithm = "HS256"
