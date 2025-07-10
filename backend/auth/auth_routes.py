@@ -16,7 +16,7 @@ Este módulo contiene todos los endpoints relacionados con autenticación:
 6. DELETE /auth/sessions/{session_id} - Cerrar sesión específica
 7. DELETE /auth/sessions - Cerrar todas las sesiones
 """
-
+from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import JSONResponse
 from typing import List
@@ -61,76 +61,68 @@ async def login(
     Raises:
         HTTPException: Si las credenciales son incorrectas
     """
-    try:
-        # Verificar credenciales usando la función existente
-        user_data = await loginsito(login_data)
+
+    # Verificar credenciales usando la función existente
+    user_data = await loginsito(login_data)
+    
+    # Obtener información del cliente
+    client_ip = request.client.host
+    user_agent = request.headers.get("User-Agent", "Unknown")
+    
+    # Crear ID único para la sesión
+    session_id = str(uuid.uuid4())
+    print(f"[login] {user_data}")
+
+    user_data['_id']=str(user_data['_id'])
+    # Preparar datos para el token (sin información sensible)
+    token_data = {
+        "user_id": user_data['_id'],
+        "nombre": user_data['nombre'],
+        "correo": user_data['correo'],
+        "session_id": session_id
+    }
+    
+    # Crear tokens
+    access_token = jwt_handler.create_access_token(token_data)
+    refresh_token = jwt_handler.create_refresh_token(token_data)
+    
+    # Calcular tiempo de expiración
+    expires_in = jwt_handler.access_token_expire_minutes * 60  # Convertir a segundos
+    
+    # Almacenar información de sesión en Redis
+    session_info = {
+        "session_id": session_id,
+        "ip_address": client_ip,
+        "user_agent": user_agent,
+        "access_token": access_token,
+        "refresh_token": refresh_token
+    }
+    
+    # Guardar en Redis con expiración
+    session_manager.store_session_info(
+        str(user_data.get("_id", "")), 
+        session_info, 
+        expires_in
+    )
+    
+    # Agregar sesión a la lista del usuario
+    session_manager.add_user_session(
+        str(user_data.get("_id", "")),
+        session_id,
+        expires_in
+    )
+    
+    # Log del login exitoso
+    print(f"Login exitoso: {user_data.get('correo')} desde {client_ip}")
+    
+    return TokenResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        token_type="bearer",
+        expires_in=expires_in,
+        user=user_data
+    )
         
-        # Obtener información del cliente
-        client_ip = request.client.host
-        user_agent = request.headers.get("User-Agent", "Unknown")
-        
-        # Crear ID único para la sesión
-        session_id = str(uuid.uuid4())
-        
-        # Preparar datos para el token (sin información sensible)
-        token_data = {
-            "user_id": str(user_data.get("_id", "")),
-            "nombre": user_data.get("nombre", ""),
-            "correo": user_data.get("correo", ""),
-            "session_id": session_id
-        }
-        
-        # Crear tokens
-        access_token = jwt_handler.create_access_token(token_data)
-        refresh_token = jwt_handler.create_refresh_token(token_data)
-        
-        # Calcular tiempo de expiración
-        expires_in = jwt_handler.access_token_expire_minutes * 60  # Convertir a segundos
-        
-        # Almacenar información de sesión en Redis
-        session_info = {
-            "session_id": session_id,
-            "ip_address": client_ip,
-            "user_agent": user_agent,
-            "access_token": access_token,
-            "refresh_token": refresh_token
-        }
-        
-        # Guardar en Redis con expiración
-        session_manager.store_session_info(
-            str(user_data.get("_id", "")), 
-            session_info, 
-            expires_in
-        )
-        
-        # Agregar sesión a la lista del usuario
-        session_manager.add_user_session(
-            str(user_data.get("_id", "")),
-            session_id,
-            expires_in
-        )
-        
-        # Log del login exitoso
-        print(f"Login exitoso: {user_data.get('correo')} desde {client_ip}")
-        
-        return TokenResponse(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            token_type="bearer",
-            expires_in=expires_in,
-            user=user_data
-        )
-        
-    except HTTPException as he:
-        # Log del login fallido
-        print(f"Login fallido: {login_data.correo} - {he.detail}")
-        raise he
-    except Exception as e:
-        print(f"Error en login: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error interno del servidor"
-        )
 
 @auth_router.post("/signup", response_model=TokenResponse)
 async def signup(
@@ -195,12 +187,15 @@ async def signup(
         
         print(f"Registro exitoso: {created_user.correo} desde {client_ip}")
         
+        user_dict = created_user.model_dump(by_alias=True)
+        if user_dict.get("_id"):
+            user_dict["_id"] = str(user_dict["_id"])
         return TokenResponse(
             access_token=access_token,
             refresh_token=refresh_token,
             token_type="bearer",
             expires_in=expires_in,
-            user=created_user.model_dump()
+            user=user_dict
         )
         
     except HTTPException as he:
