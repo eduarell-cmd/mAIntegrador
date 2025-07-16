@@ -6,10 +6,12 @@ import { login } from '../../../services/authService';
 import { useAuth } from '../../../services/authContext';
 
 export default function LoginScreen({ navigation }) {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { loginSuccess } = useAuth();
+
 
   const handleLogin = async () => {
     if (email && password) {
@@ -60,9 +62,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 24,
+    fontSize: 22, fontWeight: 'bold', marginBottom: 30, textAlign: 'center',
   },
   input: {
     width: '100%',
