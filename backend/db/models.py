@@ -34,7 +34,7 @@ class UserCreate(UserBase):
     pass
 
 class User(UserBase):
-    id: Optional[PyObjectId] = Field(alias="_id")
+    id: Optional[str] = Field(alias="_id")
     
     model_config = {
         "populate_by_name": True,  

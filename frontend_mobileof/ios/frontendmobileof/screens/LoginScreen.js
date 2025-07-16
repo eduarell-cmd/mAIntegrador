@@ -2,14 +2,27 @@
 
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { login } from '../../../services/authService';
+import { useAuth } from '../../../services/authContext';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { loginSuccess } = useAuth();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (email && password) {
-      navigation.replace('LoggedIn'); // navega y reemplaza login
+      setLoading(true);
+      try {
+        await login(email, password);
+        loginSuccess();
+        navigation.replace('LoggedIn');
+      } catch (e) {
+        Alert.alert('Error', e.message);
+      } finally {
+        setLoading(false);
+      }
     } else {
       Alert.alert('Error', 'Ingresa ambos campos.');
     }
@@ -23,6 +36,8 @@ export default function LoginScreen({ navigation }) {
         value={email}
         onChangeText={setEmail}
         style={styles.input}
+        autoCapitalize="none"
+        keyboardType="email-address"
       />
       <TextInput
         placeholder="Contraseña"
@@ -31,19 +46,31 @@ export default function LoginScreen({ navigation }) {
         secureTextEntry
         style={styles.input}
       />
-      <Button title="Ingresar" onPress={handleLogin} />
+      <Button title={loading ? "Ingresando..." : "Ingresar"} onPress={handleLogin} disabled={loading} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 24,
   },
   input: {
-    borderWidth: 1, borderColor: '#ccc', padding: 10, marginBottom: 15, borderRadius: 5,
+    width: '100%',
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 4,
+    marginBottom: 16,
+    paddingHorizontal: 8,
   },
 });
