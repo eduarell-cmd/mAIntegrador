@@ -71,7 +71,7 @@ export default function Login() {
       console.log('✅ Login exitoso:', result);
       
       // Redirigir al usuario a la página principal o dashboard
-      navigate('/dashboard'); // Cambiar por la ruta que prefieras
+      navigate('/profile'); // Cambiar por la ruta que prefieras
       
     } catch (error) {
       console.error('❌ Error en login:', error);
@@ -177,7 +177,7 @@ export default function Login() {
       console.log('✅ Registro exitoso:', result);
       
       // Redirigir al usuario a la página principal o dashboard
-      navigate('/dashboard'); // Cambiar por la ruta que prefieras
+      navigate('/login'); 
       
     } catch (error) {
       console.error('❌ Error en registro:', error);
@@ -226,6 +226,21 @@ useEffect(() => {
   document.addEventListener('keydown', handleKeyDown);
   return () => document.removeEventListener('keydown', handleKeyDown);
 }, []);
+
+//  ----------- SECCION PARA GUARDAR LAS IMAGENES ---------------
+const [userImageFile, setUserImageFile] = useState(null);
+
+const handleImageUpload = (e) => {
+  const file = e.target.files[0];
+  if (file && file.type.startsWith("image/")) {
+    setUserImageFile(file);
+    console.log("📷 Imagen seleccionada:", file.name);
+    // NOTAAA: Aquí se guarda la imagen, desde aqui, redireccionenla a donde la vayan a utilizar! (DANI, LALO)
+  } else {
+    alert("Por favor, selecciona un archivo de imagen válido.");
+  }
+};
+
 
 
   return (
@@ -361,12 +376,29 @@ useEffect(() => {
             </label> */}
           </div>
           <div className="right-su-side">
-           <div className="user-su-img flex-center">
-              <img src={userImage} alt="upload image" />
-              <h4 className='user-su-p'>Upload file <span>here</span></h4>
-           </div>
+
+           <label className="user-su-img flex-center" htmlFor="userImageInput">
+            <img className='.userImgIcon' src={userImage} alt="upload preview" />
+            <h4 className="user-su-p">Upload file <span>here</span></h4>
+            <input
+              id="userImageInput"
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              style={{ display: 'none' }}
+            />
+            {userImageFile && (
+              <img
+                src={URL.createObjectURL(userImageFile)}
+                alt="Vista previa"
+                className="preview-image"
+              />
+            )}
+
+          </label>
+
            <div className="user-su-description flex-center" onClick={() => setShowPrompt(true)}>
-              <img src={teachImg} alt="Teach AI" />
+              <img className='.teachImgIcon' src={teachImg} alt="Teach AI" />
               <h4 className='user-su-p'>Teach the IA <span>here</span></h4>
            </div>
            <div className="teach-btn flex-center" onClick={() => setShowPrompt(true)}>Prompt</div>

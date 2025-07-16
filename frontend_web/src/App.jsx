@@ -7,6 +7,7 @@ import Orbit from './view_components/Orbit';
 import Mirror from './view_components/Mirror';
 import Profile from './view_components/Profile';
 import Countdown from './view_components/Countdown';
+import QR from './view_components/QR';
 
 // TEST ----------------------
 // export default function App() {
@@ -25,6 +26,7 @@ function App() {
         <Route path="/Mirror"    element={<Mirror />}   />
         <Route path="/Profile"   element={<Profile />}  />
         <Route path="/Timer"     element={<Countdown />}/>
+        <Route path="/QR"     element={<QR />}/>
       </Routes>
     </BrowserRouter>
   );

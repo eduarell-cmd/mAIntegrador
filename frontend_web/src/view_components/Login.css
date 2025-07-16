@@ -270,6 +270,7 @@ input:valid + .labelLine {
     display: flex;
     flex-direction: column;
     border: solid 2px white;
+    position: relative;
 }
 
 .user-su-description {
@@ -297,6 +298,17 @@ h4 {margin: 0; font-weight: 400; font-size: 1rem;}
 
 .user-su-description:hover > img, .user-su-img:hover > img {
     scale: 1.1;
+}
+
+.preview-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    height: 90% !important;
+    width: auto !important;
+    border-radius: 3vh;
+
 }
 
 .user-su-p {
