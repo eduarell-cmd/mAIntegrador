@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 
 export default function LoginScreen({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('ola');
+  const [password, setPassword] = useState('ola');
 
   const handleLogin = () => {
     if (email && password) {
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff',
   },
   title: {
-    fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center',
+    fontSize: 22, fontWeight: 'bold', marginBottom: 30, textAlign: 'center',
   },
   input: {
     borderWidth: 1, borderColor: '#ccc', padding: 10, marginBottom: 15, borderRadius: 5,
