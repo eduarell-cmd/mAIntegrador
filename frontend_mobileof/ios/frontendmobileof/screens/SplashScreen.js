@@ -14,7 +14,7 @@ export default function SplashScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Cargando App...</Text>
+      <Text style={styles.text}>M.AI</Text>
       <ActivityIndicator size="large" color="#007AFF" />
     </View>
   );
