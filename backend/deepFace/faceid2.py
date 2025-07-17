@@ -111,6 +111,15 @@ def verificar_rostro():
 
         resultado["es_misma_persona"] = es_misma_persona
 
+        friendly_emotions = {
+            "angry": "a bit frustrated",
+            "disgust": "slightly uncomfortable",
+            "fear": "a little worried",
+            "happy": "happy",
+            "sad": "a bit down",
+            "surprise": "surprised",
+            "neutral": "calm"
+        }
         # Análisis de emociones
         if es_misma_persona:
             img_array = reducir_resolucion_array(foto_path)
@@ -119,13 +128,18 @@ def verificar_rostro():
                     result = DeepFace.analyze(img_array, actions=['emotion'], enforce_detection=False)
                     emociones = result[0]['emotion']
                     resultado["emociones"] = {k: float(round(v, 2)) for k, v in emociones.items()}
-                    resultado["emocion_dominante"] = result[0]['dominant_emotion']
-                    print("📊 Emociones detectadas:")
+
+                    # Emoción dominante
+                    raw_emotion = result[0]['dominant_emotion']
+                    friendly_emotion = friendly_emotions.get(raw_emotion, raw_emotion)
+                    resultado["emocion_dominante"] = friendly_emotion
+
+                    print("📊 Emotions detected:")
                     for emotion, score in emociones.items():
                         print(f"  {emotion}: {score:.2f}%")
-                    print(f"🧠 Emoción dominante: {result[0]['dominant_emotion']}")
+                    print(f"🧠 Friendly dominant emotion: {friendly_emotion}")
                 except Exception as e:
-                    resultado["error"] = f"❌ Error analizando emociones: {e}"
+                    resultado["error"] = f"❌ Error analyzing emotions: {e}"
         else:
             print("❌ NO ES LA MISMA PERSONA")
 
