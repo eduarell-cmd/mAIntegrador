@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from validaciones.validaciones import *
 import bcrypt # type: ignore
 import json
-from deepFace.faceid import verificar_rostro
+from deepFace.faceid2 import verificar_rostro
 from validaciones.horaapi import *
 from validaciones.clima import *
 from gemini import geminiprompt
@@ -23,7 +23,11 @@ app = FastAPI()
 # Habilitar CORS para permitir que el frontend se conecte
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://192.168.0.30:5173",  # IP del frontend
+        "http://127.0.0.1:5173"      # Alternativamente
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -95,11 +99,22 @@ async def weather():
 
 @app.get("/emocion")
 async def emotion():
-    emocion=verificar_rostro()
+    resultado = verificar_rostro()
+
+    if resultado["error"]:
+        return JSONResponse(status_code=500, content={"error": resultado["error"]})
+
+    return {
+        "es_misma_persona": resultado["es_misma_persona"],
+        "emociones": resultado.get("emociones", {}),
+        "emocion_dominante": resultado.get("emocion_dominante", None)
+    }
 
 @app.get("/geminiprompt")
 async def consejo():
-    texto = await geminiprompt()  
+    print("➡️ Llamando a geminiprompt()")
+    texto = await geminiprompt()
+    print(f"✅ Respuesta de geminiprompt: {texto}")
     return {"consejo": texto}
 
 # Nueva ruta protegida de ejemplo
