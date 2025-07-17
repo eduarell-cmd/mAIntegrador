@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import './Orbit.css';
-import NextButton from '../small_components/next_button';
+import NextButton from '../small_components/Next_button';
 import { HeaderLanding } from '../small_components/HeaderLanding';
 import { HomeLanding } from '../small_components/HomeLanding';
 import { Functionalities } from '../small_components/Functionalities';
