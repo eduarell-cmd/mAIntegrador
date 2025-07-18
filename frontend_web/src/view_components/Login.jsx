@@ -232,7 +232,7 @@ const [userImageFile, setUserImageFile] = useState(null);
 
 const handleImageUpload = (e) => {
   const file = e.target.files[0];
-  if (file && file.type.startsWith("image/")) {
+  if (file) {
     setUserImageFile(file);
     console.log("📷 Imagen seleccionada:", file.name);
     // NOTAAA: Aquí se guarda la imagen, desde aqui, redireccionenla a donde la vayan a utilizar! (DANI, LALO)
@@ -240,7 +240,6 @@ const handleImageUpload = (e) => {
     alert("Por favor, selecciona un archivo de imagen válido.");
   }
 };
-
 
 
   return (
