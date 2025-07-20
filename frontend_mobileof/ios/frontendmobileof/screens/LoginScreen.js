@@ -1,17 +1,44 @@
-// screens/LoginScreen.js
-
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
-    if (email && password) {
-      navigation.replace('LoggedIn'); // navega y reemplaza login
-    } else {
-      Alert.alert('Error', 'Ingresa ambos campos.');
+  const handleLogin = async () => {
+    if (!email || !password) {
+      return Alert.alert('Error', 'Ingresa ambos campos.');
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch('http://10.100.0.14:8000/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo: email.toLowerCase(), password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.detail || 'Credenciales inválidas');
+      }
+
+      // Guardar tokens y datos del usuario
+      await AsyncStorage.setItem('access_token', data.access_token);
+      await AsyncStorage.setItem('refresh_token', data.refresh_token);
+      await AsyncStorage.setItem('user', JSON.stringify(data.user));
+
+      console.log('✅ Sesión iniciada');
+      navigation.replace('LoggedIn'); // pantalla principal
+    } catch (err) {
+      console.error('❌ Error en login:', err.message);
+      Alert.alert('Error', err.message || 'Ocurrió un error al iniciar sesión');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -22,6 +49,7 @@ export default function LoginScreen({ navigation }) {
         placeholder="Correo"
         value={email}
         onChangeText={setEmail}
+        autoCapitalize="none"
         style={styles.input}
       />
       <TextInput
@@ -31,7 +59,11 @@ export default function LoginScreen({ navigation }) {
         secureTextEntry
         style={styles.input}
       />
-      <Button title="Ingresar" onPress={handleLogin} />
+      {loading ? (
+        <ActivityIndicator size="large" color="#000" />
+      ) : (
+        <Button title="Ingresar" onPress={handleLogin} />
+      )}
     </View>
   );
 }
