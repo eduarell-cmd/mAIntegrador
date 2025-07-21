@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './HomeLanding.css';
 import girlImg from '../assets/images/final-girl-grid-endpoint.png';
 import girlImgMedia from '../assets/images/grid-landing-girl.png';
-import NextButton from './next_button';
+import NextButton from './Next_button.jsx';
 import avatar1 from '../assets/images/avatar1.png';
 import avatar2 from '../assets/images/avatar2.png';
 import avatar3 from '../assets/images/avatar3.png';

@@ -1,44 +1,30 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { login } from '../../../services/authService';
+import { useAuth } from '../../../services/authContext';
 
 export default function LoginScreen({ navigation }) {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { loginSuccess } = useAuth();
+
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      return Alert.alert('Error', 'Ingresa ambos campos.');
-    }
-
-    setLoading(true);
-
-    try {
-      const res = await fetch('http://10.100.0.14:8000/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo: email.toLowerCase(), password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.detail || 'Credenciales inválidas');
+    if (email && password) {
+      setLoading(true);
+      try {
+        await login(email, password);
+        loginSuccess();
+        navigation.replace('LoggedIn');
+      } catch (e) {
+        Alert.alert('Error', e.message);
+      } finally {
+        setLoading(false);
       }
-
-      // Guardar tokens y datos del usuario
-      await AsyncStorage.setItem('access_token', data.access_token);
-      await AsyncStorage.setItem('refresh_token', data.refresh_token);
-      await AsyncStorage.setItem('user', JSON.stringify(data.user));
-
-      console.log('✅ Sesión iniciada');
-      navigation.replace('LoggedIn'); // pantalla principal
-    } catch (err) {
-      console.error('❌ Error en login:', err.message);
-      Alert.alert('Error', err.message || 'Ocurrió un error al iniciar sesión');
-    } finally {
-      setLoading(false);
+    } else {
+      Alert.alert('Error', 'Ingresa ambos campos.');
     }
   };
 
@@ -51,6 +37,8 @@ export default function LoginScreen({ navigation }) {
         onChangeText={setEmail}
         autoCapitalize="none"
         style={styles.input}
+        autoCapitalize="none"
+        keyboardType="email-address"
       />
       <TextInput
         placeholder="Contraseña"
@@ -59,23 +47,29 @@ export default function LoginScreen({ navigation }) {
         secureTextEntry
         style={styles.input}
       />
-      {loading ? (
-        <ActivityIndicator size="large" color="#000" />
-      ) : (
-        <Button title="Ingresar" onPress={handleLogin} />
-      )}
+      <Button title={loading ? "Ingresando..." : "Ingresar"} onPress={handleLogin} disabled={loading} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff',
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#fff',
   },
   title: {
-    fontSize: 22, fontWeight: 'bold', marginBottom: 20, textAlign: 'center',
+    fontSize: 22, fontWeight: 'bold', marginBottom: 30, textAlign: 'center',
   },
   input: {
-    borderWidth: 1, borderColor: '#ccc', padding: 10, marginBottom: 15, borderRadius: 5,
+    width: '100%',
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 4,
+    marginBottom: 16,
+    paddingHorizontal: 8,
   },
 });

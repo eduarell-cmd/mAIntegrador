@@ -6,19 +6,32 @@ import requests
 
 async def get_weather():
     url = os.getenv("WEATHER_API_URL")
-    headers = {
-        "User-Agent": "MiAppClimaChihuahua/1.0"
-    }
+    headers = {"User-Agent": "MiAppClimaChihuahua/1.0"}
 
     async with httpx.AsyncClient() as client:
-        response = await client.get(url, headers=headers)
-        data = response.json()
+        resp = await client.get(url, headers=headers)
+        resp.raise_for_status()
+        data = resp.json()
 
-        weather = data["properties"]["timeseries"][1]["data"]
-        temp = weather["instant"]["details"]["air_temperature"]
-        condition = weather["next_1_hours"]["summary"]["symbol_code"]
-        print(temp)
-        return {
-            "temperature": temp,
-            "condition": condition    
-        }
+    weather = data["properties"]["timeseries"][1]["data"]
+    temp = weather["instant"]["details"]["air_temperature"]
+    code = weather["next_1_hours"]["summary"]["symbol_code"]
+
+    SYMBOL_TRANSLATIONS = {
+        "clearsky_day": "Clear Sky",
+        "clearsky_night": "Clear Night Sky",
+        "partlycloudy_day": "Partly Cloudy",
+        "partlycloudy_night": "Partly Cloudy (night)",
+        "cloudy": "Cloudy",
+        "lightrain": "Light Rain",
+        "heavyrain": "Heavy Rain",
+        "lightsleet": "Light Sleet",
+        "heavysleet": "Heavy Sleet",
+        "lightssnow": "Light Snow",
+        "heavysnow": "Heavy Snow",
+        "fog": "Foggy",
+        "windy": "Windy"
+    }
+    condition_text = SYMBOL_TRANSLATIONS.get(code, code)
+
+    return {"temperature": temp, "condition": condition_text}

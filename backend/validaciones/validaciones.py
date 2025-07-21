@@ -12,6 +12,8 @@ import bcrypt
 async def get(nombre: str):
     usuario = await personas_collection.find_one({"nombre": nombre})
     if usuario:
+        if '_id' in usuario:
+            usuario['_id'] = str(usuario['_id'])
         return User(**usuario)
     raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
@@ -41,10 +43,8 @@ async def signupsito(persona:UserCreate):
                 detail="Error al guardar en la base de datos"
             )
         
-        created_user = User(
-            id=result.inserted_id,
-            **user_data
-        )
+        user_data['_id'] = str(result.inserted_id)
+        created_user = User(**user_data)
         print("[DEBUG] Usuario creado:", created_user)
         return created_user
     except Exception as e:

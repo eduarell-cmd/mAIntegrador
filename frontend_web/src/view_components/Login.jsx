@@ -1,11 +1,13 @@
 // src/pages/Login.jsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CirclesBackground } from '../small_components/CirclesBackground';
 import './Login.css';
 
 import closedEye from '../assets/icons/closedEye.png';
 import openEye from '../assets/icons/openedEye.png';
+import userImage from '../assets/icons/image.png';
+import teachImg from '../assets/icons/teaching.png';
 
 // Importar el servicio de autenticación
 import authService from '../services/authService';
@@ -40,7 +42,8 @@ export default function Login() {
     correo: '',
     palabra_de_seguridad: '',
     password: '',
-    confirmarPassword: ''
+    confirmarPassword: '',
+    descripcion:'' // <--- Recuerden poner esto en la base de datos para los prompts!!!!! --------------------------------
   });
 
   const handleLoginChange = (e) => {
@@ -68,7 +71,7 @@ export default function Login() {
       console.log('✅ Login exitoso:', result);
       
       // Redirigir al usuario a la página principal o dashboard
-      navigate('/dashboard'); // Cambiar por la ruta que prefieras
+      navigate('/profile'); // Cambiar por la ruta que prefieras
       
     } catch (error) {
       console.error('❌ Error en login:', error);
@@ -150,6 +153,11 @@ export default function Login() {
       setLoading(false);
       return;
     }
+    // Validacion de la descripcion del usuario ---------------
+    if (!registerData.descripcion.trim()) {
+      alert("La descripción es obligatoria.");
+      return;
+    }
 
     // Creación del payload con datos sanitizados
     const payload = {
@@ -169,7 +177,7 @@ export default function Login() {
       console.log('✅ Registro exitoso:', result);
       
       // Redirigir al usuario a la página principal o dashboard
-      navigate('/dashboard'); // Cambiar por la ruta que prefieras
+      navigate('/login'); 
       
     } catch (error) {
       console.error('❌ Error en registro:', error);
@@ -204,6 +212,36 @@ const handleVerificarRostroSubmit = async (e) => {
     alert("❌ Error al conectar con el servidor.");
   }
 };
+
+// ---------- OCULTAR Y MOSTRAR LA MODAL DE DESCRIPCION ---------
+const [showPrompt, setShowPrompt] = useState(false);
+
+useEffect(() => {
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      setShowPrompt(false);
+    }
+  };
+
+  document.addEventListener('keydown', handleKeyDown);
+  return () => document.removeEventListener('keydown', handleKeyDown);
+}, []);
+
+//  ----------- SECCION PARA GUARDAR LAS IMAGENES ---------------
+const [userImageFile, setUserImageFile] = useState(null);
+
+const handleImageUpload = (e) => {
+  const file = e.target.files[0];
+  if (file && file.type.startsWith("image/")) {
+    setUserImageFile(file);
+    console.log("📷 Imagen seleccionada:", file.name);
+    // NOTAAA: Aquí se guarda la imagen, desde aqui, redireccionenla a donde la vayan a utilizar! (DANI, LALO)
+  } else {
+    alert("Por favor, selecciona un archivo de imagen válido.");
+  }
+};
+
+
 
   return (
     
@@ -284,62 +322,137 @@ const handleVerificarRostroSubmit = async (e) => {
 
       <form className={ showLogin ? 'closedRF' : 'openRF' } onSubmit={handleRegisterSubmit} ref={loginRef}>
         <h1 className="formTitle">Sign up</h1>
-        <a className='alternate-forms' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Create an account' : 'Log in'}</a> 
-        <label className='entryArea'>
-          <input required type="text" name="nombre" value={registerData.nombre} onChange={handleRegisterChange} disabled={loading} />
-          <div className="labelLine">Name</div>
-        </label>
-        <br/>
-        <label className='entryArea'>
-          <input required type="number" name="edad" value={registerData.edad} onChange={handleRegisterChange} disabled={loading} />
-          <div className="labelLine">Age</div>
-        </label>
-        <br/>
-        <label className='entryArea'>
-          <input required type="email" name="correo" value={registerData.correo} onChange={handleRegisterChange} disabled={loading} />
-          <div className="labelLine">E-mail</div>
-        </label>
-        <br/>
-        <label className='entryArea'>
-          <input required type="password" name="password" value={registerData.password} onChange={handleRegisterChange} disabled={loading} />
-          <div className="labelLine">Password</div>
-        </label>
-        <br/>
-        <label className='entryArea'>
-          <input required type="password" name="confirmarPassword" value={registerData.confirmarPassword} onChange={handleRegisterChange} disabled={loading} />
-          <div className="labelLine">Confirm Password</div>
-        </label>
-        <br/>
-        <label className='entryArea'>
-          <input required type="password" name="palabra_de_seguridad" value={registerData.palabra_de_seguridad} onChange={handleRegisterChange} disabled={loading} />
-          <div className="labelLine">Security word</div>
-        </label>
-        <br/>
-        {/* <label className='select-section'>
-          <h3>Gender</h3>
-          <div className="gender-radio">
-            <input className='radio-check' type="radio" name="sexo" value="masculino" checked={registerData.sexo === 'masculino'} onChange={handleRegisterChange} />
-            <label htmlFor="masculine">H</label>
-            <input className='radio-check' type="radio" name="sexo" value="femenino" checked={registerData.sexo === 'femenino'} onChange={handleRegisterChange} />
-            <label htmlFor="feminine">M</label>
-          </div>
-        </label>
+        <div className="middle-su-content">
+          <div className="left-su-side">
+            <a className='alternate-forms' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Create an account' : 'Log in'}</a> 
+            <label className='entryArea'>
+              <input required type="text" name="nombre" value={registerData.nombre} onChange={handleRegisterChange} disabled={loading} />
+              <div className="labelLine">Name</div>
+            </label>
+            {/* <br/> */}
+            <label className='entryArea'>
+              <input required type="number" name="edad" value={registerData.edad} onChange={handleRegisterChange} disabled={loading} />
+              <div className="labelLine">Age</div>
+            </label>
+            {/* <br/> */}
+            <label className='entryArea'>
+              <input required type="email" name="correo" value={registerData.correo} onChange={handleRegisterChange} disabled={loading} />
+              <div className="labelLine">E-mail</div>
+            </label>
+            {/* <br/> */}
+            <label className='entryArea'>
+              <input required type="password" name="password" value={registerData.password} onChange={handleRegisterChange} disabled={loading} />
+              <div className="labelLine">Password</div>
+            </label>
+            {/* <br/> */}
+            <label className='entryArea'>
+              <input required type="password" name="confirmarPassword" value={registerData.confirmarPassword} onChange={handleRegisterChange} disabled={loading} />
+              <div className="labelLine">Confirm Password</div>
+            </label>
+            {/* <br/> */}
+            <label className='entryArea'>
+              <input required type="password" name="palabra_de_seguridad" value={registerData.palabra_de_seguridad} onChange={handleRegisterChange} disabled={loading} />
+              <div className="labelLine">Security word</div>
+            </label>
+            {/* <br/> */}
+            {/* <label className='select-section'>
+              <h3>Gender</h3>
+              <div className="gender-radio">
+                <input className='radio-check' type="radio" name="sexo" value="masculino" checked={registerData.sexo === 'masculino'} onChange={handleRegisterChange} />
+                <label htmlFor="masculine">H</label>
+                <input className='radio-check' type="radio" name="sexo" value="femenino" checked={registerData.sexo === 'femenino'} onChange={handleRegisterChange} />
+                <label htmlFor="feminine">M</label>
+              </div>
+            </label>
 
-        <label className='select-section'>
-          Preferencias:
-          <input type="checkbox" name="preferencias" value="gym" checked={registerData.preferencias.includes("gym")} onChange={handleRegisterChange}/>
-          <label>Gym</label>
-          <input type="checkbox" name="preferencias" value="paint" checked={registerData.preferencias.includes("paint")} onChange={handleRegisterChange}/>
-          <label>Pintura</label>
-          <input type="checkbox" name="preferencias" value="music" checked={registerData.preferencias.includes("music")} onChange={handleRegisterChange}/>
-          <label>Música</label>
-        </label> */}
+            <label className='select-section'>
+              Preferencias:
+              <input type="checkbox" name="preferencias" value="gym" checked={registerData.preferencias.includes("gym")} onChange={handleRegisterChange}/>
+              <label>Gym</label>
+              <input type="checkbox" name="preferencias" value="paint" checked={registerData.preferencias.includes("paint")} onChange={handleRegisterChange}/>
+              <label>Pintura</label>
+              <input type="checkbox" name="preferencias" value="music" checked={registerData.preferencias.includes("music")} onChange={handleRegisterChange}/>
+              <label>Música</label>
+            </label> */}
+          </div>
+          <div className="right-su-side">
+
+           <label className="user-su-img flex-center" htmlFor="userImageInput">
+            <img className='.userImgIcon' src={userImage} alt="upload preview" />
+            <h4 className="user-su-p">Upload file <span>here</span></h4>
+            <input
+              id="userImageInput"
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              style={{ display: 'none' }}
+            />
+            {userImageFile && (
+              <img
+                src={URL.createObjectURL(userImageFile)}
+                alt="Vista previa"
+                className="preview-image"
+              />
+            )}
+
+          </label>
+
+           <div className="user-su-description flex-center" onClick={() => setShowPrompt(true)}>
+              <img className='.teachImgIcon' src={teachImg} alt="Teach AI" />
+              <h4 className='user-su-p'>Teach the IA <span>here</span></h4>
+           </div>
+           <div className="teach-btn flex-center" onClick={() => setShowPrompt(true)}>Prompt</div>
+          </div>
+        </div>
         <button className='btn-send' type="submit">Register</button>
         <a className='test-btn' id='alternate-forms' onClick={handleToggle} >{showLogin ? 'Register' : 'Login'}</a> 
       {/* SECCION PARA DISPLAY NONE DEL CONTENEDOR DE CAJA GRIS */}
           <h2 className='altern-h2'>No account?</h2>
           <p className="altern-p">Create one down here</p>
+          
       </form>
+
+      {showPrompt && (
+        <div
+          className="prompt-su-window flex-center"
+          onClick={(e) => {
+            if (e.target.classList.contains('prompt-su-window')) {
+              setShowPrompt(false);
+            }
+          }}
+        >
+          <div className="prompt-su-container flex-center">
+            <button className="close-btn" onClick={() => setShowPrompt(false)}>✖</button>
+            <label className='entryArea entryAreaModal'>
+              <div className="labelLine2">Tell us about <span>you</span></div>
+              <textarea
+                required
+                className='desc-text-input'
+                name="descripcion"
+                value={registerData.descripcion}
+                onChange={handleRegisterChange}
+                placeholder="Describe tu personalidad o tus intereses usando de ejemplo el siguiente texto: 
+
+  Este ejemplo da información clara sobre:
+
+        - Pasatiempos
+
+        - Estilo de vida
+
+        - Gustos personales
+
+        - Necesidades emocionales
+
+        - Interacción social
+
+        - Valores"
+              />
+            </label>
+            <div className="teach-btn flex-center" onClick={() => setShowPrompt(false)} >I have finished</div>
+          </div>
+        </div>
+      )}
+
 
       <form onSubmit={handleVerificarRostroSubmit}>
         {/* <button type="submit" id='backend-test' className='backend-test'>boton de backend</button> */}

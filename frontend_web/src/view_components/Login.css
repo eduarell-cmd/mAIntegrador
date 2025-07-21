@@ -210,12 +210,14 @@ input:valid + .labelLine {
     position: absolute;
     top: 50%; left: 40%;
     translate: -50% -50%;
-    height: 40rem; width: 35rem;
+    height: 40rem; width: 45rem;
     background: linear-gradient(45deg, #fce5cdff, #ab4ff6ff);
     border-radius: 10vh; padding-bottom: 50px;
     box-shadow: rgba(0, 0, 0, 0.842) 2px 2px 20px;
-    display: flex; justify-content: space-between;
-    flex-direction: column; align-items: center;
+    display: grid;
+    grid-template-rows: 20% auto 15%; 
+    align-items: center;
+    justify-items: center;
     transition: ease-in-out 0.5s;
     z-index: 10;
 }
@@ -236,8 +238,109 @@ input:valid + .labelLine {
     z-index: 1111;
 }
 
+.none {display: none;}
+.block {display: block;}
+
 .openRF label {
     display: flex; flex-direction: column;
+}
+
+.middle-su-content {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.right-su-side {
+    height: 100%; width: 100%;
+    /* background-color: #09add23d; */
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 14px;
+    justify-content: center;
+}
+
+.user-su-img {
+    height: 48%; width: 90%;
+    /* background-color: rgba(0, 255, 255, 0.3); */
+    border-radius: 4vh;
+    transition: ease-in-out 0.2s;
+    display: flex;
+    flex-direction: column;
+    border: solid 2px white;
+    position: relative;
+}
+
+.user-su-description {
+    height: 28%; width: 90%;
+    /* background-color: rgba(0, 255, 255, 0.3); */
+    border-radius: 4vh;
+    transition: ease-in-out 0.2s;
+    display: flex;
+    flex-direction: column;
+    border: solid 2px white;
+}
+
+h4 {margin: 0; font-weight: 400; font-size: 1rem;}
+
+.user-su-description img, .user-su-img img {
+    height: 2.8rem; width: auto;
+    transition: ease-in-out 0.2s;
+}
+
+.user-su-description:hover, .user-su-img:hover {
+    scale: 1.02;
+    cursor: pointer;
+    box-shadow: rgba(255, 255, 255, 0.466) 0 0 6px;
+}
+
+.user-su-description:hover > img, .user-su-img:hover > img {
+    scale: 1.1;
+}
+
+.preview-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
+    height: 90% !important;
+    width: auto !important;
+    border-radius: 3vh;
+
+}
+
+.user-su-p {
+    margin: 5px 0;
+    transition: ease-in-out 0.2s;
+}
+
+.teach-btn {
+    height: 3rem;
+    width: 40%;
+    background-color: #d20972;
+    border-radius: 5vh;
+    color: white;
+    font-size: 1.1rem;
+    box-shadow: rgba(0, 0, 0, 0.361) 0 0 8px;
+    transition: ease-in-out 0.2s;
+    margin-top: 1rem;
+}
+
+.teach-btn:hover {
+    scale: 1.05;
+    box-shadow: rgba(255, 255, 255, 0.5) 0 0 5px;
+    cursor: pointer;
+}
+
+.left-su-side {
+    /* background-color: #d209713d; */
+    height: 100%; width: 100%;
+    border-radius: 5vh;
+    display: flex;
+    justify-content: center; align-items: center;
+    flex-direction: column;
 }
 
 .select-section {
@@ -278,6 +381,74 @@ input:valid + .labelLine {
 /* .ease-trans {transition: ease-in-out;} */
 .closedRF .test-btn, .closedRF h2, .closedRF p {visibility: visible;}
 .closedRF > h1, .closedRF > label, .closedRF > h3, .closedRF .btn-send { visibility: hidden;}
+.closedRF > .middle-su-content, .closedRF > .middle-su-content, .middle-su-content p { visibility: hidden;}
+
+
+/* -------------------- SIGN UP FORM PROMPT AI DESCRIPTION MODAL ------------------- */
+
+.prompt-su-window {
+    height: 100vh; width: 100vw;
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.432);
+    backdrop-filter: blur(5px);
+    z-index: 99;
+    place-content: center;
+}
+
+.prompt-su-container {
+    height: 60%;
+    width: 40%;
+    background-color: rgb(233, 233, 233);
+    border-radius: 8vh;
+    margin: auto;
+    flex-direction: column;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 5%;
+    right: 5%;
+    background: none;
+    font-size: 2.5rem;
+    text-align: center;
+    padding: 0;
+    height: 3.5rem; width: 3.5rem;
+}
+
+.entryAreaModal {
+    width: 80%; height: 75%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.desc-text-input {
+    height: 70%;
+    width: 90%;
+    margin: auto;
+    border: none;
+    border-radius: 3vh;
+    padding: 1rem;
+    font-size: 1.1em;
+}
+
+.labelLine2 {
+    color: black;
+    font-size: 1.2rem;
+    top: -30px;
+    position: absolute;
+    font-weight: 600;
+}
+
+.labelLine2 span {
+    font-weight: 700;
+    font-style: italic;
+    color: #d20972;
+}
+
+/* -------------------- SIGN UP FORM PROMPT AI DESCRIPTION MODAL ------------------- */
+
 
 @media (max-width: 599px) {
     .login-page {padding: 0; margin: 0;}
