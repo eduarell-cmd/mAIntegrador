@@ -277,8 +277,83 @@
 
 .daily-emotions {
     height: 85%; width: 95%;
+    position: relative;
     /* background-color: rgba(0, 255, 242, 0.268); */
 }
+
+.v-line-d {
+    height: 65%;
+    width: 2px;
+    border-radius: 1vh;
+    background-color: white;
+    position: absolute;
+    top: 8%;
+    left: 8%;
+}
+
+.h-line-d {
+    height: 2px;
+    width: 85%;
+    border-radius: 1vh;
+    background-color: white;
+    position: absolute;
+    top: calc(8% + 65%);
+    left: 8%;
+}
+
+.d-emtions-container {
+    display: flex;
+    margin: auto;
+    height: 20%;
+    width: 88%;
+    margin-top: 0px;
+    align-items: center;
+    justify-content: space-around;
+}
+
+/* 
+<div className="d-progress-bars">
+    <div className="happy-bar"></div>
+    <div className="scared-bar"></div>
+    <div className="angry-bar"></div>
+    <div className="surprised-bar"></div>
+    <div className="sad-bar"></div>
+</div>
+*/
+
+.d-progress-bars {
+    display: flex;
+    margin: auto;
+    height: 65%;
+    width: 75%;
+    margin-top: 35px;
+    align-items: end;
+    justify-content: space-between;
+}
+
+.happy-bar, .scared-bar, .angry-bar, .surprised-bar, .sad-bar {
+    width: 3rem;
+    height: 50%;
+    border-top-left-radius: 1vh;
+    border-top-right-radius: 1vh;
+    background-color: white;
+    z-index: 1;
+}
+
+.happy-bar {background-color: rgba(255, 255, 113, 0.878);}
+.scared-bar {background-color: rgba(148, 74, 148, 0.93);;}
+.angry-bar {background-color: rgba(239, 38, 38, 0.909);}
+.surprised-bar {background-color: rgb(255, 152, 26);}
+.sad-bar {background-color: rgba(77, 149, 242, 0.942);}
+
+.hd1, .hd2, .hd3, .hd4 {
+    background-color: rgba(255, 255, 255, 0.255);
+}
+
+.hd1 {top: calc(8% + 52%);}
+.hd2 {top: calc(8% + 38%);}
+.hd3 {top: calc(8% + 25%);}
+.hd4 {top: calc(8% + 13%);}
 
 @media (max-width: 599px) {
     .ProfileView {
