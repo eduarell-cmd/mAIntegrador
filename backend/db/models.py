@@ -20,11 +20,11 @@ class PyObjectId(ObjectId):
 class UserBase(BaseModel):
     nombre: str
     edad: int
-    preferencias: List[str]
-    sexo: str
     correo: str
     palabra_de_seguridad: str
     password: str
+    descripcion: str  # Ahora es obligatorio
+    image_url: Optional[str] = None
 
 class LoginInput(BaseModel):
     correo:str
