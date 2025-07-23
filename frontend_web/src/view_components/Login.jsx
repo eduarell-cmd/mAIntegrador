@@ -37,13 +37,11 @@ export default function Login() {
   const [registerData, setRegisterData] = useState({
     nombre: '',
     edad: '',
-    preferencias: [],
-    sexo: '',
     correo: '',
     palabra_de_seguridad: '',
     password: '',
     confirmarPassword: '',
-    descripcion:'' // <--- Recuerden poner esto en la base de datos para los prompts!!!!! --------------------------------
+    descripcion: ''
   });
 
   const handleLoginChange = (e) => {
@@ -163,11 +161,10 @@ export default function Login() {
     const payload = {
       nombre: sanitizeInput(registerData.nombre),
       edad: edad,
-      preferencias: registerData.preferencias,
-      sexo: sanitizeInput(registerData.sexo),
       correo: sanitizeInput(registerData.correo).toLowerCase(),
       palabra_de_seguridad: sanitizeInput(registerData.palabra_de_seguridad),
-      password: registerData.password
+      password: registerData.password,
+      descripcion: sanitizeInput(registerData.descripcion)
     };
 
     try {
