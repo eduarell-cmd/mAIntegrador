@@ -144,7 +144,76 @@ export default function Profile() {
                   <p>Today you seemed really happy!</p>
                 </div>
             </div>
-            <div className="daily-emotions"></div>
+            {/* lineas horizontales de FRONT - NO BACK - NO MOVER */}
+            <div className="daily-emotions">
+              <div className="v-line-d"></div>
+              <div className="h-line-d"></div>
+              <div className="h-line-d hd1"></div>
+              <div className="h-line-d hd2"></div>
+              <div className="h-line-d hd3"></div>
+              <div className="h-line-d hd4"></div>
+
+              {/* AQUI SE LLENAN LAS GRAFICAS, EN EL FRONT NOMAS SE MODIFICAN LOS PORCENTAJES, CUANDO HAGAN ESTO ME PIDEN AYUDA */}
+              
+            {/* 
+            mongod --dbpath "C:\data\27018" --port 27018 --replSet "rs0" --bind_ip localhost
+            mongod --dbpath "C:\data\27018" --port 27019 --replSet "rs0" --bind_ip localhost
+
+            rs.initiate(
+              {_id: "rs0", version:1, members:[
+                {_id:0, host:"localhost:27017"}, 
+                {_id:1, host:"localhost:27018"},
+                {_id:2, host:"localhost:27019"}
+                ]}
+                )
+            */}
+
+              <div className="d-progress-bars">
+                {/* AQUI SE PONEN LOS PORCENTAJES DE LAS EMOCIONES EN EL STYLE DE HEIGHT */}
+                {/* La emocion tendra un porcentaje, el cual se pondra directamente en la altura de su barra de emocion correspondiente */}
+                <div className="happy-bar" style={{ height: '65%' }}></div>
+                <div className="scared-bar" style={{ height: '10%' }}></div>
+                <div className="angry-bar" style={{ height: '40%' }}></div>
+                <div className="surprised-bar" style={{ height: '20%' }}></div>
+                <div className="sad-bar" style={{ height: '80%' }}></div>
+              </div>
+
+              <div className="d-emtions-container">
+                  
+                <div className="weekly-emotion">
+                  <div className="emotion-container">
+                    <img src={ Happy } alt="emotion" />
+                  </div>  
+                </div>
+
+                <div className="weekly-emotion">
+                  <div className="emotion-container">
+                    <img src={ Fear } alt="emotion" />
+                  </div>
+                </div>
+
+                <div className="weekly-emotion">
+                  <div className="emotion-container">
+                    <img src={ Angry } alt="emotion" />
+                  </div>
+                  
+                </div>
+                <div className="weekly-emotion">
+                  <div className="emotion-container">
+                    <img src={ Surprised } alt="emotion" />
+                  </div>
+                  
+                </div>
+                <div className="weekly-emotion">
+                  <div className="emotion-container">
+                    <img src={ Sad } alt="emotion" />
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
         </div>
     </div>
   )

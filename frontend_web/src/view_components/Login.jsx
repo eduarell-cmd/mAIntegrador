@@ -11,6 +11,7 @@ import teachImg from '../assets/icons/teaching.png';
 
 // Importar el servicio de autenticación
 import authService from '../services/authService';
+import axios from 'axios';
 
 export default function Login() {
   const [loginData, setLoginData] = useState({
@@ -37,13 +38,11 @@ export default function Login() {
   const [registerData, setRegisterData] = useState({
     nombre: '',
     edad: '',
-    preferencias: [],
-    sexo: '',
     correo: '',
     palabra_de_seguridad: '',
     password: '',
     confirmarPassword: '',
-    descripcion:'' // <--- Recuerden poner esto en la base de datos para los prompts!!!!! --------------------------------
+    descripcion: ''
   });
 
   const handleLoginChange = (e) => {
@@ -98,6 +97,16 @@ export default function Login() {
     }
     setError(''); // Limpiar errores al escribir
   };
+
+  // Función para subir imagen a Cloudinary
+  async function uploadImageToCloudinary(file) {
+    const url = 'https://api.cloudinary.com/v1_1/dfczlyftc/image/upload';
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'registro');
+    const response = await axios.post(url, formData);
+    return response.data.secure_url;
+  }
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
@@ -159,15 +168,32 @@ export default function Login() {
       return;
     }
 
+    // Validación de imagen obligatoria
+    if (!userImageFile) {
+      setError('La imagen es obligatoria.');
+      setLoading(false);
+      return;
+    }
+
+    // Subir imagen a Cloudinary
+    let imageUrl = '';
+    try {
+      imageUrl = await uploadImageToCloudinary(userImageFile);
+    } catch (err) {
+      setError('Error subiendo la imagen.');
+      setLoading(false);
+      return;
+    }
+
     // Creación del payload con datos sanitizados
     const payload = {
       nombre: sanitizeInput(registerData.nombre),
       edad: edad,
-      preferencias: registerData.preferencias,
-      sexo: sanitizeInput(registerData.sexo),
       correo: sanitizeInput(registerData.correo).toLowerCase(),
       palabra_de_seguridad: sanitizeInput(registerData.palabra_de_seguridad),
-      password: registerData.password
+      password: registerData.password,
+      descripcion: sanitizeInput(registerData.descripcion),
+      image_url: imageUrl
     };
 
     try {
@@ -232,7 +258,7 @@ const [userImageFile, setUserImageFile] = useState(null);
 
 const handleImageUpload = (e) => {
   const file = e.target.files[0];
-  if (file && file.type.startsWith("image/")) {
+  if (file) {
     setUserImageFile(file);
     console.log("📷 Imagen seleccionada:", file.name);
     // NOTAAA: Aquí se guarda la imagen, desde aqui, redireccionenla a donde la vayan a utilizar! (DANI, LALO)
@@ -240,7 +266,6 @@ const handleImageUpload = (e) => {
     alert("Por favor, selecciona un archivo de imagen válido.");
   }
 };
-
 
 
   return (
