@@ -67,23 +67,28 @@ def verificar_rostro():
 
             resultado["es_misma_persona"] = es_misma_persona
 
-            if es_misma_persona:
-                # Reducir resolución para el análisis
-                img_array = reducir_resolucion_array(foto_path)
-                if img_array is not None:
-                    try:
-                        result = DeepFace.analyze(img_array, actions=['emotion'], enforce_detection=False)
-                        emociones = result[0]['emotion']
-                        resultado["emociones"] = {k: round(v, 2) for k, v in emociones.items()}
-                        resultado["emocion_dominante"] = result[0]['dominant_emotion']
-                        print("📊 Distribución de emociones:")
-                        for emotion, score in emociones.items():
-                            print(f"  {emotion}: {score:.2f}%")
-                        print(f"🧠 Emoción dominante: {result[0]['dominant_emotion']}")
-                    except Exception as e:
-                        resultado["error"] = f"❌ Error al analizar la emoción: {e}"
-            else:
-                print("❌ NO ES LA MISMA PERSONA")
+        if es_misma_persona:
+            img_array = reducir_resolucion_array(foto_path)
+            if img_array is not None:
+                try:
+                    result = DeepFace.analyze(img_array, actions=['emotion'], enforce_detection=False)
+                    emociones = result[0]['emotion']
+
+                    resultado["emociones"] = {
+                        k: f"{round(float(v), 2)}%" for k, v in emociones.items()
+                    }
+
+                    resultado["emocion_dominante"] = result[0]['dominant_emotion']
+
+                    print("📊 Distribución de emociones:")
+                    for emotion, score in emociones.items():
+                        print(f"  {emotion}: {score:.2f}%")
+                    print(f"🧠 Emoción dominante: {result[0]['dominant_emotion']}")
+                except Exception as e:
+                    resultado["error"] = f"❌ Error al analizar la emoción: {e}"
+        else:
+            print("❌ NO ES LA MISMA PERSONA")
+
 
             # Eliminar la foto temporal
             try:

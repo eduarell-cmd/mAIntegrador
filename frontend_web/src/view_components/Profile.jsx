@@ -10,6 +10,7 @@ import Neutral from '../assets/images/neutral.png';
 import Fear from '../assets/images/fear.png';
 import Surprised from '../assets/images/surprised.png';
 import Angry from '../assets/images/angry.png';
+import Disgust from '../assets/images/disgust.png';
 
 
 export default function Profile() {
@@ -176,37 +177,51 @@ export default function Profile() {
                 <div className="angry-bar" style={{ height: '40%' }}></div>
                 <div className="surprised-bar" style={{ height: '20%' }}></div>
                 <div className="sad-bar" style={{ height: '80%' }}></div>
+                <div className="neutral-bar" style={{ height: '30%' }}></div>
+                <div className="disgusted-bar" style={{ height: '50%' }}></div>
               </div>
 
               <div className="d-emtions-container">
                   
                 <div className="weekly-emotion">
                   <div className="emotion-container">
-                    <img src={ Happy } alt="emotion" />
+                    <img src={ Angry } alt="emotion" />
                   </div>  
+                </div>
+
+                <div className="weekly-emotion">
+                  <div className="emotion-container">
+                    <img src={ Disgust } alt="emotion" />
+                  </div>
                 </div>
 
                 <div className="weekly-emotion">
                   <div className="emotion-container">
                     <img src={ Fear } alt="emotion" />
                   </div>
-                </div>
-
-                <div className="weekly-emotion">
-                  <div className="emotion-container">
-                    <img src={ Angry } alt="emotion" />
-                  </div>
                   
                 </div>
                 <div className="weekly-emotion">
                   <div className="emotion-container">
-                    <img src={ Surprised } alt="emotion" />
+                    <img src={ Happy } alt="emotion" />
                   </div>
                   
                 </div>
                 <div className="weekly-emotion">
                   <div className="emotion-container">
                     <img src={ Sad } alt="emotion" />
+                  </div>
+
+                </div>
+                <div className="weekly-emotion">
+                  <div className="emotion-container">
+                    <img src={ Surprised } alt="emotion" />
+                  </div>
+
+                </div>
+                <div className="weekly-emotion">
+                  <div className="emotion-container">
+                    <img src={ Neutral } alt="emotion" />
                   </div>
 
                 </div>
