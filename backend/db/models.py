@@ -23,8 +23,9 @@ class UserBase(BaseModel):
     correo: str
     palabra_de_seguridad: str
     password: str
-    descripcion: str  # Ahora es obligatorio
-    image_url: Optional[str] = None
+    descripcion: str 
+    image_url: Optional[str] = None,
+    
 
 class LoginInput(BaseModel):
     correo:str

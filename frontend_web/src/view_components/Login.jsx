@@ -203,11 +203,15 @@ export default function Login() {
       console.log('✅ Registro exitoso:', result);
       
       // Redirigir al usuario a la página principal o dashboard
-      navigate('/login'); 
+      navigate('/Profile'); 
       
     } catch (error) {
       console.error('❌ Error en registro:', error);
-      setError(error.message || 'Error en el registro. Intenta nuevamente.');
+      if (error.response && error.response.status === 409) {
+        setError('El correo ya está registrado. Usa otro o inicia sesión.');
+      } else {
+        setError(error.message || 'Error en el registro. Intenta nuevamente.');
+      }
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './Profile.css'
 import { CirclesBackground } from '../small_components/CirclesBackground';
 import settingsIcon from '../assets/icons/settings.png';
@@ -13,15 +13,24 @@ import Angry from '../assets/images/angry.png';
 
 
 export default function Profile() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+  
   return (
     <div className='ProfileView'>
         <CirclesBackground />
         <div className="left-p-section">
             <div className='user-info'>
-              <div className="p-img flex-center"><img src={PAvatar} alt="avatar" /></div>
+              <div className="p-img flex-center"><img src={user ? user.image_url : PAvatar} alt="avatar" /></div>
               <div className="p-info">
-                <h1>Angel Diaz Dittrich</h1>
-                <h3>22 years old</h3>
+                <h1>{user ? user.nombre : 'Nombre de usuario'}</h1>
+                <h3>{user ? user.edad + ' years old' : ''}</h3>
               </div>
               <div className="p-settings flex-center"><img src={settingsIcon} alt="" /></div>
             </div>
