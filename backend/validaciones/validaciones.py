@@ -21,8 +21,16 @@ async def signupsito(persona:UserCreate):
     try:
         print("[DEBUG] Ejecutando signupsito")
         user_data = persona.model_dump()
-        print("[DEBUG] Datos a insertar:", user_data)
+        print("[DEBUG] Datos a insertar:", user_data["correo"])
         
+        # Validar si el correo ya existe
+        existing_user = await personas_collection.find_one({'correo': user_data["correo"]})
+        print("[DEBUG] Usuario existente:", existing_user)
+        if existing_user:
+            raise HTTPException(
+                status_code=409,
+                detail="El correo ya está registrado."
+            )
         # Limpieza de campos string
         for key, value in user_data.items():
             if isinstance(value, str):
