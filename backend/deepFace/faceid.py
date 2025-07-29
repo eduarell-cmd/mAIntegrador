@@ -14,7 +14,7 @@ def reducir_resolucion_array(path):
         print(f"Error reduciendo resolución de {path}: {e}")
         return None
 
-def verificar_rostro():
+def verificar_rostro_laptop():
     model_name = "Facenet512"
     resultado = {
         "es_misma_persona": False,
@@ -75,7 +75,7 @@ def verificar_rostro():
                     emociones = result[0]['emotion']
 
                     resultado["emociones"] = {
-                        k: f"{round(float(v), 2)}%" for k, v in emociones.items()
+                        k: f"{round(float(v), 2)}" for k, v in emociones.items()
                     }
 
                     resultado["emocion_dominante"] = result[0]['dominant_emotion']
@@ -102,5 +102,5 @@ def verificar_rostro():
     return resultado
 
 if __name__ == "__main__":
-    resultado = verificar_rostro()
+    resultado = verificar_rostro_laptop()
     print("Resultado final:", resultado)

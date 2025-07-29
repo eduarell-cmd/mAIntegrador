@@ -331,7 +331,7 @@
     justify-content: space-between;
 }
 
-.happy-bar, .scared-bar, .angry-bar, .surprised-bar, .sad-bar, .neutral-bar, .disgusted-bar {
+.happy-bar, .fear-bar, .angry-bar, .surprised-bar, .sad-bar, .neutral-bar, .disgusted-bar {
     width: 3rem;
     height: 50%;
     border-top-left-radius: 1vh;
@@ -341,7 +341,7 @@
 }
 
 .happy-bar {background-color: rgba(255, 255, 113, 0.878);}
-.scared-bar {background-color: rgba(148, 74, 148, 0.93);;}
+.fear-bar {background-color: rgba(148, 74, 148, 0.93);;}
 .angry-bar {background-color: rgba(239, 38, 38, 0.909);}
 .surprised-bar {background-color: rgb(255, 152, 26);}
 .sad-bar {background-color: rgba(77, 149, 242, 0.942);}

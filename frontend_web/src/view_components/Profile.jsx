@@ -14,6 +14,69 @@ import Disgust from '../assets/images/disgust.png';
 
 
 export default function Profile() {
+  // Estado para el promedio acumulado de emociones
+  const [emocionesAcumuladas, setEmocionesAcumuladas] = useState({
+    angry: 0,
+    disgust: 0,
+    fear: 0,
+    happy: 0,
+    sad: 0,
+    surprise: 0,
+    neutral: 0,
+  });
+
+  // Cuántas veces se ha actualizado (para el promedio)
+  const [contador, setContador] = useState(0);
+
+  // Emoción dominante actual
+  const [dominante, setDominante] = useState("");
+
+  // Función para obtener emociones y actualizar promedio
+  const obtenerEmociones = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/pruebaemocion");
+      if (!res.ok) throw new Error("Error en la API");
+
+      const data = await res.json();
+
+      // Convertir strings a números
+      const nuevasEmocionesNumeros = {};
+      for (const key in data.emociones) {
+        nuevasEmocionesNumeros[key] = parseFloat(data.emociones[key]);
+      }
+
+      if (contador === 0) {
+        // Primera vez: asignamos directamente
+        setEmocionesAcumuladas(nuevasEmocionesNumeros);
+        setContador(1);
+      } else {
+        // Siguientes veces: calculamos nuevo promedio
+        setEmocionesAcumuladas((prev) => {
+          const nuevoContador = contador + 1;
+          const promedioActualizado = {};
+
+          for (const key in nuevasEmocionesNumeros) {
+            promedioActualizado[key] =
+              (prev[key] * contador + nuevasEmocionesNumeros[key]) / nuevoContador;
+          }
+
+          setContador(nuevoContador);
+          return promedioActualizado;
+        });
+      }
+
+      setDominante(data.emocion_dominante);
+    } catch (err) {
+      console.error("Error obteniendo emociones:", err);
+    }
+  };
+
+  // Debug para ver cambios reales
+  useEffect(() => {
+    console.log("Emociones acumuladas:", emocionesAcumuladas);
+    console.log("Contador:", contador);
+  }, [emocionesAcumuladas, contador]);
+
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -22,7 +85,11 @@ export default function Profile() {
       setUser(JSON.parse(userData));
     }
   }, []);
-  
+
+  // Altura mínima 1% para que siempre se vea
+  const getBarHeight = (value) => `${Math.max(value, 0.5)}%`;
+
+    
   return (
     <div className='ProfileView'>
         <CirclesBackground />
@@ -178,16 +245,18 @@ export default function Profile() {
                 )
             */}
 
+            <button onClick={obtenerEmociones}>Analizar emoción</button>
+
               <div className="d-progress-bars">
                 {/* AQUI SE PONEN LOS PORCENTAJES DE LAS EMOCIONES EN EL STYLE DE HEIGHT */}
                 {/* La emocion tendra un porcentaje, el cual se pondra directamente en la altura de su barra de emocion correspondiente */}
-                <div className="happy-bar" style={{ height: '65%' }}></div>
-                <div className="scared-bar" style={{ height: '10%' }}></div>
-                <div className="angry-bar" style={{ height: '40%' }}></div>
-                <div className="surprised-bar" style={{ height: '20%' }}></div>
-                <div className="sad-bar" style={{ height: '80%' }}></div>
-                <div className="neutral-bar" style={{ height: '30%' }}></div>
-                <div className="disgusted-bar" style={{ height: '50%' }}></div>
+                <div className="angry-bar" style={{ height: getBarHeight(emocionesAcumuladas.angry) }}></div>                
+                <div className="disgusted-bar" style={{ height: getBarHeight(emocionesAcumuladas.disgust) }}></div>
+                <div className="fear-bar" style={{ height: getBarHeight(emocionesAcumuladas.fear) }}></div>
+                <div className="happy-bar" style={{ height: getBarHeight(emocionesAcumuladas.happy) }}></div>
+                <div className="sad-bar" style={{ height: getBarHeight(emocionesAcumuladas.sad) }}></div>
+                <div className="surprised-bar" style={{ height: getBarHeight(emocionesAcumuladas.surprise) }}></div>
+                <div className="neutral-bar" style={{ height: getBarHeight(emocionesAcumuladas.neutral) }}></div>
               </div>
 
               <div className="d-emtions-container">

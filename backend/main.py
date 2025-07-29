@@ -1,7 +1,7 @@
 from fastapi import *
 from fastapi.datastructures import FormData
 from db.models import *
-from db.db import personas_collection
+from db.db import personas_collection, pruebas_collection
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from validaciones.validaciones import *
 import bcrypt # type: ignore
 import json
+from deepFace.faceid import verificar_rostro_laptop
 from deepFace.faceid2 import verificar_rostro
 from validaciones.horaapi import *
 from validaciones.clima import *
@@ -105,6 +106,20 @@ async def emotion():
         "emociones": resultado.get("emociones", {}),
         "emocion_dominante": resultado.get("emocion_dominante", None)
     }
+
+@app.get("/pruebaemocion")
+async def emotion_test():
+    resultado = verificar_rostro_laptop()
+
+    if resultado["error"]:
+        return JSONResponse(status_code=500, content={"error": resultado["error"]})
+
+    return {
+        "es_misma_persona": resultado["es_misma_persona"],
+        "emociones": resultado.get("emociones", {}),
+        "emocion_dominante": resultado.get("emocion_dominante", None)
+    }
+
 
 @app.get("/geminiprompt")
 async def consejo():

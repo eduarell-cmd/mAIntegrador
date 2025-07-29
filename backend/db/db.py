@@ -11,3 +11,4 @@ print("[DEBUG] MONGO_URL usada por el backend:", MONGO_URL)
 client = AsyncIOMotorClient(MONGO_URL)
 db = client["PruebasIntegrador"]
 personas_collection = db["personas"]
+pruebas_collection = db["pruebas"]
