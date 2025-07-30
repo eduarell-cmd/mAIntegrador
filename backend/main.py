@@ -14,6 +14,7 @@ from deepFace.faceid2 import verificar_rostro
 from validaciones.horaapi import *
 from validaciones.clima import *
 from gemini import geminiprompt
+from datetime import datetime
 
 # Importar el sistema de autenticación
 from auth.auth_routes import auth_router
@@ -114,12 +115,50 @@ async def emotion_test():
     if resultado["error"]:
         return JSONResponse(status_code=500, content={"error": resultado["error"]})
 
+    # Guardar en la colección pruebas
+    doc = {
+        "fecha": datetime.now(),
+        "emociones": resultado.get("emociones", {}),
+        "emocion_dominante": resultado.get("emocion_dominante", None),
+        "es_misma_persona": resultado["es_misma_persona"]
+    }
+    await pruebas_collection.insert_one(doc)
+
     return {
         "es_misma_persona": resultado["es_misma_persona"],
         "emociones": resultado.get("emociones", {}),
         "emocion_dominante": resultado.get("emocion_dominante", None)
     }
 
+@app.get("/promedioemocion")
+async def promedio_emocion():
+    # Obtener todas las emociones guardadas
+    registros = await pruebas_collection.find({}, {"_id": 0, "emociones": 1}).to_list(None)
+
+    if not registros:
+        return {"promedio": None, "total_lecturas": 0}
+
+    suma = {
+        "angry": 0,
+        "disgust": 0,
+        "fear": 0,
+        "happy": 0,
+        "sad": 0,
+        "surprise": 0,
+        "neutral": 0,
+    }
+
+    total = len(registros)
+
+    # Sumar valores
+    for reg in registros:
+        for key, val in reg["emociones"].items():
+            suma[key] += float(val)
+
+    # Calcular promedio
+    promedio = {k: round(v / total, 2) for k, v in suma.items()}
+
+    return {"promedio": promedio, "total_lecturas": total}
 
 @app.get("/geminiprompt")
 async def consejo():

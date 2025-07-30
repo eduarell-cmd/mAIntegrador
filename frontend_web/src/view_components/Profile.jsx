@@ -25,58 +25,48 @@ export default function Profile() {
     neutral: 0,
   });
 
-  // Cuántas veces se ha actualizado (para el promedio)
-  const [contador, setContador] = useState(0);
-
   // Emoción dominante actual
   const [dominante, setDominante] = useState("");
 
-  // Función para obtener emociones y actualizar promedio
+  // Obtener promedio desde el backend
+  const obtenerPromedio = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/promedioemocion");
+      if (!res.ok) throw new Error("Error en la API");
+      const data = await res.json();
+
+      if (data.promedio) {
+        setEmocionesAcumuladas(data.promedio);
+      }
+    } catch (err) {
+      console.error("Error obteniendo promedio:", err);
+    }
+  };
+
+  // Analizar emoción (guarda nueva lectura y luego obtiene promedio actualizado)
   const obtenerEmociones = async () => {
     try {
       const res = await fetch("http://127.0.0.1:8000/pruebaemocion");
       if (!res.ok) throw new Error("Error en la API");
 
       const data = await res.json();
-
-      // Convertir strings a números
-      const nuevasEmocionesNumeros = {};
-      for (const key in data.emociones) {
-        nuevasEmocionesNumeros[key] = parseFloat(data.emociones[key]);
-      }
-
-      if (contador === 0) {
-        // Primera vez: asignamos directamente
-        setEmocionesAcumuladas(nuevasEmocionesNumeros);
-        setContador(1);
-      } else {
-        // Siguientes veces: calculamos nuevo promedio
-        setEmocionesAcumuladas((prev) => {
-          const nuevoContador = contador + 1;
-          const promedioActualizado = {};
-
-          for (const key in nuevasEmocionesNumeros) {
-            promedioActualizado[key] =
-              (prev[key] * contador + nuevasEmocionesNumeros[key]) / nuevoContador;
-          }
-
-          setContador(nuevoContador);
-          return promedioActualizado;
-        });
-      }
+      console.log("Datos emociones guardados:", data);
 
       setDominante(data.emocion_dominante);
+
+      // Actualizar promedio después de guardar
+      await obtenerPromedio();
     } catch (err) {
       console.error("Error obteniendo emociones:", err);
     }
   };
 
-  // Debug para ver cambios reales
+  // Cargar promedio inicial cuando se monta el componente
   useEffect(() => {
-    console.log("Emociones acumuladas:", emocionesAcumuladas);
-    console.log("Contador:", contador);
-  }, [emocionesAcumuladas, contador]);
+    obtenerPromedio();
+  }, []);
 
+  // Usuario
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -88,7 +78,6 @@ export default function Profile() {
 
   // Altura mínima 1% para que siempre se vea
   const getBarHeight = (value) => `${Math.max(value, 0.5)}%`;
-
     
   return (
     <div className='ProfileView'>
