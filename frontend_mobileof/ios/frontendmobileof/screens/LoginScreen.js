@@ -1,5 +1,3 @@
-// screens/LoginScreen.js
-
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { login } from '../../../services/authService';
@@ -37,8 +35,8 @@ export default function LoginScreen({ navigation }) {
         placeholder="Correo"
         value={email}
         onChangeText={setEmail}
-        style={styles.input}
         autoCapitalize="none"
+        style={styles.input}
         keyboardType="email-address"
       />
       <TextInput

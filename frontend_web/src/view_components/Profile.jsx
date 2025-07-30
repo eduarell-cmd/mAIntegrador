@@ -10,9 +10,63 @@ import Neutral from '../assets/images/neutral.png';
 import Fear from '../assets/images/fear.png';
 import Surprised from '../assets/images/surprised.png';
 import Angry from '../assets/images/angry.png';
+import Disgust from '../assets/images/disgust.png';
 
 
 export default function Profile() {
+  // Estado para el promedio acumulado de emociones
+  const [emocionesAcumuladas, setEmocionesAcumuladas] = useState({
+    angry: 0,
+    disgust: 0,
+    fear: 0,
+    happy: 0,
+    sad: 0,
+    surprise: 0,
+    neutral: 0,
+  });
+
+  // Emoción dominante actual
+  const [dominante, setDominante] = useState("");
+
+  // Obtener promedio desde el backend
+  const obtenerPromedio = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/promedioemocion");
+      if (!res.ok) throw new Error("Error en la API");
+      const data = await res.json();
+
+      if (data.promedio) {
+        setEmocionesAcumuladas(data.promedio);
+      }
+    } catch (err) {
+      console.error("Error obteniendo promedio:", err);
+    }
+  };
+
+  // Analizar emoción (guarda nueva lectura y luego obtiene promedio actualizado)
+  const obtenerEmociones = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/pruebaemocion");
+      if (!res.ok) throw new Error("Error en la API");
+
+      const data = await res.json();
+      console.log("Datos emociones guardados:", data);
+
+      setDominante(data.emocion_dominante);
+
+      // Actualizar promedio después de guardar
+      await obtenerPromedio();
+    } catch (err) {
+      console.error("Error obteniendo emociones:", err);
+    }
+  };
+
+  // Cargar promedio inicial cuando se monta el componente
+  useEffect(() => {
+    obtenerPromedio();
+  }, []);
+
+  // Usuario
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -21,7 +75,10 @@ export default function Profile() {
       setUser(JSON.parse(userData));
     }
   }, []);
-  
+
+  // Altura mínima 1% para que siempre se vea
+  const getBarHeight = (value) => `${Math.max(value, 0.5)}%`;
+    
   return (
     <div className='ProfileView'>
         <CirclesBackground />
@@ -177,45 +234,61 @@ export default function Profile() {
                 )
             */}
 
+            <button onClick={obtenerEmociones}>Analizar emoción</button>
+
               <div className="d-progress-bars">
                 {/* AQUI SE PONEN LOS PORCENTAJES DE LAS EMOCIONES EN EL STYLE DE HEIGHT */}
                 {/* La emocion tendra un porcentaje, el cual se pondra directamente en la altura de su barra de emocion correspondiente */}
-                <div className="happy-bar" style={{ height: '65%' }}></div>
-                <div className="scared-bar" style={{ height: '10%' }}></div>
-                <div className="angry-bar" style={{ height: '40%' }}></div>
-                <div className="surprised-bar" style={{ height: '20%' }}></div>
-                <div className="sad-bar" style={{ height: '80%' }}></div>
+                <div className="angry-bar" style={{ height: getBarHeight(emocionesAcumuladas.angry) }}></div>                
+                <div className="disgusted-bar" style={{ height: getBarHeight(emocionesAcumuladas.disgust) }}></div>
+                <div className="fear-bar" style={{ height: getBarHeight(emocionesAcumuladas.fear) }}></div>
+                <div className="happy-bar" style={{ height: getBarHeight(emocionesAcumuladas.happy) }}></div>
+                <div className="sad-bar" style={{ height: getBarHeight(emocionesAcumuladas.sad) }}></div>
+                <div className="surprised-bar" style={{ height: getBarHeight(emocionesAcumuladas.surprise) }}></div>
+                <div className="neutral-bar" style={{ height: getBarHeight(emocionesAcumuladas.neutral) }}></div>
               </div>
 
               <div className="d-emtions-container">
                   
                 <div className="weekly-emotion">
                   <div className="emotion-container">
-                    <img src={ Happy } alt="emotion" />
+                    <img src={ Angry } alt="emotion" />
                   </div>  
+                </div>
+
+                <div className="weekly-emotion">
+                  <div className="emotion-container">
+                    <img src={ Disgust } alt="emotion" />
+                  </div>
                 </div>
 
                 <div className="weekly-emotion">
                   <div className="emotion-container">
                     <img src={ Fear } alt="emotion" />
                   </div>
-                </div>
-
-                <div className="weekly-emotion">
-                  <div className="emotion-container">
-                    <img src={ Angry } alt="emotion" />
-                  </div>
                   
                 </div>
                 <div className="weekly-emotion">
                   <div className="emotion-container">
-                    <img src={ Surprised } alt="emotion" />
+                    <img src={ Happy } alt="emotion" />
                   </div>
                   
                 </div>
                 <div className="weekly-emotion">
                   <div className="emotion-container">
                     <img src={ Sad } alt="emotion" />
+                  </div>
+
+                </div>
+                <div className="weekly-emotion">
+                  <div className="emotion-container">
+                    <img src={ Surprised } alt="emotion" />
+                  </div>
+
+                </div>
+                <div className="weekly-emotion">
+                  <div className="emotion-container">
+                    <img src={ Neutral } alt="emotion" />
                   </div>
 
                 </div>

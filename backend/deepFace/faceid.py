@@ -14,7 +14,7 @@ def reducir_resolucion_array(path):
         print(f"Error reduciendo resolución de {path}: {e}")
         return None
 
-def verificar_rostro():
+def verificar_rostro_laptop():
     model_name = "Facenet512"
     resultado = {
         "es_misma_persona": False,
@@ -24,7 +24,7 @@ def verificar_rostro():
 
     try:
         # Cargar imagen conocida y obtener su codificación facial
-        known_image = face_recognition.load_image_file("deepFace/fotos/gera.jpg")
+        known_image = face_recognition.load_image_file("deepFace/fotos/gera2.jpg")
         known_face_encoding = face_recognition.face_encodings(known_image)[0]
         known_face_encodings = [known_face_encoding]
 
@@ -67,23 +67,28 @@ def verificar_rostro():
 
             resultado["es_misma_persona"] = es_misma_persona
 
-            if es_misma_persona:
-                # Reducir resolución para el análisis
-                img_array = reducir_resolucion_array(foto_path)
-                if img_array is not None:
-                    try:
-                        result = DeepFace.analyze(img_array, actions=['emotion'], enforce_detection=False)
-                        emociones = result[0]['emotion']
-                        resultado["emociones"] = {k: round(v, 2) for k, v in emociones.items()}
-                        resultado["emocion_dominante"] = result[0]['dominant_emotion']
-                        print("📊 Distribución de emociones:")
-                        for emotion, score in emociones.items():
-                            print(f"  {emotion}: {score:.2f}%")
-                        print(f"🧠 Emoción dominante: {result[0]['dominant_emotion']}")
-                    except Exception as e:
-                        resultado["error"] = f"❌ Error al analizar la emoción: {e}"
-            else:
-                print("❌ NO ES LA MISMA PERSONA")
+        if es_misma_persona:
+            img_array = reducir_resolucion_array(foto_path)
+            if img_array is not None:
+                try:
+                    result = DeepFace.analyze(img_array, actions=['emotion'], enforce_detection=False)
+                    emociones = result[0]['emotion']
+
+                    resultado["emociones"] = {
+                        k: f"{round(float(v), 2)}" for k, v in emociones.items()
+                    }
+
+                    resultado["emocion_dominante"] = result[0]['dominant_emotion']
+
+                    print("📊 Distribución de emociones:")
+                    for emotion, score in emociones.items():
+                        print(f"  {emotion}: {score:.2f}%")
+                    print(f"🧠 Emoción dominante: {result[0]['dominant_emotion']}")
+                except Exception as e:
+                    resultado["error"] = f"❌ Error al analizar la emoción: {e}"
+        else:
+            print("❌ NO ES LA MISMA PERSONA")
+
 
             # Eliminar la foto temporal
             try:
@@ -95,3 +100,7 @@ def verificar_rostro():
         resultado["error"] = f"❌ Error general: {e}"
 
     return resultado
+
+if __name__ == "__main__":
+    resultado = verificar_rostro_laptop()
+    print("Resultado final:", resultado)
