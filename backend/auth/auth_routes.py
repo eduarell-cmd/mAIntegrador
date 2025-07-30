@@ -142,6 +142,18 @@ async def signup(
         # Crear usuario usando la función existente
         created_user = await signupsito(user_data)
         
+        # Crear documento en la colección emociones
+        from db.db import emociones_collection
+        emocion_doc = {
+            "User_id": str(created_user.id),
+            "Emociones": []
+        }
+        try:
+            await emociones_collection.insert_one(emocion_doc)
+            print(f"[emociones] Documento creado para usuario {created_user.id}")
+        except Exception as e:
+            print(f"[emociones] Error al crear documento: {e}")
+        
         # Obtener información del cliente
         client_ip = request.client.host
         user_agent = request.headers.get("User-Agent", "Unknown")

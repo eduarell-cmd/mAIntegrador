@@ -1,7 +1,7 @@
 from fastapi import *
 from fastapi.datastructures import FormData
 from db.models import *
-from db.db import personas_collection, pruebas_collection
+from db.db import personas_collection, pruebas_collection, emociones_collection
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi.middleware.cors import CORSMiddleware
@@ -79,7 +79,23 @@ async def perfil(nombre: str, current_user: dict = Depends(get_current_user)):
 
 @app.post("/signup", response_model=User)
 async def signup(persona: UserCreate):
+    print("INICIO SIGNUP")
     CreatedUser = await signupsito(persona)
+    print("Usuario creadooooooooooo:", CreatedUser)
+    print("CreatedUser:", CreatedUser)
+    print("CreatedUser.id:", getattr(CreatedUser, 'id', None))
+    
+    emocion_doc = {
+        "User_id": CreatedUser.id,
+        "Emociones": []
+    }
+    print("Intentando insertar en emociones:", emocion_doc)
+    try:
+        result = await emociones_collection.insert_one(emocion_doc)
+        print("Resultado insert_one:", result.inserted_id)
+    except Exception as e:
+        print("Error al insertar en emociones:", e)
+    
     return CreatedUser
 
 @app.get("/mirror")
