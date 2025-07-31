@@ -46,7 +46,15 @@ export default function Profile() {
   // Analizar emoción (guarda nueva lectura y luego obtiene promedio actualizado)
   const obtenerEmociones = async () => {
     try {
-      const res = await fetch("http://127.0.0.1:8000/pruebaemocion");
+      const userData = localStorage.getItem('user');
+      const userId = userData ? JSON.parse(userData).id : null;
+      if (!userId) throw new Error('No se encontró el user_id en localStorage');
+
+      const res = await fetch("http://127.0.0.1:8000/pruebaemocion", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: userId })
+      });
       if (!res.ok) throw new Error("Error en la API");
 
       const data = await res.json();
