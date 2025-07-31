@@ -5,6 +5,8 @@ import cv2
 import time
 import numpy as np
 import os
+import requests
+from io import BytesIO
 
 def reducir_resolucion_array(path):
     try:
@@ -21,13 +23,14 @@ def verificar_rostro_laptop():
         "emociones": {},
         "error": None
     }
-
     try:
-        # Cargar imagen conocida y obtener su codificación facial
-        known_image = face_recognition.load_image_file("deepFace/fotos/gera2.jpg")
+        # Descargar imagen conocida desde una URL y obtener su codificación facial
+        url = "https://res.cloudinary.com/dfczlyftc/image/upload/v1753935986/gibbncbpmpzb70jdgsvl.jpg"
+        response = requests.get(url)
+        response.raise_for_status()
+        known_image = face_recognition.load_image_file(BytesIO(response.content))
         known_face_encoding = face_recognition.face_encodings(known_image)[0]
         known_face_encodings = [known_face_encoding]
-
         # Tomar UNA foto
         camara = cv2.VideoCapture(0)
         foto_path = "../backend/deepFace/fotos/foto.jpg"
