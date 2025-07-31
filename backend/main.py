@@ -124,14 +124,15 @@ async def emotion():
         "emocion_dominante": resultado.get("emocion_dominante", None)
     }
 
-@app.get("/pruebaemocion")
-async def emotion_test(current_user: dict = Depends(get_current_user)):
+@app.post("/pruebaemocion")
+async def emotion_test(data: dict = Body(...)):
+    user_id = data.get("user_id")
     resultado = verificar_rostro_laptop()
 
     if resultado["error"]:
         return JSONResponse(status_code=500, content={"error": resultado["error"]})
 
-    # Guardar en la colección pruebas (como antes)
+    # Guardar en la colección pruebas (opcional, si lo necesitas)
     doc = {
         "fecha": datetime.now().strftime("%Y-%m-%d"),
         "emociones": resultado.get("emociones", {}),
@@ -140,13 +141,12 @@ async def emotion_test(current_user: dict = Depends(get_current_user)):
     }
     await pruebas_collection.insert_one(doc)
 
-    # Guardar en la colección emociones (nuevo)
+    # Guardar en la colección emociones
     emocion_obj = {
         "fecha": datetime.now().strftime("%d/%m/%y"),
         "Emociones_Acumuladas": resultado.get("emociones", {}),
         "emocion_dominante": resultado.get("emocion_dominante", None)
     }
-    user_id = current_user.get("user_id")
     if user_id:
         try:
             await emociones_collection.update_one(
@@ -156,7 +156,7 @@ async def emotion_test(current_user: dict = Depends(get_current_user)):
         except Exception as e:
             print(f"[emociones] Error al guardar emoción: {e}")
     else:
-        print("[emociones] No se encontró user_id en current_user")
+        print("[emociones] No se recibió user_id en la petición")
 
     return {
         "es_misma_persona": resultado["es_misma_persona"],
