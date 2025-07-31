@@ -14,7 +14,7 @@ from deepFace.faceid2 import verificar_rostro
 from validaciones.horaapi import *
 from validaciones.clima import *
 from gemini import geminiprompt
-from datetime import datetime, date
+from datetime import datetime, timedelta
 
 # Importar el sistema de autenticación
 from auth.auth_routes import auth_router
@@ -164,35 +164,86 @@ async def emotion_test(data: dict = Body(...)):
         "emocion_dominante": resultado.get("emocion_dominante", None)
     }
 
-@app.get("/promedioemocion")
-async def promedio_emocion():
-    # Obtener todas las emociones guardadas
-    registros = await pruebas_collection.find({}, {"_id": 0, "emociones": 1}).to_list(None)
+@app.get("/promedioemocion/{user_id}")
+async def promedio_emocion(user_id: str):
+    # Buscar documento del usuario
+    registro = await emociones_collection.find_one({"User_id": user_id})
 
-    if not registros:
+    if not registro or "Emociones" not in registro:
         return {"promedio": None, "total_lecturas": 0}
 
-    suma = {
-        "angry": 0,
-        "disgust": 0,
-        "fear": 0,
-        "happy": 0,
-        "sad": 0,
-        "surprise": 0,
-        "neutral": 0,
-    }
+    # Fecha de hoy
+    hoy = datetime.now().strftime("%Y-%m-%d")
 
-    total = len(registros)
+    # Revisar la última emoción guardada
+    emociones = registro["Emociones"]
+    if not emociones or emociones[-1]["fecha"] != hoy:
+        # Si no hay emoción de hoy, reiniciar a 0
+        promedio = {
+            "angry": 0,
+            "disgust": 0,
+            "fear": 0,
+            "happy": 0,
+            "sad": 0,
+            "surprise": 0,
+            "neutral": 0,
+        }
+        return {"promedio": promedio, "total_lecturas": 0}
 
-    # Sumar valores
-    for reg in registros:
-        for key, val in reg["emociones"].items():
-            suma[key] += float(val)
+    # Si es de hoy, calcular promedio normal
+    suma = {k: 0 for k in ["angry","disgust","fear","happy","sad","surprise","neutral"]}
+    total = 0
 
-    # Calcular promedio
-    promedio = {k: round(v / total, 2) for k, v in suma.items()}
+    for entrada in emociones:
+        if entrada["fecha"] == hoy:
+            for key, val in entrada["Emociones_Acumuladas"].items():
+                suma[key] += float(val)
+            total += 1
 
+    promedio = {k: round(v / total, 2) if total > 0 else 0 for k, v in suma.items()}
     return {"promedio": promedio, "total_lecturas": total}
+
+@app.get("/tracker/{user_id}")
+async def get_tracker(user_id: str):
+    # Buscar el documento del usuario
+    doc = await emociones_collection.find_one({"User_id": user_id}, {"_id": 0, "Emociones": 1})
+    
+    if not doc or "Emociones" not in doc:
+        return {"dias": []}
+
+    hoy = datetime.now()
+    mes_actual = hoy.month
+    anio_actual = hoy.year
+
+    dias_usados = set()
+
+    for emo in doc["Emociones"]:
+        fecha_raw = emo.get("fecha")
+        fecha = None
+
+        # Manejar si la fecha viene como string en formato YYYY-MM-DD
+        if isinstance(fecha_raw, str):
+            try:
+                fecha = datetime.strptime(fecha_raw, "%Y-%m-%d")
+            except ValueError:
+                # Si por error tiene hora, intenta parsear con otro formato
+                try:
+                    fecha = datetime.strptime(fecha_raw, "%Y-%m-%d %H:%M:%S")
+                except ValueError:
+                    continue  # Ignorar fechas mal formateadas
+
+        # Manejar si la fecha viene como objeto datetime desde Mongo
+        elif isinstance(fecha_raw, datetime):
+            fecha = fecha_raw
+
+        # Solo marcar los días del mes actual
+        if fecha and fecha.month == mes_actual and fecha.year == anio_actual:
+            dias_usados.add(fecha.day)
+
+    # Crear array de 31 días con True/False según si se usó ese día
+    dias_mes = [(d in dias_usados) for d in range(1, 32)]
+
+    return {"dias": dias_mes}
 
 @app.get("/geminiprompt")
 async def consejo():
