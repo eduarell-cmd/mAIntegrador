@@ -142,7 +142,7 @@ async def emotion_test(current_user: dict = Depends(get_current_user)):
 
     # Guardar en la colección emociones (nuevo)
     emocion_obj = {
-        "fecha": datetime.now().strftime("%d/%m/%y"),
+        "fecha": datetime.now().strftime("%Y-%m-%d"),
         "Emociones_Acumuladas": resultado.get("emociones", {}),
         "emocion_dominante": resultado.get("emocion_dominante", None)
     }
