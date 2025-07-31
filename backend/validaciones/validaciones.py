@@ -19,13 +19,9 @@ async def get(nombre: str):
 
 async def signupsito(persona:UserCreate):
     try:
-        print("[DEBUG] Ejecutando signupsito")
-        user_data = persona.model_dump()
-        print("[DEBUG] Datos a insertar:", user_data["correo"])
-        
-        # Validar si el correo ya existe
+        user_data = persona.model_dump()    
+
         existing_user = await personas_collection.find_one({'correo': user_data["correo"]})
-        print("[DEBUG] Usuario existente:", existing_user)
         if existing_user:
             raise HTTPException(
                 status_code=409,
@@ -38,7 +34,6 @@ async def signupsito(persona:UserCreate):
         
         # Hashear la contraseña después de limpiar
         hashed_password = bcrypt.hashpw(user_data["password"].encode("utf-8"), bcrypt.gensalt())
-        print("[DEBUG] Hash generado:", hashed_password.decode("utf-8"))
         user_data["password"] = hashed_password.decode("utf-8")
         
         result = await personas_collection.insert_one(user_data)
@@ -53,7 +48,8 @@ async def signupsito(persona:UserCreate):
         
         user_data['_id'] = str(result.inserted_id)
         created_user = User(**user_data)
-        print("[DEBUG] Usuario creado:", created_user)
+        print("[DEBUG] Usuario creado00000:", created_user)
+        print(created_user.id)
         return created_user
     except Exception as e:
         print("Error en signup:", str(e))
