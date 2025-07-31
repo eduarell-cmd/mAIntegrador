@@ -125,13 +125,13 @@ async def emotion():
     }
 
 @app.get("/pruebaemocion")
-async def emotion_test():
+async def emotion_test(current_user: dict = Depends(get_current_user)):
     resultado = verificar_rostro_laptop()
 
     if resultado["error"]:
         return JSONResponse(status_code=500, content={"error": resultado["error"]})
 
-    # Guardar en la colección pruebas
+    # Guardar en la colección pruebas (como antes)
     doc = {
         "fecha": datetime.now(),
         "emociones": resultado.get("emociones", {}),
@@ -139,6 +139,24 @@ async def emotion_test():
         "es_misma_persona": resultado["es_misma_persona"]
     }
     await pruebas_collection.insert_one(doc)
+
+    # Guardar en la colección emociones (nuevo)
+    emocion_obj = {
+        "fecha": datetime.now().strftime("%d/%m/%y"),
+        "Emociones_Acumuladas": resultado.get("emociones", {}),
+        "emocion_dominante": resultado.get("emocion_dominante", None)
+    }
+    user_id = current_user.get("user_id")
+    if user_id:
+        try:
+            await emociones_collection.update_one(
+                {"User_id": user_id},
+                {"$push": {"Emociones": emocion_obj}}
+            )
+        except Exception as e:
+            print(f"[emociones] Error al guardar emoción: {e}")
+    else:
+        print("[emociones] No se encontró user_id en current_user")
 
     return {
         "es_misma_persona": resultado["es_misma_persona"],
