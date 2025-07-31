@@ -47,7 +47,7 @@ export default function Profile() {
   const obtenerEmociones = async () => {
     try {
       const userData = localStorage.getItem('user');
-      const userId = userData ? JSON.parse(userData).id : null;
+      const userId = userData ? JSON.parse(userData)._id : null;
       if (!userId) throw new Error('No se encontró el user_id en localStorage');
 
       const res = await fetch("http://127.0.0.1:8000/pruebaemocion", {
