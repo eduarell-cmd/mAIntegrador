@@ -14,7 +14,7 @@ from deepFace.faceid2 import verificar_rostro
 from validaciones.horaapi import *
 from validaciones.clima import *
 from gemini import geminiprompt
-from datetime import datetime
+from datetime import datetime, date
 
 # Importar el sistema de autenticación
 from auth.auth_routes import auth_router
@@ -133,7 +133,7 @@ async def emotion_test():
 
     # Guardar en la colección pruebas
     doc = {
-        "fecha": datetime.now(),
+        "fecha": datetime.now().strftime("%Y-%m-%d"),
         "emociones": resultado.get("emociones", {}),
         "emocion_dominante": resultado.get("emocion_dominante", None),
         "es_misma_persona": resultado["es_misma_persona"]
