@@ -245,6 +245,47 @@ async def get_tracker(user_id: str):
 
     return {"dias": dias_mes}
 
+@app.get("/weekly_emotions/{user_id}")
+async def get_weekly_emotions(user_id: str):
+    try:
+        # Obtener el documento del usuario
+        doc = await emociones_collection.find_one({"User_id": user_id})
+        if not doc or "Emociones" not in doc:
+            return JSONResponse(
+                status_code=404,
+                content={"error": "No se encontraron emociones para este usuario"}
+            )
+
+        # Obtener fechas de los últimos 7 días
+        today = datetime.now()
+        week_dates = [(today - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(6, -1, -1)]
+        
+        # Buscar emociones dominantes para cada día
+        weekly_emotions = {}
+        for entry in doc["Emociones"]:
+            if entry["fecha"] in week_dates:
+                weekly_emotions[entry["fecha"]] = entry["emocion_dominante"]
+        
+        # Formatear respuesta con días de la semana
+        response = []
+        for date_str in week_dates:
+            day_name = (datetime.strptime(date_str, "%Y-%m-%d")).strftime("%a")
+            emotion = weekly_emotions.get(date_str, None)
+            response.append({
+                "date": date_str,
+                "day": day_name,
+                "emotion": emotion
+            })
+        
+        return {"weekly_emotions": response}
+    
+    except Exception as e:
+        print(f"Error obteniendo emociones semanales: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Error interno del servidor"}
+        )
+
 @app.get("/geminiprompt")
 async def consejo():
     print("➡️ Llamando a geminiprompt()")

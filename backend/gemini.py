@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 import json
 from deepFace.faceid2 import verificar_rostro
+from deepFace.faceid2lap import verificar_rostro as verificar_rostro_lap
 from fastapi import HTTPException  
 
 async def geminiprompt():
@@ -11,7 +12,7 @@ async def geminiprompt():
     api_key = os.getenv("GEMINI_API_KEY")
     client = genai.Client(api_key=api_key)
 
-    datos_emociones = verificar_rostro()
+    datos_emociones = verificar_rostro_lap()
 
     if datos_emociones["error"]:
         return {

@@ -54,6 +54,8 @@ const emocionesInfo = {
 export default function Profile() {
   const [trackerDias, setTrackerDias] = useState(Array(31).fill(false));
 
+  const [weeklyEmotions, setWeeklyEmotions] = useState(Array(7).fill(null));
+
   // Estado para el promedio acumulado de emociones
   const [emocionesAcumuladas, setEmocionesAcumuladas] = useState({
     angry: 0,
@@ -114,8 +116,8 @@ export default function Profile() {
 
       // Actualizar promedio después de guardar
       await obtenerPromedio();
-
       await obtenerTracker();
+      await obtenerSemanales();
     } catch (err) {
       console.error("Error obteniendo emociones:", err);
     }
@@ -138,10 +140,27 @@ export default function Profile() {
     }
   };
 
+  const obtenerSemanales = async () => {
+    try {
+      const userData = localStorage.getItem('user');
+      const userId = userData ? JSON.parse(userData)._id : null;
+      if (!userId) throw new Error('No user_id found');
+
+      const res = await fetch(`http://127.0.0.1:8000/weekly_emotions/${userId}`);
+      if (!res.ok) throw new Error("API Error");
+      const data = await res.json();
+      
+      setWeeklyEmotions(data.weekly_emotions || []);
+    } catch (err) {
+      console.error("Error obteniendo emociones semanales:", err);
+    }
+  };
+
   // Cargar promedio inicial cuando se monta el componente
   useEffect(() => {
     obtenerPromedio();
     obtenerTracker();
+    obtenerSemanales();
   }, []);
 
   // Usuario
@@ -161,6 +180,8 @@ export default function Profile() {
   const hoy = new Date();
   const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
   const offset = (primerDiaMes.getDay() + 6) % 7; 
+
+  const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
   // +6 para que Lunes sea el primer día (0 = Lunes, 6 = Domingo)
     
   return (
@@ -190,48 +211,21 @@ export default function Profile() {
               </div>
             </div>
             <div className='user-weekly'>
-              <div className="weekly-emotion">
-                <div className="emotion-container">
-                  <img src={ Fear } alt="emotion" />
+              {weeklyEmotions.map((day, index) => (
+                <div className="weekly-emotion" key={index}>
+                  <div className="emotion-container">
+                    {day?.emotion ? (
+                      <img 
+                        src={emocionesInfo[day.emotion]?.imagen || Neutral} 
+                        alt="emotion" 
+                      />
+                    ) : (
+                      <div className="empty-emotion">-</div>
+                    )}
+                  </div>
+                  <h3>{day?.day || "..."}</h3>
                 </div>
-                <h3>Mon</h3>
-              </div>
-              <div className="weekly-emotion">
-                <div className="emotion-container">
-                  <img src={ Happy } alt="emotion" />
-                </div>
-                <h3>Tue</h3>
-              </div>
-              <div className="weekly-emotion">
-                <div className="emotion-container">
-                  <img src={ Angry } alt="emotion" />
-                </div>
-                <h3>Wed</h3>
-              </div>
-              <div className="weekly-emotion">
-                <div className="emotion-container">
-                  <img src={ Surprised } alt="emotion" />
-                </div>
-                <h3>Thu</h3>
-              </div>
-              <div className="weekly-emotion">
-                <div className="emotion-container">
-                  <img src={ Sad } alt="emotion" />
-                </div>
-                <h3>Fri</h3>
-              </div>
-              <div className="weekly-emotion">
-                <div className="emotion-container">
-                  <img src={ Happy } alt="emotion" />
-                </div>
-                <h3>Sat</h3>
-              </div>
-              <div className="weekly-emotion">
-                <div className="emotion-container">
-                  <img src={ Happy } alt="emotion" />
-                </div>
-                <h3>Sun</h3>
-              </div>
+              ))}
             </div>
         </div>
         <div className="right-p-section">
@@ -248,19 +242,16 @@ export default function Profile() {
                     <p>S</p>
                   </div>
                   <div className="h-line"></div>
-                    <div className="every-day">
-                      {/* Espacios vacíos antes del primer día */}
-                      {Array(offset).fill(null).map((_, i) => (
-                        <div key={`empty-${i}`} className="day-circle empty-circle-day"></div>
-                      ))}
-
-                      {/* Días reales del mes */}
-                      {trackerDias.map((activo, index) => (
-                        <div
-                          key={index}
-                          className={`day-circle ${activo ? "active-circle-day" : "empty-circle-day"}`}
-                        ></div>
-                      ))}
+                    <div className="every-day" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+                      {trackerDias
+                        .slice(0, ultimoDiaMes)
+                        .map((activo, index) => (
+                          <div
+                            key={index}
+                            className={`day-circle ${activo ? "active-circle-day" : "empty-circle-day"}`}
+                            style={ index === 0 ? { gridColumnStart: offset + 1 } : {} }
+                          ></div>
+                        ))}
                     </div>
                   <div className="h-line"></div>
                   <div className="tracked-empty">
