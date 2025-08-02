@@ -35,7 +35,12 @@ async def signupsito(persona:UserCreate):
         # Hashear la contraseña después de limpiar
         hashed_password = bcrypt.hashpw(user_data["password"].encode("utf-8"), bcrypt.gensalt())
         user_data["password"] = hashed_password.decode("utf-8")
-        
+
+        # Convertir edad a string si es date
+        from datetime import date
+        if isinstance(user_data.get("edad"), date):
+            user_data["edad"] = user_data["edad"].isoformat()
+
         result = await personas_collection.insert_one(user_data)
         print("[DEBUG] Resultado de insert_one:", result.inserted_id)
         

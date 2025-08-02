@@ -1,4 +1,5 @@
 # models.py
+from datetime import date
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from bson import ObjectId
@@ -19,12 +20,13 @@ class PyObjectId(ObjectId):
 
 class UserBase(BaseModel):
     nombre: str
-    edad: int
+    edad: date
+    genero: str
     correo: str
     palabra_de_seguridad: str
     password: str
     descripcion: str 
-    image_url: Optional[str] = None,
+    image_url: Optional[str] = None
     
 
 class LoginInput(BaseModel):

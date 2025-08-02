@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+
 import './Profile.css'
 import { CirclesBackground } from '../small_components/CirclesBackground';
 import settingsIcon from '../assets/icons/settings.png';
@@ -94,7 +95,18 @@ export default function Profile() {
       console.error("Error obteniendo promedio:", err);
     }
   };
-
+  // Función para calcular la edad a partir de la fecha de nacimiento (YYYY-MM-DD)
+  function calcularEdad(fechaNacimiento) {
+  if (!fechaNacimiento) return '';
+  const hoy = new Date();
+  const nacimiento = new Date(fechaNacimiento);
+  let edad = hoy.getFullYear() - nacimiento.getFullYear();
+  const m = hoy.getMonth() - nacimiento.getMonth();
+  if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) {
+    edad--;
+  }
+  return `${edad} years old`;
+}
   // Analizar emoción (guarda nueva lectura y luego obtiene promedio actualizado)
   const obtenerEmociones = async () => {
     try {
@@ -192,7 +204,7 @@ export default function Profile() {
               <div className="p-img flex-center"><img src={user ? user.image_url : PAvatar} alt="avatar" /></div>
               <div className="p-info">
                 <h1>{user ? user.nombre : 'Nombre de usuario'}</h1>
-                <h3>{user ? user.edad + ' years old' : ''}</h3>
+                <h3>{user ? calcularEdad(user.edad) : ''}</h3>
               </div>
               <div className="p-settings flex-center"><img src={settingsIcon} alt="" /></div>
             </div>
