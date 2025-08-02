@@ -9,6 +9,8 @@ import WelcomeScreen from './ios/frontendmobileof/screens/WelcomeScreen';
 import LoginScreen from './ios/frontendmobileof/screens/LoginScreen';
 import SplashScreen from './ios/frontendmobileof/screens/SplashScreen';
 import LoggedInScreen from './ios/frontendmobileof/screens/LoggedInScreen';
+import SignUpScreen from './ios/frontendmobileof/screens/SignUpScreen';
+
 import { AuthProvider, useAuth } from './services/authContext';
 
 const Stack = createNativeStackNavigator();
@@ -39,6 +41,12 @@ function AppNavigator() {
         component={LoggedInScreen} 
         options={{ title: 'Bienvenido' }} 
       />
+      <Stack.Screen 
+        name="SignUp" 
+        component={SignUpScreen} 
+        options={{ title: 'Crear Cuenta' }} 
+      />
+
     </Stack.Navigator>
   );
 }
