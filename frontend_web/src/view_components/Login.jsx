@@ -38,6 +38,7 @@ export default function Login() {
   const [registerData, setRegisterData] = useState({
     nombre: '',
     edad: '',
+    genero:'',
     correo: '',
     palabra_de_seguridad: '',
     password: '',
@@ -91,7 +92,7 @@ export default function Login() {
         return { ...prev, preferencias: nuevasPreferencias };
       });
     } else if (type === 'radio') {
-      setRegisterData((prev) => ({ ...prev, sexo: value }));
+      setRegisterData((prev) => ({ ...prev, genero: value }));
     } else {
       setRegisterData((prev) => ({ ...prev, [name]: value }));
     }
@@ -155,13 +156,6 @@ export default function Login() {
       return;
     }
 
-    // Validación de edad
-    const edad = parseInt(registerData.edad);
-    if (isNaN(edad) || edad < 18 || edad > 100) {
-      setError('Por favor, ingrese una edad válida (entre 18 y 100 años)');
-      setLoading(false);
-      return;
-    }
     // Validacion de la descripcion del usuario ---------------
     if (!registerData.descripcion.trim()) {
       alert("La descripción es obligatoria.");
@@ -188,7 +182,8 @@ export default function Login() {
     // Creación del payload con datos sanitizados
     const payload = {
       nombre: sanitizeInput(registerData.nombre),
-      edad: edad,
+      edad: registerData.edad,
+      genero: registerData.genero,
       correo: sanitizeInput(registerData.correo).toLowerCase(),
       palabra_de_seguridad: sanitizeInput(registerData.palabra_de_seguridad),
       password: registerData.password,
@@ -199,7 +194,7 @@ export default function Login() {
     try {
       // Usar el nuevo servicio de autenticación
       const result = await authService.signup(payload);
-      
+      console.log("[DEBUG]. datos de registrar :" + payload)
       console.log('✅ Registro exitoso:', result);
       
       // Redirigir al usuario a la página principal o dashboard
@@ -358,13 +353,43 @@ const handleImageUpload = (e) => {
               <input required type="text" name="nombre" value={registerData.nombre} onChange={handleRegisterChange} disabled={loading} />
               <div className="labelLine">Name</div>
             </label>
-            {/* <br/> */}
+            {/* <br/>.  */}
             <label className='entryArea'>
-              <input required type="number" name="edad" value={registerData.edad} onChange={handleRegisterChange} disabled={loading} />
-              <div className="labelLine">Age</div>
+              <input required type="date" name="edad" value={registerData.edad} onChange={handleRegisterChange} disabled={loading} />
+              <div className="labelLine">Birthday</div>
             </label>
-            {/* <br/> */}
+            {/* <br/>  cambiar Tipo de dato a bool */ }
             <label className='entryArea'>
+            <div className="labelLine">Género</div>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+              <label>
+                <input
+                  type="radio"
+                  name="genero"
+                  value="hombre"
+                  checked={registerData.genero === 'hombre'}
+                  onChange={handleRegisterChange}
+                  disabled={loading}
+                  required
+                />
+                Hombre
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="genero"
+                  value="mujer"
+                  checked={registerData.genero === 'mujer'}
+                  onChange={handleRegisterChange}
+                  disabled={loading}
+                  required
+                />
+                Mujer
+              </label>
+            </div>
+          </label>
+            {/* <br/>  */}
+            <label className='entryArea'> 
               <input required type="email" name="correo" value={registerData.correo} onChange={handleRegisterChange} disabled={loading} />
               <div className="labelLine">E-mail</div>
             </label>
@@ -430,7 +455,6 @@ const handleImageUpload = (e) => {
               <img className='.teachImgIcon' src={teachImg} alt="Teach AI" />
               <h4 className='user-su-p'>Teach the IA <span>here</span></h4>
            </div>
-           <div className="teach-btn flex-center" onClick={() => setShowPrompt(true)}>Prompt</div>
           </div>
         </div>
         <button className='btn-send' type="submit">Register</button>

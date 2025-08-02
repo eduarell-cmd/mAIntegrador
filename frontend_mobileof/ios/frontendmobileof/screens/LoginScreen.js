@@ -1,7 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { login } from '../../../services/authService';
 import { useAuth } from '../../../services/authContext';
+import {
+  View,
+  Text,
+  Button,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  SafeAreaView
+} from 'react-native';
 
 export default function LoginScreen({ navigation }) {
 
@@ -30,7 +40,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Inicia Sesión</Text>
+      <Text style={styles.title}>Inicia Sesión perro</Text>
       <TextInput
         placeholder="Correo"
         value={email}
@@ -47,6 +57,11 @@ export default function LoginScreen({ navigation }) {
         style={styles.input}
       />
       <Button title={loading ? "Ingresando..." : "Ingresar"} onPress={handleLogin} disabled={loading} />
+      
+      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+        <Text style={{ color: 'blue', marginTop: 20 }}>¿No tienes cuenta? Regístrate</Text>
+      </TouchableOpacity>
+
     </View>
   );
 }
