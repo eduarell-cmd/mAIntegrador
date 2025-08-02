@@ -25,7 +25,7 @@ def verificar_rostro_laptop():
     }
     try:
         # Descargar imagen conocida desde una URL y obtener su codificación facial
-        url = "https://res.cloudinary.com/dfczlyftc/image/upload/v1753935986/gibbncbpmpzb70jdgsvl.jpg"
+        url = "https://res.cloudinary.com/dfczlyftc/image/upload/v1754083563/pxylg533dfapx6l57btj.jpg"
         response = requests.get(url)
         response.raise_for_status()
         known_image = face_recognition.load_image_file(BytesIO(response.content))

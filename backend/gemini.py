@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 import json
 from deepFace.faceid2 import verificar_rostro
+from deepFace.faceid2lap import verificar_rostro as verificar_rostro_lap
 from fastapi import HTTPException  
 
 async def geminiprompt():
@@ -11,7 +12,7 @@ async def geminiprompt():
     api_key = os.getenv("GEMINI_API_KEY")
     client = genai.Client(api_key=api_key)
 
-    datos_emociones = verificar_rostro()
+    datos_emociones = verificar_rostro_lap()
 
     if datos_emociones["error"]:
         return {
@@ -38,7 +39,7 @@ async def geminiprompt():
         "emocion_dominante": datos_emociones["emocion_dominante"]
     }
     emociones_json_str = json.dumps(emociones_para_prompt)
-
+    #TODO: LLenar con la infomacion del promt de forma dinamica segun el usuario
     prompt_text = f"""(Imagina que eres un espejo inteligente el cual te va a dar recomendaciones para tener un mejor dia dependiendo de como te vea y de tu estado de animo, no me digas como estoy ni como me siento, solo dime el consejo como si fuera una notificacion muy muy corta de un mensaje como si fueras un amigo, algo así como: "Por qué no vas a ver una pelicula con algun amigo o deberias de ..." obviamente dependiendo de la persona) Dame un consejo corto o que me recomiendas hacer para sentirme mejor (sexo: masculino, edad: 19 años, estado de animo: ({emociones_json_str}), preferencias: (gimnasio, futbol, peliculas, deportes), ubicación: (Chihuahua, Chihuahua, México), hora actual: 10:34 ) En ingles, solo muestra como si fuera la notificación, no me pongas ningun "aqui va" ni "aqui tienes" ni nada, solo el consejo, no me digas como estoy ni como me siento, solo dime el consejo como si fuera una notificacion muy muy corta de un mensaje como si fueras un amigo, algo así como: "Por qué no vas a ver una pelicula con algun amigo o deberias de ..."  pero en ingles, no me digas como estoy ni como me siento, solo dime el consejo como si fuera una notificacion muy muy corta de un mensaje como si fueras un amigo, algo así como: "Por qué no vas a ver una pelicula con algun amigo o deberias de ..." """
 
     try:
