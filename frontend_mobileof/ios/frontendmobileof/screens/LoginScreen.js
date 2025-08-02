@@ -4,22 +4,32 @@ import { useAuth } from '../../../services/authContext';
 import {
   View,
   Text,
-  Button,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
   Alert,
-  SafeAreaView
+  SafeAreaView,
+  StatusBar,
+  ActivityIndicator
 } from 'react-native';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { LinearGradient } from 'expo-linear-gradient';
+
+const COLORS = {
+  background: '#0c0c1e',
+  card: '#1a1a2f',
+  input: '#2c2c3e',
+  primary: '#ffffff',
+  secondary: '#9f5fff',
+  accent: '#d400ff',
+  textMuted: '#9a9aaf',
+};
 
 export default function LoginScreen({ navigation }) {
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { loginSuccess } = useAuth();
-
 
   const handleLogin = async () => {
     if (email && password) {
@@ -34,56 +44,168 @@ export default function LoginScreen({ navigation }) {
         setLoading(false);
       }
     } else {
-      Alert.alert('Error', 'Ingresa ambos campos.');
+      Alert.alert('Empty fields', 'Write your e-mail and password');
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Inicia Sesión perro</Text>
-      <TextInput
-        placeholder="Correo"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        style={styles.input}
-        keyboardType="email-address"
-      />
-      <TextInput
-        placeholder="Contraseña"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-      />
-      <Button title={loading ? "Ingresando..." : "Ingresar"} onPress={handleLogin} disabled={loading} />
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
       
-      <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-        <Text style={{ color: 'blue', marginTop: 20 }}>¿No tienes cuenta? Regístrate</Text>
-      </TouchableOpacity>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
+        <Text style={styles.normalText}>M.</Text>
+        <MaskedView
+          maskElement={
+            <Text style={[styles.title, { backgroundColor: 'transparent' }]}>
+              AI
+            </Text>
+          }
+        >
+          <LinearGradient
+            colors={['#00f0ff', '#ff00ff', '#9f5fff']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          >
+            <Text style={[styles.title, { opacity: 0 }]}>AI</Text>
+          </LinearGradient>
+        </MaskedView>
+      </View>
 
-    </View>
+      <Text style={styles.subtitle}>Please sign in to continue</Text>
+
+      <View style={styles.form}>
+        <TextInput
+          placeholder="E-mail"
+          placeholderTextColor={COLORS.textMuted}
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <TextInput
+          placeholder="Password"
+          placeholderTextColor={COLORS.textMuted}
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+        />
+
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color={COLORS.primary} />
+          ) : (
+            <Text style={styles.buttonText}>Log in</Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+          <Text style={styles.link}>No account? <Text style={styles.linkAccent}>Sign up</Text></Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
+
+const GradientText = () => {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginBottom: 1 }}>
+      <Text style={styles.normalText}>M.</Text>
+      <MaskedView
+        maskElement={
+          <Text style={[styles.title, { backgroundColor: 'transparent' }]}>
+            AI
+          </Text>
+        }
+      >
+        <LinearGradient
+          colors={['#00f0ff', '#ff00ff', '#9f5fff']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+        >
+          <Text style={[styles.title, { opacity: 0 }]}>AI</Text>
+        </LinearGradient>
+      </MaskedView>
+    </View>
+
+  );
+};
+
+
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: COLORS.background,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#fff',
+    paddingHorizontal: 24,
   },
   title: {
-    fontSize: 22, fontWeight: 'bold', marginBottom: 30, textAlign: 'center',
+    fontSize: 32,
+    color: COLORS.primary,
+    fontWeight: 'bold',
+    marginBottom: 12,
+  },
+  normalText: {
+    fontSize: 32,
+    color: '#fff',
+    fontWeight: 'bold',
+    marginTop: '-12'
+  },
+  subtitle: {
+    fontSize: 18,
+    color: COLORS.textMuted,
+    marginBottom: 32,
+  },
+  form: {
+    width: '100%',
+    alignItems: 'center',
+    gap: '10',
   },
   input: {
-    width: '100%',
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 4,
-    marginBottom: 16,
-    paddingHorizontal: 8,
+    backgroundColor: COLORS.input,
+    color: COLORS.primary,
+    padding: 14,
+    borderRadius: 12,
+    marginBottom: 18,
+    fontSize: 16,
+    width: '80%',
+  },
+  button: {
+    backgroundColor: COLORS.secondary,
+    paddingVertical: 14,
+    borderRadius: 40,
+    alignItems: 'center',
+    marginBottom: 20,
+    shadowColor: COLORS.accent,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 4,
+    width: '40%',
+  },
+  buttonDisabled: {
+    backgroundColor: '#555',
+  },
+  buttonText: {
+    color: COLORS.primary,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  link: {
+    textAlign: 'center',
+    color: COLORS.textMuted,
+    fontSize: 14,
+  },
+  linkAccent: {
+    color: COLORS.accent,
+    fontWeight: 'bold',
   },
 });
