@@ -286,12 +286,12 @@ async def get_weekly_emotions(user_id: str):
             content={"error": "Error interno del servidor"}
         )
 
-@app.get("/geminiprompt")
-async def consejo():
-    print("➡️ Llamando a geminiprompt()")
-    texto = await geminiprompt()
+@app.post("/geminiprompt")
+async def consejo(user_data: dict = Body(...)):
+    print("➡️ Llamando a geminiprompt() con los siguientes datos: ", user_data)
+    texto = await geminiprompt(user_data)
     print(f"✅ Respuesta de geminiprompt: {texto}")
-    return {"consejo": texto}
+    return texto
 
 # Nueva ruta protegida de ejemplo
 @app.get("/protected-data")

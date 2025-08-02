@@ -4,6 +4,23 @@ import './Mirror.css';
 import { CirclesBackground } from "../small_components/CirclesBackground";
 import NotiIcon from '../assets/icons/logo-mai.png';
 import WeatherIcon from '../assets/icons/weather.png';
+import Happy from '../assets/images/happy.png';
+import Sad from '../assets/images/sad-face.png';
+import Neutral from '../assets/images/neutral.png';
+import Fear from '../assets/images/fear.png';
+import Surprised from '../assets/images/surprised.png';
+import Angry from '../assets/images/angry.png';
+import Disgust from '../assets/images/disgust.png';
+
+const emotionImages = {
+  angry: Angry,
+  disgust: Disgust,
+  fear: Fear,
+  happy: Happy,
+  sad: Sad,
+  surprise: Surprised,
+  neutral: Neutral,
+};
 
 export default function Mirror() {
   const [dia, setDia] = useState("Loading...");
@@ -12,6 +29,8 @@ export default function Mirror() {
   const [clima, setClima] = useState("Loading...");
   const [emocion, setEmocion] = useState(null); // Keep as null initially
   const [consejo, setConsejo] = useState(null); // Keep as null initially
+  const [emocionFoto, setEmocionFoto] = useState(null);
+  const [nombre, setNombre] = useState(null);
 
   // Obtener el día del backend
   useEffect(() => {
@@ -50,11 +69,26 @@ export default function Mirror() {
 const handleVerificarRostroSubmit = async (e) => {
   e.preventDefault();
   try {
-    const res = await fetch("http://localhost:8000/geminiprompt");
+    const userData = JSON.parse(localStorage.getItem("user")); // o la key que usas
+
+    if (!userData) {
+      alert("❌ No hay datos del usuario en localStorage.");
+      return;
+    }
+
+    const res = await fetch("http://localhost:8000/geminiprompt", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData), // Se envía todo el JSON del usuario
+    });
 
     if (!res.ok) {
       const error = await res.json();
       alert(`❌ ${error.detail}`);
+      setNombre(null);
+      setEmocionFoto(null);
       setEmocion(null);
       setConsejo(null);
       return;
@@ -63,21 +97,17 @@ const handleVerificarRostroSubmit = async (e) => {
     const data = await res.json();
     console.log("Respuesta de Gemini:", data);
 
-    // Puedes mostrar emoción si backend la devuelve también
-    if (data.consejo?.error) {
-      alert(`❌ ${data.consejo.error}`);
-      setConsejo(null);
-      setEmocion(null);
-      return;
-    }
-    
-    const emocionDetectada = data.consejo?.emocion || "emocion detectada";
-    setEmocion(emocionDetectada);
-    setConsejo(data.consejo?.consejo);
+    const emocionDetectada = data.emocion || "emocion detectada";
+    setNombre(data.nombre);
+    setEmocionFoto(data.emocion_foto)
+    setEmocion(data.emocion);
+    setConsejo(data.consejo);
+    setEmocionFoto(data.emocion_foto);
 
   } catch (err) {
     console.error("Error al conectar con Gemini:", err);
     alert("❌ Error al conectar con el servidor.");
+    setNombre(null);
     setEmocion(null);
     setConsejo(null);
   }
@@ -87,7 +117,7 @@ const handleVerificarRostroSubmit = async (e) => {
     <div className="MirrorView">
       <CirclesBackground />
 
-      <h1>Bienvenido, <span>DittrichDog!</span></h1>
+      <h1>Bienvenido, <span>{nombre}!</span></h1>
 
       <div className="weather-section">
         <h2 className="date">Today is: <span>{dia}</span></h2>
@@ -100,7 +130,13 @@ const handleVerificarRostroSubmit = async (e) => {
       </div>
 
       <div className="tip-notification">
-        <div className="tip-icon"><img src={NotiIcon} alt="" /></div>
+        <div className="tip-icon">
+          {emocionFoto ? (
+            <img src={emotionImages[emocionFoto]} alt={emocionFoto} />
+          ) : (
+            <img src={NotiIcon} alt="default icon" />
+          )}
+        </div>
         <div className="verticalLine"></div>
         <div className="tip-texts">
           <h3 className="noti-title">

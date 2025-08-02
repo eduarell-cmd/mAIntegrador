@@ -146,6 +146,7 @@ def verificar_rostro():
                     raw_emotion = result[0]['dominant_emotion']
                     friendly_emotion = friendly_emotions.get(raw_emotion, raw_emotion)
                     resultado["emocion_dominante"] = friendly_emotion
+                    resultado["emocion_cruda"] = raw_emotion
 
                     print("📊 Emotions detected:")
                     for emotion, score in emociones.items():
