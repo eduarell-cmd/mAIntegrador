@@ -1,94 +1,188 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, TouchableOpacity, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Camera } from 'expo-camera';
-
-export default function ProfileScreen() {
-  const [hasPermission, setHasPermission] = useState(null);
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    // Pedir permisos al cargar el componente
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
-  }, []);
-
-  const handleCameraAccess = async () => {
-    if (hasPermission === false) {
-      Alert.alert('Permiso denegado', 'No puedes acceder a la cámara');
-    } else if (hasPermission === null) {
-      Alert.alert('Esperando permisos...');
-    } else {
-      Alert.alert('¡Permiso concedido!', 'Aquí es donde abrirías la cámara 🎥');
-      // Aquí puedes abrir una nueva vista de cámara real si gustas más adelante
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Vista de Perfil</Text>
-
-      <TouchableOpacity style={styles.button} onPress={() => navigation.replace('Login')}>
-        <Text style={styles.buttonText}>Volver al Login</Text>
-      </TouchableOpacity>
-
-      <View style={styles.cameraContainer}>
-        <TouchableOpacity style={styles.cameraButton} onPress={() => navigation.navigate('TakePhoto')}>
-          <Text style={styles.cameraButtonText}>Abrir Cámara</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 
 const COLORS = {
-  background: '#020211',
+  background: '#0a0a0a',
   secondary: '#d400ff',
-  tertiary: '#d20972',
   white: '#ffffff',
+  boxesBG: '#1f1f2e',
+  text: '#eaeaea',
+  primary: '#4e4e4e',
+};
+
+const ProfileScreen = ({ handleCameraAccess }) => {
+  return (
+    <ScrollView style={styles.container}>
+      {/* Top: User Info Full Width */}
+      <View style={styles.userInfoContainer}>
+        <Text style={styles.username}>Nombre de Usuario</Text>
+        <Text style={styles.prompt}>"Mensaje personalizado para la IA"</Text>
+      </View>
+
+      {/* Second Row: Calendar + Daily Emotion */}
+      <View style={styles.rowContainer}>
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Tracking Record</Text>
+          <View style={styles.daysRow}>
+            {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, index) => (
+              <View key={index} style={styles.dayCircle}>
+                <Text style={styles.dayText}>{day}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Emoción de hoy</Text>
+          <Text style={styles.emotionPlaceholder}>😊 Feliz</Text>
+        </View>
+      </View>
+
+      {/* Third Row: Camera Button */}
+      <View style={styles.explanationContainer}>
+        <Text style={styles.explanationText}>
+          Presiona el botón para que el espejo inteligente capture tu expresión actual y analice tus emociones.
+        </Text>
+        <TouchableOpacity style={styles.circleButton} onPress={handleCameraAccess}>
+          <Text style={styles.cameraIcon}>📷</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Fourth Row: Psychological Tip */}
+      <View style={styles.cardFullWidth}>
+        <Text style={styles.sectionTitle}>Consejo Psicológico</Text>
+        <Text style={styles.tipText}>
+          Tómate un momento para respirar profundamente y enfocarte en lo que puedes controlar.
+        </Text>
+      </View>
+
+      {/* Fifth Row: Weekly Emotion Tracking */}
+      <View style={styles.cardFullWidth}>
+        <Text style={styles.sectionTitle}>Seguimiento Semanal</Text>
+        <Text style={styles.placeholderText}>[Aquí se mostrarán tus emociones de la semana]</Text>
+      </View>
+
+      {/* Final Row: Emotion Chart */}
+      <View style={styles.cardFullWidth}>
+        <Text style={styles.sectionTitle}>Gráfica de Emociones</Text>
+        <Text style={styles.placeholderText}>[Gráfica próximamente]</Text>
+      </View>
+    </ScrollView>
+  );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-    justifyContent: 'center',
-    alignItems: 'center',
+    padding: 16,
+  },
+  userInfoContainer: {
+    backgroundColor: COLORS.boxesBG,
+    borderRadius: 20,
     padding: 20,
+    marginBottom: 20,
+    alignItems: 'center',
   },
-  title: {
-    color: COLORS.white,
+  username: {
     fontSize: 22,
-    marginBottom: 30,
     fontWeight: 'bold',
+    color: COLORS.white,
   },
-  button: {
-    backgroundColor: COLORS.tertiary,
-    padding: 12,
-    borderRadius: 10,
+  prompt: {
+    fontSize: 16,
+    color: COLORS.text,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 10,
     marginBottom: 20,
   },
-  buttonText: {
-    color: COLORS.white,
-    fontWeight: 'bold',
-    fontSize: 16,
+  card: {
+    flex: 1,
+    backgroundColor: COLORS.boxesBG,
+    borderRadius: 20,
+    padding: 16,
+    justifyContent: 'center',
   },
-  cameraContainer: {
-    backgroundColor: '#1a1a1a',
+  cardFullWidth: {
+    backgroundColor: COLORS.boxesBG,
+    borderRadius: 20,
     padding: 20,
-    borderRadius: 12,
+    marginTop: 20,
   },
-  cameraButton: {
-    backgroundColor: COLORS.secondary,
-    padding: 14,
-    borderRadius: 8,
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.white,
+    marginBottom: 10,
+  },
+  daysRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  dayCircle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  cameraButtonText: {
+  dayText: {
     color: COLORS.white,
     fontWeight: 'bold',
+  },
+  emotionPlaceholder: {
+    fontSize: 28,
+    textAlign: 'center',
+    color: COLORS.white,
+  },
+  explanationContainer: {
+    alignItems: 'center',
+    marginTop: 20,
+    paddingHorizontal: 20,
+    backgroundColor: COLORS.boxesBG,
+    borderRadius: 30,
+    padding: 20,
+  },
+  explanationText: {
+    color: COLORS.white,
     fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  circleButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: COLORS.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 8,
+    borderColor: '#aaa',
+    borderWidth: 3,
+  },
+  cameraIcon: {
+    fontSize: 30,
+    color: COLORS.white,
+  },
+  tipText: {
+    color: COLORS.text,
+    fontSize: 16,
+    lineHeight: 22,
+  },
+  placeholderText: {
+    color: COLORS.text,
+    fontStyle: 'italic',
+    fontSize: 14,
   },
 });
+
+export default ProfileScreen;
