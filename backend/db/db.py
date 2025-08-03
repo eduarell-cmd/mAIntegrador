@@ -12,5 +12,6 @@ client = AsyncIOMotorClient(MONGO_URL)
 db = client["PruebasIntegrador"]
 personas_collection = db["personas"]
 emociones_collection = db["emociones"]
+consejos_collection = db["consejos"]
 
 pruebas_collection = db["pruebas"]

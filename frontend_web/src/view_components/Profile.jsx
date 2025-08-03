@@ -54,8 +54,9 @@ const emocionesInfo = {
 
 export default function Profile() {
   const [trackerDias, setTrackerDias] = useState(Array(31).fill(false));
-
   const [weeklyEmotions, setWeeklyEmotions] = useState(Array(7).fill(null));
+  const [consejosHoy, setConsejosHoy] = useState([]);
+  const [indiceConsejo, setIndiceConsejo] = useState(0);
 
   // Estado para el promedio acumulado de emociones
   const [emocionesAcumuladas, setEmocionesAcumuladas] = useState({
@@ -107,6 +108,37 @@ export default function Profile() {
   }
   return `${edad} years old`;
 }
+
+  // Obtener consejos del backend
+  const obtenerConsejosHoy = async () => {
+    try {
+      const userData = localStorage.getItem('user');
+      const userId = userData ? JSON.parse(userData)._id : null;
+      if (!userId) throw new Error('No se encontró user_id');
+
+      const res = await fetch(`http://127.0.0.1:8000/consejos_hoy/${userId}`);
+      if (!res.ok) throw new Error("Error en API de consejos");
+      const data = await res.json();
+
+      setConsejosHoy(data.consejos || []);
+      setIndiceConsejo(0); // Reiniciar al primer consejo
+    } catch (err) {
+      console.error("Error obteniendo consejos de hoy:", err);
+    }
+  };
+
+  const siguienteConsejo = () => {
+    if (consejosHoy.length > 0) {
+      setIndiceConsejo((prev) => (prev + 1) % consejosHoy.length);
+    }
+  };
+
+  const anteriorConsejo = () => {
+    if (consejosHoy.length > 0) {
+      setIndiceConsejo((prev) => (prev - 1 + consejosHoy.length) % consejosHoy.length);
+    }
+  };
+
   // Analizar emoción (guarda nueva lectura y luego obtiene promedio actualizado)
   const obtenerEmociones = async () => {
     try {
@@ -130,6 +162,7 @@ export default function Profile() {
       await obtenerPromedio();
       await obtenerTracker();
       await obtenerSemanales();
+      await obtenerConsejosHoy();
     } catch (err) {
       console.error("Error obteniendo emociones:", err);
     }
@@ -173,6 +206,7 @@ export default function Profile() {
     obtenerPromedio();
     obtenerTracker();
     obtenerSemanales();
+    obtenerConsejosHoy();
   }, []);
 
   // Usuario
@@ -209,18 +243,27 @@ export default function Profile() {
               <div className="p-settings flex-center"><img src={settingsIcon} alt="" /></div>
             </div>
             <div className='user-tip'>
-              <div className="emotion-container interactive">
-                  <img src={ Happy } alt="emotion" />
-              </div>
-              <div className="v-line"></div>
-              <div className="tip-text-zone">
-                <h2>You look happy!</h2>
-                <p>You should write about why you are feeling well.</p>
-              </div>
-              <div className="arrows-container flex-center">
-                <img src={DownArrow} className='up-arrow' alt="up" />
-                <img src={DownArrow} className='down-arrow' alt="down" />
-              </div>
+              {consejosHoy.length > 0 ? (
+                <>
+                  <div className="emotion-container interactive">
+                    <img 
+                      src={emocionesInfo[consejosHoy[indiceConsejo].emocion]?.imagen || Neutral} 
+                      alt="emotion" 
+                    />
+                  </div>
+                  <div className="v-line"></div>
+                  <div className="tip-text-zone">
+                    <h2>{emocionesInfo[consejosHoy[indiceConsejo].emocion]?.nombre || "Consejo"}</h2>
+                    <p>{consejosHoy[indiceConsejo].consejo}</p>
+                  </div>
+                  <div className="arrows-container flex-center">
+                    <img src={DownArrow} className='up-arrow' alt="up" onClick={anteriorConsejo} />
+                    <img src={DownArrow} className='down-arrow' alt="down" onClick={siguienteConsejo} />
+                  </div>
+                </>
+              ) : (
+                <p>No hay consejos para hoy</p>
+              )}
             </div>
             <div className='user-weekly'>
               {weeklyEmotions.map((day, index) => (

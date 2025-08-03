@@ -1,7 +1,7 @@
 from fastapi import *
 from fastapi.datastructures import FormData
 from db.models import *
-from db.db import personas_collection, pruebas_collection, emociones_collection
+from db.db import personas_collection, pruebas_collection, emociones_collection, consejos_collection
 from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,7 +13,7 @@ from deepFace.faceid import verificar_rostro_laptop
 from deepFace.faceid2 import verificar_rostro
 from validaciones.horaapi import *
 from validaciones.clima import *
-from gemini import geminiprompt
+from gemini import geminiprompt, normalizar_emocion
 from datetime import datetime, timedelta
 
 # Importar el sistema de autenticación
@@ -202,6 +202,53 @@ async def promedio_emocion(user_id: str):
 
     promedio = {k: round(v / total, 2) if total > 0 else 0 for k, v in suma.items()}
     return {"promedio": promedio, "total_lecturas": total}
+
+@app.post("/guardar_consejo")
+async def guardar_consejo(data: dict = Body(...)):
+    user_id = data.get("user_id")
+    emocion_foto = data.get("emocion_foto")
+    emocion = await normalizar_emocion(data.get("emocion"))
+    consejo = data.get("consejo")
+
+    if not user_id:
+        raise HTTPException(status_code=400, detail="Falta el user_id")
+
+    # Convertir a str para almacenar limpio
+    doc = {
+        "user_id": str(user_id),
+        "emocion_foto": emocion_foto,
+        "emocion": emocion,
+        "consejo": consejo,
+        "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+
+    try:
+        result = await consejos_collection.insert_one(doc)
+        return {
+            "message": "Consejo guardado exitosamente",
+            "data": {**doc, "_id": str(result.inserted_id)}  # convertir también el _id
+        }
+    except Exception as e:
+        print(f"Error guardando consejo: {e}")
+        raise HTTPException(status_code=500, detail="Error guardando consejo")
+
+from fastapi import APIRouter, HTTPException
+from datetime import datetime
+
+@app.get("/consejos_hoy/{user_id}")
+async def consejos_hoy(user_id: str):
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    # Buscar consejos del día
+    consejos = await consejos_collection.find({
+        "user_id": user_id,
+        "fecha": {"$regex": f"^{hoy}"},
+        "consejo": {"$ne": None}
+    }).to_list(length=100)
+
+    # Convertir ObjectId a str
+    for c in consejos:
+        c["_id"] = str(c["_id"])
+    return {"consejos": consejos}
 
 @app.get("/tracker/{user_id}")
 async def get_tracker(user_id: str):
