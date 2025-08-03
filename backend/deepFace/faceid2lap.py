@@ -23,23 +23,28 @@ print(f"👤 Usuario: {getpass.getuser()}")
 print(f"💻 Plataforma: {platform.platform()}")
 print(f"📂 Working dir: {os.getcwd()}")
 
-def capturar_foto_libcamera(output_path):
+def capturar_foto_windows(output_path):
     try:
-        print(f"📷 Ejecutando comando: libcamera-jpeg -o {output_path} --timeout 2000")
-        result = subprocess.run(
-            ["libcamera-jpeg", "-o", output_path, "--timeout", "2000"],
-            check=True,
-            capture_output=True,
-            text=True
-        )
-        print("✅ Comando ejecutado")
-        print("STDOUT:", result.stdout)
-        print("STDERR:", result.stderr)
+        # Usar OpenCV para capturar foto con la cámara web en Windows
+        cap = cv2.VideoCapture(0)
+        if not cap.isOpened():
+            print("❌ No se pudo acceder a la cámara")
+            return False
+        
+        print("📷 Sonríe para la foto...")
+        time.sleep(2)  # Dar tiempo para prepararse
+        ret, frame = cap.read()
+        cap.release()
+        
+        if not ret:
+            print("❌ No se pudo capturar la imagen")
+            return False
+            
+        cv2.imwrite(output_path, frame)
+        print(f"✅ Foto guardada en {output_path}")
         return True
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Error ejecutando libcamera-jpeg: {e}")
-        print("STDOUT:", e.stdout)
-        print("STDERR:", e.stderr)
+    except Exception as e:
+        print(f"❌ Error capturando foto: {e}")
         return False
 
 def recortar_centro(imagen, porcentaje_ancho=0.4, porcentaje_alto=0.9):
@@ -59,25 +64,24 @@ def verificar_rostro():
     }
 
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-            # Descargar imagen conocida desde una URL y obtener su codificación facial
+    # Descargar imagen conocida desde una URL y obtener su codificación facial
     url = "https://res.cloudinary.com/dfczlyftc/image/upload/v1754083563/pxylg533dfapx6l57btj.jpg"
-    response = requests.get(url)
-    response.raise_for_status()
-    ref_path = response.content
     
-    foto_path = os.path.join(BASE_DIR, "fotos", "foto.jpg")
-
     try:
-        if not os.path.exists(ref_path):
-            resultado["error"] = "❌ Imagen de referencia no encontrada"
-            return resultado
+        response = requests.get(url)
+        response.raise_for_status()
+        ref_content = response.content
+        
+        foto_path = os.path.join(BASE_DIR, "fotos", "foto.jpg")
+        os.makedirs(os.path.dirname(foto_path), exist_ok=True)
 
-        known_image = face_recognition.load_image_file(BytesIO(ref_path))
+        # Cargar imagen de referencia desde el contenido descargado
+        known_image = face_recognition.load_image_file(BytesIO(ref_content))
         known_face_encoding = face_recognition.face_encodings(known_image)[0]
         known_face_encodings = [known_face_encoding]
 
         # Captura
-        if not capturar_foto_libcamera(foto_path):
+        if not capturar_foto_windows(foto_path):
             resultado["error"] = "❌ No se pudo capturar la imagen"
             return resultado
         print("📸 Foto capturada")
@@ -142,6 +146,7 @@ def verificar_rostro():
                     raw_emotion = result[0]['dominant_emotion']
                     friendly_emotion = friendly_emotions.get(raw_emotion, raw_emotion)
                     resultado["emocion_dominante"] = friendly_emotion
+                    resultado["emocion_cruda"] = raw_emotion
 
                     print("📊 Emotions detected:")
                     for emotion, score in emociones.items():
