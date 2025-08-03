@@ -11,7 +11,6 @@ import SplashScreen from './ios/frontendmobileof/screens/SplashScreen';
 import LoggedInScreen from './ios/frontendmobileof/screens/LoggedInScreen';
 import SignUpScreen from './ios/frontendmobileof/screens/SignUpScreen';
 import ProfileScreen from './ios/frontendmobileof/screens/ProfileScreen';
-import TakePhotoScreen from './ios/frontendmobileof/screens/TakePhotoScreen';
 
 import { AuthProvider, useAuth } from './services/authContext';
 
@@ -51,7 +50,6 @@ function AppNavigator() {
       />
   
       <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="TakePhoto" component={TakePhotoScreen} />
 
     </Stack.Navigator>
   );
