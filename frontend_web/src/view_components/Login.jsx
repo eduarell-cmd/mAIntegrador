@@ -367,7 +367,7 @@ const handleImageUpload = (e) => {
                   type="radio"
                   name="genero"
                   value="hombre"
-                  checked={registerData.genero === 'hombre'}
+                  checked={registerData.genero === 'Male'}
                   onChange={handleRegisterChange}
                   disabled={loading}
                   required
@@ -379,7 +379,7 @@ const handleImageUpload = (e) => {
                   type="radio"
                   name="genero"
                   value="mujer"
-                  checked={registerData.genero === 'mujer'}
+                  checked={registerData.genero === 'Female'}
                   onChange={handleRegisterChange}
                   disabled={loading}
                   required

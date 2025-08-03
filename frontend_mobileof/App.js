@@ -10,6 +10,7 @@ import LoginScreen from './ios/frontendmobileof/screens/LoginScreen';
 import SplashScreen from './ios/frontendmobileof/screens/SplashScreen';
 import LoggedInScreen from './ios/frontendmobileof/screens/LoggedInScreen';
 import SignUpScreen from './ios/frontendmobileof/screens/SignUpScreen';
+import ProfileScreen from './ios/frontendmobileof/screens/ProfileScreen';
 
 import { AuthProvider, useAuth } from './services/authContext';
 
@@ -27,7 +28,8 @@ function AppNavigator() {
   }
 
   return (
-    <Stack.Navigator initialRouteName={isAuthenticated ? "LoggedIn" : "Login"}>
+    <Stack.Navigator initialRouteName={isAuthenticated ? "LoggedIn" : "Login"}
+      screenOptions={{ headerShown: false }}>
       {/* Puedes agregar WelcomeScreen o SplashScreen si lo deseas */}
       {/* <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} /> */}
       {/* <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ title: 'Bienvenido' }} /> */}
@@ -46,6 +48,8 @@ function AppNavigator() {
         component={SignUpScreen} 
         options={{ title: 'Crear Cuenta' }} 
       />
+  
+      <Stack.Screen name="Profile" component={ProfileScreen} />
 
     </Stack.Navigator>
   );
