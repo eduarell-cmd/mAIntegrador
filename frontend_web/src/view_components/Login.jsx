@@ -356,14 +356,15 @@ const handleImageUpload = (e) => {
             {/* <br/>.  */}
             <label className='entryArea'>
               <input required type="date" name="edad" value={registerData.edad} onChange={handleRegisterChange} disabled={loading} />
-              <div className="labelLine">Birthday</div>
+              <div className="labelLine"></div>
             </label>
             {/* <br/>  cambiar Tipo de dato a bool */ }
             <label className='entryArea'>
-            <div className="labelLine">Género</div>
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+            <div className="labelLine gender-label">Género:</div>
+            <div className='gender-div'>
               <label>
                 <input
+                  className='hombre-input'
                   type="radio"
                   name="genero"
                   value="male"
@@ -372,10 +373,11 @@ const handleImageUpload = (e) => {
                   disabled={loading}
                   required
                 />
-                Male
+                Hombre 
               </label>
               <label>
                 <input
+                  className='mujer-input'
                   type="radio"
                   name="genero"
                   value="female"
