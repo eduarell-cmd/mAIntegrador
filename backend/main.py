@@ -10,7 +10,6 @@ from validaciones.validaciones import *
 import bcrypt # type: ignore
 import json
 from deepFace.faceid import verificar_rostro_laptop
-from deepFace.faceid2 import verificar_rostro
 from validaciones.horaapi import *
 from validaciones.clima import *
 from gemini import geminiprompt, normalizar_emocion
@@ -33,28 +32,6 @@ app.add_middleware(
 
 # Incluir las rutas de autenticación
 app.include_router(auth_router)# Evaluar como funciona esta linea
-
-@app.get("/facerecog")
-def face():
-    resultado = verificar_rostro()
-
-    def convertir(obj):
-        if isinstance(obj, dict):
-            return {k: convertir(v) for k, v in obj.items()}
-        elif isinstance(obj, list):
-            return [convertir(elem) for elem in obj]
-        elif hasattr(obj, 'item'):
-            return obj.item()
-        else:
-            return obj
-
-    resultado_convertido = convertir(resultado)
-    try:
-        print(json.dumps(resultado_convertido, indent=4, ensure_ascii=False))
-    except Exception as e:
-        print(e)
-
-    return {"mensaje": resultado_convertido}
 
 @app.post("/login", response_model=UserBase)
 async def login(data:LoginInput):
@@ -110,19 +87,6 @@ async def weather():
     print(clima)
 
     return clima
-
-@app.get("/emocion")
-async def emotion():
-    resultado = verificar_rostro()
-
-    if resultado["error"]:
-        return JSONResponse(status_code=500, content={"error": resultado["error"]})
-
-    return {
-        "es_misma_persona": resultado["es_misma_persona"],
-        "emociones": resultado.get("emociones", {}),
-        "emocion_dominante": resultado.get("emocion_dominante", None)
-    }
 
 @app.post("/pruebaemocion")
 async def emotion_test(data: dict = Body(...)):
