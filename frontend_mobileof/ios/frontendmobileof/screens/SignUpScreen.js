@@ -31,15 +31,25 @@ const COLORS = {
 
 // ✅ COMPONENTE MOVIDO FUERA
 function InputField({ icon, placeholder, value, onChangeText, secureText, keyboardType, multiline }) {
+  const containerStyle = [
+    styles.inputContainer,
+    multiline && styles.textAreaContainer,
+  ];
+
+  const inputStyle = [
+    styles.inputField,
+    multiline && styles.textAreaField,
+  ];
+
   return (
-    <View style={styles.inputContainer}>
+    <View style={containerStyle}>
       <Ionicons name={icon} size={20} color={COLORS.placeholder} style={styles.inputIcon} />
       <TextInput
         placeholder={placeholder}
         placeholderTextColor={COLORS.placeholder}
         value={value}
         onChangeText={onChangeText}
-        style={[styles.inputField, multiline && styles.textAreaField]}
+        style={inputStyle}
         secureTextEntry={secureText}
         keyboardType={keyboardType}
         multiline={!!multiline}
@@ -48,6 +58,7 @@ function InputField({ icon, placeholder, value, onChangeText, secureText, keyboa
     </View>
   );
 }
+
 
 // 👇 COMPONENTE PRINCIPAL
 export default function SignUpScreen({ navigation }) {
@@ -212,15 +223,39 @@ export default function SignUpScreen({ navigation }) {
             )}
 
             {/* Selector de género */}
-            <View style={{ flexDirection: 'row', marginBottom: 16, alignItems: 'center' }}>
-              <Text style={{ color: COLORS.placeholder, marginRight: 10 }}>Gender:</Text>
-              <TouchableOpacity onPress={() => setGenero('hombre')} style={{ marginRight: 10 }}>
-                <Text style={{ color: genero === 'hombre' ? COLORS.secondary : COLORS.placeholder }}>Male</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => setGenero('mujer')}>
-                <Text style={{ color: genero === 'mujer' ? COLORS.secondary : COLORS.placeholder }}>Female</Text>
-              </TouchableOpacity>
+            <View style={{ marginBottom: 20 }}>
+              <Text style={{ color: COLORS.placeholder, marginBottom: 8 }}>Gender</Text>
+              <View style={{ flexDirection: 'row', gap: 12, justifyContent: 'center' }}>
+                <TouchableOpacity
+                  onPress={() => setGenero('hombre')}
+                  style={{
+                    backgroundColor: genero === 'hombre' ? COLORS.secondary : '#f0f0f0',
+                    paddingVertical: 10,
+                    paddingHorizontal: 20,
+                    borderRadius: 20,
+                    borderWidth: 1,
+                    borderColor: genero === 'hombre' ? COLORS.secondary : '#ccc',
+                  }}
+                >
+                  <Text style={{ color: genero === 'hombre' ? '#fff' : '#666' }}>Male</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => setGenero('mujer')}
+                  style={{
+                    backgroundColor: genero === 'mujer' ? COLORS.secondary : '#f0f0f0',
+                    paddingVertical: 10,
+                    paddingHorizontal: 20,
+                    borderRadius: 20,
+                    borderWidth: 1,
+                    borderColor: genero === 'mujer' ? COLORS.secondary : '#ccc',
+                  }}
+                >
+                  <Text style={{ color: genero === 'mujer' ? '#fff' : '#666' }}>Female</Text>
+                </TouchableOpacity>
+              </View>
             </View>
+
 
             <InputField icon="mail-outline" placeholder="E-mail" value={email} onChangeText={setEmail} keyboardType="email-address" />
             <InputField icon="lock-closed-outline" placeholder="Password" value={password} onChangeText={setPassword} secureText />
@@ -272,7 +307,24 @@ const styles = StyleSheet.create({
   backButton: { alignSelf: 'flex-start', marginBottom: 20 },
   title: { fontSize: 28, fontWeight: '700', color: COLORS.white, marginBottom: 20 },
   card: { width: '100%', backgroundColor: COLORS.inputBG, borderRadius: 20, padding: 20, shadowColor: COLORS.accent, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 },
-  inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.background, borderRadius: 12, marginBottom: 16, paddingHorizontal: 12, height: 50 },
+  
+  inputContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderWidth: 1,
+  borderColor: COLORS.border,
+  borderRadius: 12,
+  paddingHorizontal: 12,
+  marginBottom: 16,
+  backgroundColor: COLORS.inputBackground,
+  height: 60, // Cambia este valor a uno más grande
+},
+
+textAreaContainer: {
+  height: 120,
+},
+
+
   inputIcon: { marginRight: 8 },
   inputField: { flex: 1, color: COLORS.white, fontSize: 16 },
   textAreaField: { height: 100, textAlignVertical: 'top' },

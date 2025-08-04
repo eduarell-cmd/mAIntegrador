@@ -69,19 +69,20 @@ export default function Mirror() {
 const handleVerificarRostroSubmit = async (e) => {
   e.preventDefault();
   try {
-    const userData = JSON.parse(localStorage.getItem("user")); // o la key que usas
+    const userData = JSON.parse(localStorage.getItem("user")); // Tu objeto del localStorage
 
     if (!userData) {
       alert("❌ No hay datos del usuario en localStorage.");
       return;
     }
 
+    // 1. Llamar a Gemini para obtener el consejo
     const res = await fetch("http://localhost:8000/geminiprompt", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(userData), // Se envía todo el JSON del usuario
+      body: JSON.stringify(userData),
     });
 
     if (!res.ok) {
@@ -97,17 +98,32 @@ const handleVerificarRostroSubmit = async (e) => {
     const data = await res.json();
     console.log("Respuesta de Gemini:", data);
 
-    const emocionDetectada = data.emocion || "emocion detectada";
     setNombre(data.nombre);
-    setEmocionFoto(data.emocion_foto)
+    setEmocionFoto(data.emocion_foto);
     setEmocion(data.emocion);
     setConsejo(data.consejo);
-    setEmocionFoto(data.emocion_foto);
+
+    // 2. Guardar el consejo en la base de datos
+    if (data.consejo) {
+      await fetch("http://localhost:8000/guardar_consejo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: userData._id,
+          emocion_foto: data.emocion_foto,
+          emocion: data.emocion,
+          consejo: data.consejo,
+        }),
+      });
+    }
 
   } catch (err) {
     console.error("Error al conectar con Gemini:", err);
     alert("❌ Error al conectar con el servidor.");
     setNombre(null);
+    setEmocionFoto(null);
     setEmocion(null);
     setConsejo(null);
   }

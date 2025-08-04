@@ -8,6 +8,22 @@ from deepFace.faceid2lap import verificar_rostro as verificar_rostro_lap
 from fastapi import HTTPException  
 from datetime import datetime
 
+async def normalizar_emocion(emocion: str) -> str:
+    if not emocion:
+        return "neutral"
+
+    mapping = {
+        "a bit down": "sad",
+        "happy": "happy",
+        "a bit frustrated": "angry",
+        "a little worried": "fear",
+        "slightly uncomfortable": "disgust",
+        "surprised": "surprise",
+        "calm": "neutral"
+    }
+    return mapping.get(emocion.lower(), "neutral")
+
+
 async def geminiprompt(user_data):
     load_dotenv()
     api_key = os.getenv("GEMINI_API_KEY")
@@ -56,6 +72,7 @@ async def geminiprompt(user_data):
             contents=prompt_text
         )
         return {
+            "nombre": nombre,
             "consejo": response.text,
             "emocion": datos_emociones["emocion_dominante"],
             "emocion_foto": datos_emociones["emocion_cruda"],
@@ -64,6 +81,7 @@ async def geminiprompt(user_data):
     except Exception as e:
         print(f"❌ Error llamando a Gemini: {e}")
         return {
+            "nombre": nombre,
             "consejo": None,
             "emocion": datos_emociones["emocion_dominante"],
             "emocion_foto": None,
