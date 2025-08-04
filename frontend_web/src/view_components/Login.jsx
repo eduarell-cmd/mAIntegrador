@@ -366,25 +366,25 @@ const handleImageUpload = (e) => {
                 <input
                   type="radio"
                   name="genero"
-                  value="hombre"
-                  checked={registerData.genero === 'Male'}
+                  value="male"
+                  checked={registerData.genero === 'male'}
                   onChange={handleRegisterChange}
                   disabled={loading}
                   required
                 />
-                Hombre
+                Male
               </label>
               <label>
                 <input
                   type="radio"
                   name="genero"
-                  value="mujer"
-                  checked={registerData.genero === 'Female'}
+                  value="female"
+                  checked={registerData.genero === 'female'}
                   onChange={handleRegisterChange}
                   disabled={loading}
                   required
                 />
-                Mujer
+                Female
               </label>
             </div>
           </label>
