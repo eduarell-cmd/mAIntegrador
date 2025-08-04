@@ -28,11 +28,17 @@ function AppNavigator() {
   }
 
   return (
-    <Stack.Navigator initialRouteName={isAuthenticated ? "LoggedIn" : "Login"}
-      screenOptions={{ headerShown: false }}>
+    // <Stack.Navigator initialRouteName={isAuthenticated ? "LoggedIn" : "Login"}
+
+    <Stack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+
       {/* Puedes agregar WelcomeScreen o SplashScreen si lo deseas */}
       {/* <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} /> */}
       {/* <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ title: 'Bienvenido' }} /> */}
+
+      <Stack.Screen name="Splash" component={SplashScreen} />
+
+
       <Stack.Screen 
         name="Login" 
         component={LoginScreen} 
