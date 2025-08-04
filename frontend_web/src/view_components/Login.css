@@ -260,10 +260,11 @@ input:valid + .labelLine {
     flex-direction: column;
     gap: 14px;
     justify-content: center;
+    translate: -40px;
 }
 
 .user-su-img {
-    height: 48%; width: 90%;
+    height: 45%; width: 90%;
     /* background-color: rgba(0, 255, 255, 0.3); */
     border-radius: 4vh;
     transition: ease-in-out 0.2s;
@@ -273,8 +274,35 @@ input:valid + .labelLine {
     position: relative;
 }
 
+input[type="date"]::-webkit-datetime-edit {
+  color: white;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+  color: white;
+}
+
+input[type="date"]::-webkit-datetime-edit-day-field {
+  color: white;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field {
+  color: white;
+}
+
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: white;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1); /* Para que el icono del calendario también se vea en fondo oscuro */
+}
+
+
+
 .user-su-description {
-    height: 28%; width: 90%;
+    height: 45%; width: 90%;
     /* background-color: rgba(0, 255, 255, 0.3); */
     border-radius: 4vh;
     transition: ease-in-out 0.2s;
@@ -446,6 +474,24 @@ h4 {margin: 0; font-weight: 400; font-size: 1rem;}
     font-style: italic;
     color: #d20972;
 }
+
+.gender-label {
+    font-weight: 700;
+}
+
+.gender-div {
+    /* background-color: rgba(255, 0, 0, 0.382); */
+    height: 80%;
+    width: 50%;
+    margin: auto 0;
+    margin-left: 40%;
+    display: flex;
+    gap: 50px;
+}
+
+.hombre-input{ translate: 10px; height: 20px; width: 20px;}
+
+.mujer-input {translate: 5px; height: 20px; width: 20px;}
 
 /* -------------------- SIGN UP FORM PROMPT AI DESCRIPTION MODAL ------------------- */
 

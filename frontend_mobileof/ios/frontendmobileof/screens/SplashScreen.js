@@ -1,30 +1,47 @@
-// screens/SplashScreen.js
+import React, { useRef } from 'react';
+import { View, StyleSheet, Dimensions } from 'react-native';
+import { Video } from 'expo-av';
+import { useNavigation } from '@react-navigation/native';
 
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+const SplashScreen = () => {
+  const videoRef = useRef(null);
+  const navigation = useNavigation();
 
-export default function SplashScreen({ navigation }) {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      navigation.replace('Login'); // navegación automática
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [navigation]);
+  const handlePlaybackStatusUpdate = (status) => {
+    if (status.didJustFinish) {
+      navigation.replace('Login'); // o 'Home', según tu flujo
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>M.AI</Text>
-      <ActivityIndicator size="large" color="#007AFF" />
+      <Video
+        ref={videoRef}
+        source={require('../assets/videos/splashanimation.mp4')}
+        style={styles.video}
+        resizeMode="cover"
+        shouldPlay
+        isLooping={false}
+        onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+      />
     </View>
   );
-}
+};
+
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff',
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  text: {
-    fontSize: 20, marginBottom: 20,
+  video: {
+    width,
+    height,
+    position: 'absolute',
   },
 });
+
+export default SplashScreen;
