@@ -169,37 +169,30 @@ async def promedio_emocion(user_id: str):
     # Buscar documento del usuario
     registro = await emociones_collection.find_one({"User_id": user_id})
 
-    if not registro or "Emociones" not in registro:
-        return {"promedio": None, "total_lecturas": 0}
+    # Verificación inicial robusta
+    if not registro or "Emociones" not in registro or not registro["Emociones"]:
+        return {"promedio": { "angry": 0, "disgust": 0, "fear": 0, "happy": 0, "sad": 0, "surprise": 0, "neutral": 0 }, "total_lecturas": 0}
 
-    # Fecha de hoy
     hoy = datetime.now().strftime("%Y-%m-%d")
-
-    # Revisar la última emoción guardada
-    emociones = registro["Emociones"]
-    if not emociones or emociones[-1]["fecha"] != hoy:
-        # Si no hay emoción de hoy, reiniciar a 0
-        promedio = {
-            "angry": 0,
-            "disgust": 0,
-            "fear": 0,
-            "happy": 0,
-            "sad": 0,
-            "surprise": 0,
-            "neutral": 0,
-        }
-        return {"promedio": promedio, "total_lecturas": 0}
-
-    # Si es de hoy, calcular promedio normal
-    suma = {k: 0 for k in ["angry","disgust","fear","happy","sad","surprise","neutral"]}
+    
+    suma = {"angry": 0, "disgust": 0, "fear": 0, "happy": 0, "sad": 0, "surprise": 0, "neutral": 0}
     total = 0
 
-    for entrada in emociones:
-        if entrada["fecha"] == hoy:
-            for key, val in entrada["Emociones_Acumuladas"].items():
-                suma[key] += float(val)
-            total += 1
+    for entrada in registro["Emociones"]:
+        # --- CONDICIÓN MODIFICADA ---
+        # Ahora solo contamos la entrada si es de hoy Y si tiene una emoción dominante válida.
+        if entrada.get("fecha") == hoy and entrada.get("emocion_dominante") is not None:
+            
+            if isinstance(entrada.get("Emociones_Acumuladas"), dict):
+                for key, val in entrada["Emociones_Acumuladas"].items():
+                    if key in suma:
+                        try:
+                            suma[key] += float(val)
+                        except (ValueError, TypeError):
+                            pass
+                total += 1 # El total solo incrementa si la entrada es válida
 
+    # El cálculo del promedio se mantiene igual, pero ahora 'total' será el correcto.
     promedio = {k: round(v / total, 2) if total > 0 else 0 for k, v in suma.items()}
     return {"promedio": promedio, "total_lecturas": total}
 
