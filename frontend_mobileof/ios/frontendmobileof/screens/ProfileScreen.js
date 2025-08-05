@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   SafeAreaView,
+  ImageBackground
 } from 'react-native';
 import DownArrowIcon from '../assets/icons/downArrow.png';
 import happyFace from '../assets/images/happy.png';
@@ -16,6 +17,10 @@ import neutralFace from '../assets/images/neutral.png';
 import fearFace from '../assets/images/fear.png';
 import disgustFace from '../assets/images/disgust.png';
 import angryFace from '../assets/images/angry.png';
+
+import fondo from '../assets/images/ciruclosfondo.png';
+
+import { BlurView } from 'expo-blur';
 
 // --- ASSETS ---
 // Usando URIs de placeholder para las imágenes.
@@ -87,14 +92,34 @@ const ProfileScreen = ({ handleCameraAccess }) => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container}>
+    <View style={styles.safeArea}>
+      <ImageBackground
+      source={fondo}
+      resizeMode="cover"
+      style={{
+        flex: 1,
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <ScrollView style={styles.container && styles.mTop}>
         {/* User Info */}
         <View style={styles.userInfoContainer}>
-          <Text style={styles.username}>Nombre de Usuario</Text>
-          <Text style={styles.prompt}>"Mensaje personalizado para la IA"</Text>
-          <Text style={styles.prompt}>Age: XX</Text>
+          <Image 
+            source={require('../assets/images/mainavatar.png')} 
+            style={styles.avatar} 
+          />
+
+          <View style={styles.verticalLine} />
+
+          <View style={styles.userTextContainer}>
+            <Text style={styles.username}>Angel Dittrich</Text>
+            <Text style={styles.prompt}>"Start your day with a piano warmup!"</Text>
+            <Text style={styles.prompt}>Age: 22</Text>
+          </View>
         </View>
+
 
         {/* Tracking Record + Emoción */}
         <View style={styles.rowContainer}>
@@ -243,7 +268,8 @@ const ProfileScreen = ({ handleCameraAccess }) => {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+      </ImageBackground>
+    </View>
   );
 };
 
@@ -257,20 +283,39 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   userInfoContainer: {
-    backgroundColor: COLORS.boxesBG,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', // transparencia blanca
+    borderColor: 'rgba(255,255,255,0.3)', // borde sutil
+    borderWidth: 1.5,
+    shadowColor: '#ffffff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
     borderRadius: 20,
     padding: 20,
     marginBottom: 20,
     alignItems: 'center',
     marginTop: 20,
+    marginHorizontal: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 150,
+  },
+  avatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    resizeMode: 'cover',
+    marginRight: 12,
   },
   username: {
     fontSize: 22,
     fontWeight: 'bold',
     color: COLORS.white,
+    textAlign: 'center',
   },
   prompt: {
-    fontSize: 16,
+    fontSize: 12,
     color: COLORS.text,
     marginTop: 8,
     textAlign: 'center',
@@ -283,22 +328,37 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: COLORS.boxesBG,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', // transparencia blanca
+    borderColor: 'rgba(255,255,255,0.3)', // borde sutil
+    borderWidth: 1.5,
+    shadowColor: '#ffffff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
     borderRadius: 20,
     padding: 16,
     justifyContent: 'center',
     height: 190,
     alignItems: 'center',
+    marginHorizontal: 10,
   },
   cardFullWidth: {
-    backgroundColor: COLORS.boxesBG,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', // transparencia blanca
+    borderColor: 'rgba(255,255,255,0.3)', // borde sutil
+    borderWidth: 1.5,
+    shadowColor: '#ffffff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
     borderRadius: 20,
     padding: 20,
     marginTop: 20,
     marginBottom: 10,
+    marginHorizontal: 10,
+    
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: COLORS.white,
     marginBottom: 10,
@@ -343,9 +403,16 @@ const styles = StyleSheet.create({
   explanationContainer: {
     alignItems: 'center',
     padding: 20,
-    backgroundColor: COLORS.boxesBG,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', // transparencia blanca
+    borderColor: 'rgba(255,255,255,0.3)', // borde sutil
+    borderWidth: 1.5,
+    shadowColor: '#ffffff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
     borderRadius: 30,
     justifyContent: 'center',
+    marginHorizontal: 10,
   },
   explanationText: {
     color: COLORS.white,
@@ -380,12 +447,19 @@ const styles = StyleSheet.create({
   // --- ESTILOS PARA EL CONTENEDOR DE CONSEJOS ---
   userTipContainer: {
     flexDirection: 'row',
-    backgroundColor: COLORS.boxesBG,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', // transparencia blanca
+    borderColor: 'rgba(255,255,255,0.3)', // borde sutil
+    borderWidth: 1.5,
+    shadowColor: '#ffffff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
     borderRadius: 20,
     padding: 16,
     alignItems: 'center',
     marginTop: 20,
     height: 160,
+    marginHorizontal: 10,
   },
   emotionWrapper: {
     width: '28%',
@@ -409,10 +483,13 @@ const styles = StyleSheet.create({
     borderRadius: 40,
   },
   verticalLine: {
-    width: 2,
+    width: 1.5,
     height: '70%',
     backgroundColor: '#d0d0d0',
     borderRadius: 1,
+  },
+  userTextContainer: {
+    flex: 1,
   },
   tipTextZone: {
     flex: 1,
@@ -482,7 +559,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-  // --- ESTILOS PARA LA GRÁFICA DE EMOCIONES ---
+  // -------------------------- ESTILOS PARA LA GRÁFICA DE EMOCIONES -------------------
   graphContainer: {
     height: 200, // Altura fija para la gráfica
     marginTop: 20,
@@ -492,7 +569,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     bottom: 0,
-    left: '8%', // Margen izquierdo para el eje Y
+    left: '3%', // Margen izquierdo para el eje Y
     right: 0,
   },
   hLine: {
@@ -540,6 +617,21 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
   },
+  glass: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', // transparencia blanca
+    borderColor: 'rgba(255,255,255,0.3)', // borde sutil
+    borderWidth: 2,
+    shadowColor: '#ffffff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    borderRadius: 20,
+    padding: 16,
+    overflow: 'hidden',
+  },
+  mTop: {
+    marginTop: 28,
+  }
 });
 
 export default ProfileScreen;
