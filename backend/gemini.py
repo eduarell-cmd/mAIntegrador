@@ -7,6 +7,7 @@ from deepFace.faceid2 import verificar_rostro
 from deepFace.faceid2lap import verificar_rostro as verificar_rostro_lap
 from fastapi import HTTPException  
 from datetime import datetime
+from db.db import emociones_collection
 
 async def normalizar_emocion(emocion: str) -> str:
     if not emocion:
@@ -46,6 +47,27 @@ async def geminiprompt(user_data):
         "emocion": None,
         "error": "Rostro no coincide con la persona registrada."
         }
+    
+    # 2. Guardar la emoción en la base de datos (la lógica de /pruebaemocion)
+    user_id = user_data.get("_id") # Obtener el ID del usuario
+    if user_id:
+        emocion_obj = {
+            "fecha": datetime.now().strftime("%Y-%m-%d"),
+            "Emociones_Acumuladas": datos_emociones.get("emociones", {}),
+            "emocion_dominante": await normalizar_emocion(datos_emociones.get("emocion_dominante")) # Usamos la versión normalizada
+        }
+        try:
+            await emociones_collection.update_one(
+                {"User_id": user_id},
+                {"$push": {"Emociones": emocion_obj}},
+                upsert=True # Crea el documento si no existe
+            )
+            print(f"✅ Emoción guardada para el usuario {user_id}")
+        except Exception as e:
+            print(f"❌ Error al guardar emoción para el usuario {user_id}: {e}")
+            # No detenemos el flujo, aún podemos dar el consejo
+    else:
+        print("⚠️ No se encontró user_id, no se guardará la emoción.")
 
     emociones_limpias = {
         k: float(v) for k, v in datos_emociones["emociones"].items()
@@ -60,7 +82,7 @@ async def geminiprompt(user_data):
     emociones_json_str = json.dumps(emociones_para_prompt)
 
     nombre = user_data.get("nombre")
-    edad = user_data.get("nombre")
+    edad = user_data.get("edad")
     genero = user_data.get("genero")
     descripcion = user_data.get("descripcion")
 

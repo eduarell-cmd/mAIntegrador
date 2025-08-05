@@ -133,7 +133,7 @@ const handleVerificarRostroSubmit = async (e) => {
     <div className="MirrorView">
       <CirclesBackground />
 
-      <h1>Bienvenido, <span>{nombre}!</span></h1>
+      <h1>Welcome, <span>{nombre ? `${nombre}!` : `...!`}</span></h1>
 
       <div className="weather-section">
         <h2 className="date">Today is: <span>{dia}</span></h2>
@@ -159,7 +159,7 @@ const handleVerificarRostroSubmit = async (e) => {
             {emocion ? `You look ${emocion}!` : `No emotion detected!`}
           </h3>
           <p className="noti-text">
-            {consejo ? consejo : "You should talk to people, that way you will let yourself highlight."}
+            {consejo ? consejo : "Please press the button located in your app to analyze your face and receive a personalized tip!"}
           </p>
         </div>
       </div>

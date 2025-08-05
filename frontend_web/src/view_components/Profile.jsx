@@ -348,7 +348,7 @@ export default function Profile() {
                 )
             */}
 
-            <button onClick={obtenerEmociones}>Analizar emoción</button>
+            {/* <button onClick={obtenerEmociones}>Analizar emoción</button> */}
 
               <div className="d-progress-bars">
                 {/* AQUI SE PONEN LOS PORCENTAJES DE LAS EMOCIONES EN EL STYLE DE HEIGHT */}
