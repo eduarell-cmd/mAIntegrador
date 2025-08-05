@@ -11,14 +11,14 @@ import {
   Platform,
   Image,
   KeyboardAvoidingView,
+  ActivityIndicator,
 } from 'react-native';
-import * as FileSystem from 'expo-file-system';
 import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 
-// 🎨 Colores globales
+// 🎨 Colores globales (originales)
 const COLORS = {
   background: '#020211',
   secondary: '#d400ff',
@@ -27,9 +27,11 @@ const COLORS = {
   white: '#ffffff',
   inputBG: '#1a1a1f',
   placeholder: '#aaa',
+  border: '#333', // Se mantiene para consistencia
+  inputBackground: '#25252b', // Color de fondo de input original
 };
 
-// ✅ COMPONENTE MOVIDO FUERA
+// ✅ Componente de Input sin cambios
 function InputField({ icon, placeholder, value, onChangeText, secureText, keyboardType, multiline }) {
   const containerStyle = [
     styles.inputContainer,
@@ -63,7 +65,7 @@ function InputField({ icon, placeholder, value, onChangeText, secureText, keyboa
 // 👇 COMPONENTE PRINCIPAL
 export default function SignUpScreen({ navigation }) {
   const [name, setName] = useState('');
-  const [dob, setDob] = useState(''); // fecha de nacimiento en formato DD/MM/YYYY
+  const [dob, setDob] = useState(''); // fecha de nacimiento en formato YYYY-MM-DD
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -73,16 +75,38 @@ export default function SignUpScreen({ navigation }) {
   const [genero, setGenero] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // FIX: Se agrega un estado dedicado para el objeto Date del picker
+  const [date, setDate] = useState(new Date());
+
+  // FIX: Nueva función para mostrar el picker y establecer su fecha inicial
+  const showDatepicker = () => {
+    // Si ya hay una fecha, el picker iniciará en esa fecha. Si no, en la actual.
+    const initialDate = dob ? new Date(dob.replace(/-/g, '/')) : new Date();
+    setDate(initialDate);
+    setShowDatePicker(true);
+  };
 
   const handleDateChange = (event, selectedDate) => {
-    setShowDatePicker(false);
+    // En Android, el picker se cierra solo, así que ocultamos el estado.
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
+
+    // Asegurarse de que el usuario no canceló la selección
     if (selectedDate) {
-      // Formato YYYY-MM-DD para backend
-      const yyyy = selectedDate.getFullYear();
-      const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
-      const dd = String(selectedDate.getDate()).padStart(2, '0');
-      const formatted = `${yyyy}-${mm}-${dd}`;
-      setDob(formatted);
+      // Actualiza el estado temporal 'date' para que el picker refleje el cambio
+      setDate(selectedDate);
+      
+      // En Android, solo se confirma con el evento 'set' (botón OK)
+      // En iOS, con el modo 'spinner', cada cambio se considera una selección
+      if (event.type === 'set' || Platform.OS === 'ios') {
+        const yyyy = selectedDate.getFullYear();
+        const mm = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(selectedDate.getDate()).padStart(2, '0');
+        const formatted = `${yyyy}-${mm}-${dd}`;
+        setDob(formatted);
+      }
     }
   };
 
@@ -100,29 +124,23 @@ export default function SignUpScreen({ navigation }) {
       quality: 0.8,
     });
 
-  if (!result.canceled && result.assets && result.assets.length > 0) {
-    setPhotoUrl(result.assets[0].uri);
-  }
-};
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      setPhotoUrl(result.assets[0].uri);
+    }
+  };
 
-
-  // Subir imagen a Cloudinary y devolver la URL
   const uploadImageToCloudinary = async (imageUri) => {
     const apiUrl = 'https://api.cloudinary.com/v1_1/dfczlyftc/image/upload';
     const upload_preset = 'registro';
-    // Obtener el nombre del archivo
     const fileName = imageUri.split('/').pop();
-    // Obtener el tipo mime
     const match = /\.([^.]+)$/.exec(fileName);
     const ext = match ? match[1].toLowerCase() : 'jpg';
-    let mimeType = 'image/jpeg';
-    if (ext === 'png') mimeType = 'image/png';
+    let mimeType = `image/${ext}`;
     if (ext === 'jpg' || ext === 'jpeg') mimeType = 'image/jpeg';
-    if (ext === 'heic') mimeType = 'image/heic';
 
     const formData = new FormData();
     formData.append('file', {
-      uri: imageUri,
+      uri: Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri,
       name: fileName,
       type: mimeType,
     });
@@ -135,15 +153,17 @@ export default function SignUpScreen({ navigation }) {
         'Content-Type': 'multipart/form-data',
       },
     });
+
     const data = await response.json();
-    if (!data.secure_url) throw new Error('Error subiendo la imagen');
+    if (!response.ok || !data.secure_url) {
+        console.error('Error de Cloudinary:', data);
+        throw new Error('Error subiendo la imagen');
+    }
     return data.secure_url;
   };
 
-  // Función para registrar usuario en el backend
   const registerUser = async (userData) => {
-    // Cambia la URL por la de tu backend
-    const backendUrl = 'http://192.168.0.25:8000/auth/signup';
+    const backendUrl = 'http://192.168.1.77:8000/auth/signup';
     const response = await fetch(backendUrl, {
       method: 'POST',
       headers: {
@@ -151,30 +171,30 @@ export default function SignUpScreen({ navigation }) {
       },
       body: JSON.stringify(userData),
     });
+
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.detail || 'Error en el registro');
+      throw new Error(errorData.detail || 'Error en el registro desde el servidor');
     }
     return await response.json();
   };
 
   const handleSignUp = async () => {
     if (!name || !dob || !email || !password || !confirmPassword || !securityWord || !photoUrl || !aiPrompt || !genero) {
-      Alert.alert('Error', 'Completa todos los campos.');
+      Alert.alert('Campos incompletos', 'Por favor, completa todos los campos para continuar.');
       return;
     }
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Las contraseñas no coinciden.');
+      Alert.alert('Error de contraseña', 'Las contraseñas no coinciden.');
       return;
     }
     setIsLoading(true);
     try {
-      // 1. Subir imagen a Cloudinary
       const imageUrl = await uploadImageToCloudinary(photoUrl);
-      // 2. Registrar usuario en backend
+      
       const userData = {
         nombre: name,
-        edad: dob, // debe ser YYYY-MM-DD
+        fecha_nacimiento: dob, 
         genero: genero,
         correo: email,
         palabra_de_seguridad: securityWord,
@@ -182,15 +202,21 @@ export default function SignUpScreen({ navigation }) {
         descripcion: aiPrompt,
         image_url: imageUrl,
       };
+
       await registerUser(userData);
-      setIsLoading(false);
-      Alert.alert('¡Éxito!', 'Cuenta creada correctamente.');
+      
+      Alert.alert('¡Éxito!', 'Tu cuenta ha sido creada correctamente.');
       navigation.navigate('Login');
+
     } catch (err) {
+      console.error("Error detallado en handleSignUp:", err);
+      Alert.alert('Error en el registro', err.message || 'Ocurrió un problema inesperado.');
+    } finally {
       setIsLoading(false);
-      Alert.alert('Error', err.message || 'Error en el registro.');
     }
   };
+
+  const displayDate = dob ? dob.split('-').reverse().join('/') : 'Birthdate';
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -206,25 +232,27 @@ export default function SignUpScreen({ navigation }) {
           <Text style={styles.title}>Create Your Account</Text>
           <View style={styles.card}>
             <InputField icon="person-outline" placeholder="Full Name" value={name} onChangeText={setName} />
-            <TouchableOpacity style={styles.inputContainer} onPress={() => setShowDatePicker(true)}>
+            
+            <TouchableOpacity style={styles.inputContainer} onPress={showDatepicker}>
               <Ionicons name="calendar-outline" size={20} color={COLORS.placeholder} style={styles.inputIcon} />
               <Text style={[styles.inputField, dob ? styles.inputText : { color: COLORS.placeholder }]}> 
-                {dob || 'Birthdate'}
+                {displayDate}
               </Text>
             </TouchableOpacity>
+
             {showDatePicker && (
               <DateTimePicker
-                value={new Date()}
+                value={date}
                 mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                display={'spinner'}
                 onChange={handleDateChange}
                 maximumDate={new Date()}
               />
             )}
 
-            {/* Selector de género */}
+            {/* Selector de género con el diseño original */}
             <View style={{ marginBottom: 20 }}>
-              <Text style={{ color: COLORS.placeholder, marginBottom: 8 }}>Gender</Text>
+              <Text style={{ color: COLORS.placeholder, marginBottom: 8, marginLeft: 5 }}>Gender</Text>
               <View style={{ flexDirection: 'row', gap: 12, justifyContent: 'center' }}>
                 <TouchableOpacity
                   onPress={() => setGenero('hombre')}
@@ -255,7 +283,6 @@ export default function SignUpScreen({ navigation }) {
                 </TouchableOpacity>
               </View>
             </View>
-
 
             <InputField icon="mail-outline" placeholder="E-mail" value={email} onChangeText={setEmail} keyboardType="email-address" />
             <InputField icon="lock-closed-outline" placeholder="Password" value={password} onChangeText={setPassword} secureText />
@@ -288,7 +315,7 @@ export default function SignUpScreen({ navigation }) {
                 style={styles.buttonGradient}
               >
                 {isLoading ? (
-                  <Text style={styles.buttonText}>Loading...</Text>
+                  <ActivityIndicator size="small" color={COLORS.white} />
                 ) : (
                   <Text style={styles.buttonText}>Register</Text>
                 )}
@@ -301,34 +328,32 @@ export default function SignUpScreen({ navigation }) {
   );
 }
 
+// Estilos restaurados a la versión original del usuario
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.background },
   container: { padding: 20, alignItems: 'center' },
   backButton: { alignSelf: 'flex-start', marginBottom: 20 },
   title: { fontSize: 28, fontWeight: '700', color: COLORS.white, marginBottom: 20 },
   card: { width: '100%', backgroundColor: COLORS.inputBG, borderRadius: 20, padding: 20, shadowColor: COLORS.accent, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5 },
-  
   inputContainer: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  borderWidth: 1,
-  borderColor: COLORS.border,
-  borderRadius: 12,
-  paddingHorizontal: 12,
-  marginBottom: 16,
-  backgroundColor: COLORS.inputBackground,
-  height: 60, // Cambia este valor a uno más grande
-},
-
-textAreaContainer: {
-  height: 120,
-},
-
-
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    backgroundColor: COLORS.inputBackground,
+    height: 60,
+  },
+  textAreaContainer: {
+    height: 120,
+    alignItems: 'flex-start',
+    paddingTop: 15,
+  },
   inputIcon: { marginRight: 8 },
   inputField: { flex: 1, color: COLORS.white, fontSize: 16 },
   textAreaField: { height: 100, textAlignVertical: 'top' },
-  ageText: { color: COLORS.placeholder, marginBottom: 16 },
   previewImage: { width: 100, height: 100, borderRadius: 50, alignSelf: 'center', marginBottom: 16 },
   buttonWrapper: { marginTop: 10, borderRadius: 30, overflow: 'hidden' },
   buttonGradient: { paddingVertical: 16, alignItems: 'center' },
