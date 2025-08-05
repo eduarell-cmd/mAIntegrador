@@ -194,7 +194,7 @@ export default function SignUpScreen({ navigation }) {
       
       const userData = {
         nombre: name,
-        fecha_nacimiento: dob, 
+        edad: dob, 
         genero: genero,
         correo: email,
         palabra_de_seguridad: securityWord,
@@ -209,7 +209,7 @@ export default function SignUpScreen({ navigation }) {
       navigation.navigate('Login');
 
     } catch (err) {
-      console.error("Error detallado en handleSignUp:", err);
+      console.error("Error detallado en handleSignUp:", JSON.stringify(err, null, 2));
       Alert.alert('Error en el registro', err.message || 'Ocurrió un problema inesperado.');
     } finally {
       setIsLoading(false);
