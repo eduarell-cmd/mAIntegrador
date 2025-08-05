@@ -360,7 +360,7 @@ const handleImageUpload = (e) => {
             </label>
             {/* <br/>  cambiar Tipo de dato a bool */ }
             <label className='entryArea'>
-            <div className="labelLine gender-label">Género:</div>
+            <div className="labelLine gender-label">Gender:</div>
             <div className='gender-div'>
               <label>
                 <input
@@ -373,7 +373,7 @@ const handleImageUpload = (e) => {
                   disabled={loading}
                   required
                 />
-                Hombre 
+                Male 
               </label>
               <label>
                 <input
@@ -486,21 +486,21 @@ const handleImageUpload = (e) => {
                 name="descripcion"
                 value={registerData.descripcion}
                 onChange={handleRegisterChange}
-                placeholder="Describe tu personalidad o tus intereses usando de ejemplo el siguiente texto: 
+                placeholder="Describe your personality or your interests based on the following example:
 
-  Este ejemplo da información clara sobre:
+  This example gives clear information about:
 
-        - Pasatiempos
+        - Hobbies
 
-        - Estilo de vida
+        - LifeStyles
 
-        - Gustos personales
+        - Likes
 
-        - Necesidades emocionales
+        - Emotional needs
 
-        - Interacción social
+        - Social interaction
 
-        - Valores"
+        - Values"
               />
             </label>
             <div className="teach-btn flex-center" onClick={() => setShowPrompt(false)} >I have finished</div>
