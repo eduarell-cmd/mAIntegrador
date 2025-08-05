@@ -6,6 +6,52 @@
     grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
 }
 
+.go-home {
+    height: 5rem; width: 5rem;
+    background-color: rgba(2, 4, 36, 0.7);
+    border-radius: 50%;
+    position:fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 100;
+    transition: ease-in-out 0.2s;
+    box-shadow: rgba(255, 255, 255, 0.445) 0 0 8px;
+}
+
+.go-home:hover {
+    scale: 1.05;
+    cursor: pointer;
+}
+
+.go-home:hover ~ .home-banner {
+    visibility: visible;
+    transform: translateX(4.7rem);
+    opacity: 1;
+}
+
+.home-banner {
+    position: absolute;
+    background-color: rgba(2, 4, 36, 0.7);
+    box-shadow: rgba(255, 255, 255, 0.445) 0 0 8px;
+    border-top-right-radius: 5vh;
+    border-bottom-right-radius: 5vh;
+    padding: 0 1rem;
+    width: 5rem;
+    height: 2rem;
+    font-weight: 600;
+    z-index: 90;
+    visibility: hidden;
+    top: 1.2rem;
+    left: 1.2rem;
+    transition: ease-in-out 0.35s;
+    opacity: 0;
+}
+
+.go-home img {
+    height: 70%;
+    width: auto;
+}
+
 /* =============== GENERAL VIEW FOR ELEMENTSS ============= */
 
 .user-info, .user-tip, .user-weekly, .monthly-record, .user-emotion, .daily-emotions {
@@ -337,7 +383,7 @@
     border-top-left-radius: 1vh;
     border-top-right-radius: 1vh;
     background-color: white;
-    z-index: 1;
+    z-index: 0;
 }
 
 .happy-bar {background-color: rgba(255, 255, 113, 0.878);}
@@ -377,4 +423,121 @@
 
 .user-info:hover, .user-tip:hover, .user-weekly:hover, .monthly-record:hover, .user-emotion:hover, .daily-emotions:hover {
     border: solid 2px rgba(255, 255, 255, 0.737);
+}
+
+/*  VENTANA MODAL DE EDICION DEL PERFIL */
+
+.modal-settings-background {
+    position: fixed;
+    height: 100vh; width: 100vw;
+    background-color: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    transition: ease-in-out 0.2s;
+}
+
+.modal-settings {
+    height: 80vh;
+    width: 50vw;
+    border-radius: 5vh;
+    background-color: rgba(13, 13, 13, 0.8);
+    border: solid 1px rgba(186, 186, 186, 0.5);
+    color: white;
+    z-index: 1000;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.edit-profile-form {
+    height: 50rem;
+    width: 95%;
+    position: initial;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.e-p-entry {
+    position: initial;
+    width: 90%;
+}
+
+/* .input-margin1 {margin-top: 2rem;}
+.input-margin2 {margin-top: 10rem;}
+.input-margin3 {margin-top: 18rem;} */
+
+.input-margin1, .input-margin2, .input-margin3 {width: 100%; position: relative;}
+
+.labelLineDef {transform: translateY(-90px);}
+
+.input-edit:focus + .labelLine ,
+.input-edit:valid + .labelLine {
+    color: #d20972;
+    height: 30px;
+    line-height: 30px;
+    transform: translate(0, -80px) scale(0.68);
+    /* transform: translate(110px, -40px) scale(0.88); */
+    z-index: 1111;
+}
+
+.edit-desc-prompt {
+    height: 25%;
+    margin: 0 auto;
+}
+
+.save-edit-changes {
+}
+
+.buttons-modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4rem;
+}
+
+.logout {
+    color: #ff339c;
+    font-weight: 500;
+    font-size: 1.2rem;
+    filter: drop-shadow(#ff65b5 0 0 4px);
+}
+
+.logout:hover {
+    color: rgb(255, 0, 0);
+    filter: drop-shadow(#ff7a7a 0 0 4px);
+    cursor: pointer;
+}
+
+.modal-logout {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-direction: column;
+    border-radius: 6vh;
+    text-align: center;
+    box-shadow: rgba(255, 255, 255, 0.3) 0 0 32px;
+    height: 50vh;
+    width: 40vw;
+    background: linear-gradient(120deg, black, rgb(95, 2, 95) );
+}
+
+.modal-logout p {
+    font-size: 1.2rem;
+}
+
+.logout-btn {
+    border-radius: 10vh;
+    box-shadow: rgb(234, 234, 234, 0.4) 0 0 10px;
+    background: linear-gradient(120deg, rgb(117, 0, 0), rgb(231, 0, 0));
+    color: white;
+    transition: ease-in-out 0.12s;
+}
+
+.logout-btn:hover {
+    cursor:pointer;
+    scale: 1.07;
+    background: linear-gradient(120deg, rgb(77, 0, 0), rgb(147, 0, 0));
+    color: white;
 }
