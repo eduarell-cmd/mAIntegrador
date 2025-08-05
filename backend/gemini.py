@@ -30,9 +30,10 @@ async def geminiprompt(user_data):
     api_key = os.getenv("GEMINI_API_KEY")
     client = genai.Client(api_key=api_key)
 
-    hora_actual = datetime.now().strftime("%H:%M")
+    hora_actual = datetime.now().strftime("%H:%M")  
 
-    datos_emociones = verificar_rostro_lap()
+    url_del_usuario = user_data.get("image_url")
+    datos_emociones = verificar_rostro_lap(url_del_usuario)
 
     if datos_emociones["error"]:
         return {
