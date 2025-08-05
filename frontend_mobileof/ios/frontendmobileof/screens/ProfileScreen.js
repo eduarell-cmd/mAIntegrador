@@ -18,12 +18,13 @@ import fearFace from '../assets/images/fear.png';
 import disgustFace from '../assets/images/disgust.png';
 import angryFace from '../assets/images/angry.png';
 
+import cameraIconImg from '../assets/icons/camera.png';
 import fondo from '../assets/images/ciruclosfondo.png';
 
 import { BlurView } from 'expo-blur';
 
 // --- ASSETS ---
-// Usando URIs de placeholder para las imágenes.
+// Usando URIs de placeholder para  las imágenes.
 // Para imágenes locales, usarías: const happyImage = require('../assets/happy.png');
 const happyImage = happyFace;
 const Neutral = neutralFace;
@@ -162,6 +163,7 @@ const ProfileScreen = ({ handleCameraAccess }) => {
         <View style={styles.explanationContainer}>
             <Text style={styles.sectionTitle}>Take a photo</Text>
           <TouchableOpacity style={styles.circleButton} onPress={handleCameraAccess}>
+            {/* <Image source={cameraIconImg} style={styles.cameraIcon} /> */}
             <Text style={styles.cameraIcon}>📷</Text>
           </TouchableOpacity>
           <Text style={styles.explanationText}>
@@ -307,6 +309,8 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     resizeMode: 'cover',
     marginRight: 12,
+    borderColor: '#fff',
+    borderWidth: 1,
   },
   username: {
     fontSize: 22,
