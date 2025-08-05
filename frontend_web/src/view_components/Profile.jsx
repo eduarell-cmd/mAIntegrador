@@ -121,13 +121,10 @@ export default function Profile() {
       if (!res.ok) throw new Error("Error en la API");
       const data = await res.json();
 
-      if (data.promedio) {
+      if (data) {
         setEmocionesAcumuladas(data.promedio);
 
-        const emociones = data.promedio;
-        const dominante = Object.keys(emociones).reduce((a, b) => emociones[a] > emociones[b] ? a : b);
-
-        setDominante(dominante);
+        setDominante(data.emocion_dominante_hoy);
 
       }
     } catch (err) {
@@ -365,11 +362,25 @@ export default function Profile() {
                   </div>
                 </div>
                 <div className="user-emotion">
-                  <h2>{emocionesInfo[dominante]?.nombre || "Neutral"}</h2>
-                  <div className="emotion-container interactive">
-                    <img src={emocionesInfo[dominante]?.imagen || Neutral} alt="emotion" />
-                  </div>
-                  <p>{emocionesInfo[dominante]?.mensaje || "Your mood seems neutral today."}</p>
+                    {dominante ? (
+                        <>
+                            {/* Esto se muestra si hay una emoción dominante */}
+                            <h2>{emocionesInfo[dominante]?.nombre || "Emoción"}</h2>
+                            <div className="emotion-container interactive">
+                                <img src={emocionesInfo[dominante]?.imagen || Neutral} alt="emotion" />
+                            </div>
+                            <p>{emocionesInfo[dominante]?.mensaje || "Análisis del día."}</p>
+                        </>
+                    ) : (
+                        <>
+                            {/* Esto se muestra si NO hay emoción */}
+                            <h2>-</h2>
+                            <div className="emotion-container interactive">
+                                <div className="empty-emotion">-</div>
+                            </div>
+                            <p>No records for today</p>
+                        </>
+                    )}
                 </div>
             </div>
             {/* lineas horizontales de FRONT - NO BACK - NO MOVER */}
