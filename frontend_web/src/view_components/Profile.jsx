@@ -364,7 +364,7 @@ export default function Profile() {
         <CirclesBackground />
 
         <div className="go-home flex-center" onClick={handleGoHome}><img src={logo} alt="" /></div>
-        <h3 className='home-banner'>Go home</h3>
+        {/* <h3 className='home-banner'>Go home</h3> */}
 
         <div className="left-p-section">
             <div className='user-info'>
@@ -628,7 +628,7 @@ Describe tu personalidad o intereses. Ej:
                 />
               <div className="buttons-modal">
                 <button type="submit" className="btn-send save-edit-changes">Save</button>
-                <a className="logout" onClick={() => setShowSureModal(true)}>⏻ Log out</a>
+                {/* <a className="logout" onClick={() => setShowSureModal(true)}>⏻ Log out</a> */}
               </div>
             </form>
           </div>

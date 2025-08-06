@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from validaciones.validaciones import *
 import bcrypt # type: ignore
 import json
+from deepFace.face_handler import verificar_rostro
 from deepFace.faceid import verificar_rostro_laptop
 from validaciones.horaapi import *
 from validaciones.clima import *
@@ -123,11 +124,19 @@ async def weather():
 @app.post("/pruebaemocion")
 async def emotion_test(data: dict = Body(...)):
     user_id = data.get("user_id")
-    resultado = verificar_rostro_laptop()
+    image_url = data.get("image_url") # Asegúrate que el cliente envíe la URL de la imagen de perfil
+
+    if not image_url:
+        return JSONResponse(status_code=400, content={"error": "Falta image_url en la petición"})
+
+    # Llamada a la nueva función unificada
+    resultado = verificar_rostro(image_url=image_url)
 
     if resultado["error"]:
         return JSONResponse(status_code=500, content={"error": resultado["error"]})
-
+    
+    if not resultado["es_misma_persona"]:
+        return JSONResponse(status_code=403, content={"error": "El rostro no coincide con el perfil."})
     # Guardar en la colección pruebas (opcional, si lo necesitas)
     doc = {
         "fecha": datetime.now().strftime("%Y-%m-%d"),
@@ -141,7 +150,7 @@ async def emotion_test(data: dict = Body(...)):
     emocion_obj = {
         "fecha": datetime.now().strftime("%Y-%m-%d"),
         "Emociones_Acumuladas": resultado.get("emociones", {}),
-        "emocion_dominante": resultado.get("emocion_dominante", None)
+        "emocion_dominante": resultado.get("emocion_cruda")
     }
     if user_id:
         try:
@@ -340,13 +349,60 @@ async def get_weekly_emotions(user_id: str):
 
 @app.post("/geminiprompt")
 async def consejo(user_data: dict = Body(...)):
-    print("➡️ Llamando a geminiprompt() con los siguientes datos: ", user_data)
-    texto = await geminiprompt(user_data)
-    print(f"✅ Respuesta de geminiprompt: {texto}")
-    await manager.broadcast(texto)
-    return texto
+    print("➡️ Petición recibida en /geminiprompt para el usuario:", user_data.get('nombre'))
+    
+    # PASO 0: Notificar al espejo que el análisis va a comenzar
+    await manager.broadcast({"status": "starting_analysis"})
 
-# Nueva ruta protegida de ejemplo
+    image_url = user_data.get("image_url")
+    if not image_url:
+        raise HTTPException(status_code=400, detail={"error": "El perfil de usuario no tiene una 'image_url'."})
+
+    print("🔍 Iniciando verificación de rostro y análisis de emoción...")
+    resultado_rostro = verificar_rostro(image_url=image_url)
+
+    if resultado_rostro["error"]:
+        print(f"❌ Error en la verificación facial: {resultado_rostro['error']}")
+        await manager.broadcast({"status": "error", "data": {"error": resultado_rostro["error"]}})
+        raise HTTPException(status_code=500, detail=resultado_rostro["error"])
+
+    if not resultado_rostro["es_misma_persona"]:
+        print("❌ El rostro no coincide con el del perfil.")
+        msg = {"message": "Rostro no reconocido. Acércate para iniciar."}
+        await manager.broadcast({"status": "error", "data": msg})
+        raise HTTPException(status_code=403, detail="El rostro no coincide con el perfil de usuario.")
+    
+    print("✅ Rostro verificado. Emoción detectada:", resultado_rostro["emocion_dominante"])
+
+    # Enriquecemos los datos del usuario con los resultados del rostro.
+    # Le pasaremos todo el diccionario 'resultado_rostro' a geminiprompt.
+    datos_completos_para_gemini = {
+        **user_data,
+        **resultado_rostro 
+    }
+
+    print("🧠 Llamando a geminiprompt() con los datos enriquecidos...")
+    # Ahora geminiprompt recibe los datos y no tiene que volver a calcularlos
+    respuesta_gemini = await geminiprompt(datos_completos_para_gemini)
+    print(f"✅ Respuesta de geminiprompt: {respuesta_gemini}")
+    
+    # Guardar el consejo en la base de datos (esta lógica es opcional aquí,
+    # ya que ahora se hace dentro de gemini.py, pero la dejamos por si acaso)
+    if respuesta_gemini.get("consejo"):
+        user_id = user_data.get("id")
+        # Aquí podrías guardar el consejo, aunque ya se guarda dentro de gemini.py
+        print("💾 El consejo y la emoción ya fueron guardados dentro de geminiprompt.")
+
+    # 7. ENVIAR LA RESPUESTA AL ESPEJO EN EL FORMATO CORRECTO
+    mensaje_para_espejo = {
+        "status": "analysis_complete",
+        "data": respuesta_gemini  # respuesta_gemini es el diccionario con nombre, consejo, etc.
+    }
+    await manager.broadcast(mensaje_para_espejo)
+    
+    # 8. Devolver la respuesta al frontend móvil
+    return respuesta_gemini
+
 @app.get("/protected-data")
 async def get_protected_data(current_user: dict = Depends(get_current_user)):
     """
