@@ -19,20 +19,29 @@ Este módulo contiene todos los endpoints relacionados con autenticación:
 from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.responses import JSONResponse
-from typing import List
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials # <-- Importaciones clave
+from pydantic import BaseModel, Field
+from typing import List, Dict, Optional
 import uuid
 from datetime import datetime, timedelta
 
 from .jwt_handler import jwt_handler
 from .session_manager import session_manager
-from .middleware import get_current_user, get_current_user_optional
+from .middleware import get_current_user
 from .auth_models import (
     TokenResponse, RefreshTokenRequest, LogoutRequest, 
-    SessionInfo, UserSessionsResponse, AuthStatus
+    SessionInfo, UserSessionsResponse, AuthStatus,
+    QRGenerateResponse, QRStatusResponse
 )
 from db.models import LoginInput, UserCreate
 from validaciones.validaciones import loginsito, signupsito
 from db.db import personas_collection
+
+# Este objeto también debe estar al inicio
+security = HTTPBearer()
+
+# Este diccionario debe estar al inicio, después de las importaciones
+qr_sessions: Dict[str, dict] = {}
 
 # Crear el router de autenticación
 auth_router = APIRouter(prefix="/auth", tags=["autenticación"])
@@ -218,6 +227,7 @@ async def signup(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error interno del servidor"
         )
+    
 
 @auth_router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(
@@ -310,6 +320,7 @@ async def refresh_token(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error interno del servidor"
         )
+
 
 @auth_router.post("/logout")
 async def logout(
@@ -517,3 +528,68 @@ async def logout_all_sessions(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error interno del servidor"
         ) 
+    
+@auth_router.get("/qr/generate", response_model=QRGenerateResponse)
+async def generate_qr():
+    session_id = str(uuid.uuid4())
+    expires_at = datetime.utcnow() + timedelta(minutes=5)
+    qr_sessions[session_id] = {
+        "status": "pending",
+        "expires_at": expires_at.isoformat(),
+        "user_token": None
+    }
+    qr_data_url = f"myapp://qr-scan?session_id={session_id}"
+    return QRGenerateResponse(session_id=session_id, qr_data=qr_data_url)
+
+@auth_router.get("/qr/status/{session_id}", response_model=QRStatusResponse)
+async def qr_status(session_id: str):
+    session_data = qr_sessions.get(session_id)
+    if not session_data:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sesión no encontrada")
+    if datetime.fromisoformat(session_data["expires_at"]) < datetime.utcnow():
+        del qr_sessions[session_id]
+        raise HTTPException(status_code=status.HTTP_410_GONE, detail="Sesión expirada")
+    return QRStatusResponse(
+        status=session_data["status"],
+        token=session_data["user_token"]
+    )
+
+@auth_router.post("/qr/scan/{session_id}")
+async def qr_scan(
+    session_id: str, 
+    request: Request,
+    authorization: HTTPAuthorizationCredentials = Depends(security)
+):
+    session_data = qr_sessions.get(session_id)
+    if not session_data or datetime.fromisoformat(session_data["expires_at"]) < datetime.utcnow():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sesión inválida o expirada")
+    
+    # Usa la función verify_token de tu jwt_handler para obtener los datos del usuario
+    try:
+        mobile_token_payload = jwt_handler.verify_token(authorization.credentials)
+    except HTTPException:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token del móvil inválido")
+
+    user_id = mobile_token_payload.get("user_id")
+    user_doc = await personas_collection.find_one({"_id": ObjectId(user_id)})
+    if not user_doc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
+
+    token_data = {
+        "user_id": str(user_doc["_id"]),
+        "nombre": user_doc["nombre"],
+        "correo": user_doc["correo"],
+        "session_id": session_id
+    }
+    
+    new_access_token = jwt_handler.create_access_token(token_data)
+    session_data["status"] = "authenticated"
+    session_data["user_token"] = new_access_token
+    
+    return TokenResponse(
+        access_token=new_access_token,
+        refresh_token=None,
+        token_type="bearer",
+        expires_in=jwt_handler.access_token_expire_minutes * 60,
+        user=user_doc
+    )
