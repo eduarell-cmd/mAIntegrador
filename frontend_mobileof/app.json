@@ -3,6 +3,12 @@
     "name": "frontend_mobileof",
     "slug": "frontend_mobileof",
     "version": "1.0.0",
-    "scheme": "myapp" 
+    "scheme": "myapp",
+    "ios": {
+      "bundleIdentifier": "com.anonymous.frontend-mobileof"
+    },
+    "android": {
+      "package": "com.anonymous.frontendmobileof"
+    }
   }
 }

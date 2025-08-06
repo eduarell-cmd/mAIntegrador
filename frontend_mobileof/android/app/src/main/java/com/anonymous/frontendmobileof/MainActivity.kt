@@ -1,4 +1,4 @@
-package com.frontendmobileof
+package com.anonymous.frontendmobileof
 
 import android.os.Build
 import android.os.Bundle
