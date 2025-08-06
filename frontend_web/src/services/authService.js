@@ -15,7 +15,6 @@
  * 4. Si el refresh falla, se redirige al login
  */
 
-const API_BASE_URL = 'http://localhost:8000';
 
 class AuthService {
     constructor() {
@@ -34,7 +33,7 @@ class AuthService {
         try {
             console.log('🔄 Iniciando login...');
             
-            const response = await fetch(`${API_BASE_URL}/auth/login`, {//revisar este endpoint, creo que se llama solo 8000/login
+            const response = await fetch(`api/auth/login`, {//revisar este endpoint, creo que se llama solo 8000/login
 
                 method: 'POST',
                 headers: {
@@ -73,7 +72,7 @@ class AuthService {
         try {
             console.log('🔄 Registrando usuario...');
             
-            const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+            const response = await fetch(`api/auth/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -108,7 +107,7 @@ class AuthService {
         try {
             console.log('🔄 Cerrando sesión...');
             
-            const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+            const response = await fetch(`api/auth/logout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -145,7 +144,7 @@ class AuthService {
                 throw new Error('No hay refresh token disponible');
             }
 
-            const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            const response = await fetch(`api/auth/refresh`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -245,7 +244,7 @@ class AuthService {
      */
     async getCurrentUser() {
         try {
-            const response = await this.authenticatedRequest(`${API_BASE_URL}/auth/me`);
+            const response = await this.authenticatedRequest(`api/auth/me`);
             return response;
         } catch (error) {
             console.error('❌ Error obteniendo usuario actual:', error);
@@ -259,7 +258,7 @@ class AuthService {
      */
     async getUserSessions() {
         try {
-            const response = await this.authenticatedRequest(`${API_BASE_URL}/auth/sessions`);
+            const response = await this.authenticatedRequest(`api/auth/sessions`);
             return response;
         } catch (error) {
             console.error('❌ Error obteniendo sesiones:', error);
@@ -275,7 +274,7 @@ class AuthService {
     async logoutSession(sessionId) {
         try {
             const response = await this.authenticatedRequest(
-                `${API_BASE_URL}/auth/sessions/${sessionId}`,
+                `api/auth/sessions/${sessionId}`,
                 { method: 'DELETE' }
             );
             return response;
@@ -292,7 +291,7 @@ class AuthService {
     async logoutAllSessions() {
         try {
             const response = await this.authenticatedRequest(
-                `${API_BASE_URL}/auth/sessions`,
+                `api/auth/sessions`,
                 { method: 'DELETE' }
             );
             return response;

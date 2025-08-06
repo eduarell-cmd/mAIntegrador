@@ -6,8 +6,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; // Importa si usas React Router
 import './QR.css';
 
-// Define la URL de tu API de FastAPI.
-const API_URL = "http://localhost:8000";
 
 export default function QR() {
     // Definimos el estado para el componente
@@ -25,7 +23,7 @@ export default function QR() {
         const fetchQrData = async () => {
             try {
                 // Petición al endpoint de FastAPI para generar la sesión
-                const response = await axios.get(`${API_URL}/auth/qr/generate`);
+                const response = await axios.get(`/api/auth/qr/generate`);
                 setSessionId(response.data.session_id);
                 setQrData(response.data.qr_data);
                 setIsLoading(false);
@@ -45,7 +43,7 @@ export default function QR() {
             
             try {
                 // Petición al endpoint de FastAPI para checar el estado
-                const response = await axios.get(`${API_URL}/auth/qr/status/${sessionId}`);
+                const response = await axios.get(`/api/auth/qr/status/${sessionId}`);
                 
                 if (response.data.status === 'authenticated') {
                     console.log("¡Login exitoso! Token:", response.data.token);
@@ -88,7 +86,16 @@ export default function QR() {
                 {qrData && !error && !isLoading && (
                     <>
                         <h2>Inicia sesión escaneando este QR</h2>
-                        <QRCode value={qrData} />
+                        <div style={{ 
+                        padding: '10px', 
+                        border: '2px solid red', 
+                        marginBottom: '15px',
+                        wordBreak: 'break-all'
+                    }}>
+                        <strong>Dato para el QR (Depuración):</strong>
+                        <code>{qrData}</code>
+                    </div>
+                        <QRCode value={qrData} key={qrData} />
                     </>
                 )}
             </div>
