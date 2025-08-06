@@ -28,9 +28,11 @@ export default function Mirror() {
   const [temperatura, setTemperatura] = useState(null);
   const [clima, setClima] = useState("Loading...");
   const [emocion, setEmocion] = useState(null); // Keep as null initially
-  const [consejo, setConsejo] = useState(null); // Keep as null initially
+  const [consejo, setConsejo] = useState("Please press the button located in your app to analyze your face...");
   const [emocionFoto, setEmocionFoto] = useState(null);
   const [nombre, setNombre] = useState(null);
+  const [viewMode, setViewMode] = useState('idle');
+  const [countdown, setCountdown] = useState(3);
 
   // Obtener el día del backend
   useEffect(() => {
@@ -39,6 +41,66 @@ export default function Mirror() {
       .then(data => setDia(data.dia))
       .catch(err => console.error(err));
   }, []);
+
+    useEffect(() => {
+    // Reemplaza localhost con la IP de tu servidor si es necesario
+    const socket = new WebSocket("ws://localhost:8000/ws/mirror");
+
+    // Función que se ejecuta cuando el servidor envía un mensaje
+    socket.onmessage = (event) => {
+    const message = JSON.parse(event.data);
+    console.log("Mensaje recibido:", message);
+
+    // Usa un switch para manejar los diferentes tipos de mensajes
+    switch (message.status) {
+      case 'starting_analysis':
+        setViewMode('countdown');
+        break;
+      case 'analysis_complete':
+        const data = message.data;
+        setNombre(data.nombre);
+        setEmocion(data.emocion);
+        setConsejo(data.consejo);
+        setEmocionFoto(data.emocion_foto);
+        setViewMode('result'); // Cambia a la vista de resultados
+        break;
+      default:
+        console.log("Mensaje desconocido recibido");
+    }
+  };
+
+    // Función que se ejecuta cuando la conexión se abre
+    socket.onopen = () => {
+      console.log("Conexión WebSocket establecida con el espejo.");
+    };
+    
+    // Función de limpieza para cerrar la conexión cuando el componente se desmonte
+    return () => {
+      console.log("Cerrando conexión WebSocket.");
+      socket.close();
+    };
+  }, []); // El array vacío asegura que esto se ejecute solo una vez
+
+  useEffect(() => {
+  // Si el modo no es 'countdown', no hagas nada.
+  if (viewMode !== 'countdown') return;
+
+  // Reinicia el contador a 3 cada vez que empieza.
+  setCountdown(3); 
+  
+  const timer = setInterval(() => {
+    setCountdown(prev => {
+      if (prev <= 1) {
+        clearInterval(timer); // Detiene el intervalo cuando llega a 1
+        return 0; // Opcional, para mostrar "Analizando..."
+      }
+      return prev - 1;
+    });
+  }, 1000); // Se ejecuta cada segundo
+
+  // Función de limpieza para evitar problemas de memoria
+  return () => clearInterval(timer);
+}, [viewMode]);
 
   // Actualizar hora local cada segundo
   useEffect(() => {
@@ -64,70 +126,6 @@ export default function Mirror() {
       })
       .catch(err => console.error("Error al obtener clima:", err));
   }, []);
-
-  // Modificada la función handleVerificarRostroSubmit
-const handleVerificarRostroSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const userData = JSON.parse(localStorage.getItem("user")); // Tu objeto del localStorage
-
-    if (!userData) {
-      alert("❌ No hay datos del usuario en localStorage.");
-      return;
-    }
-
-    // 1. Llamar a Gemini para obtener el consejo
-    const res = await fetch("http://localhost:8000/geminiprompt", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData),
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      alert(`❌ ${error.detail}`);
-      setNombre(null);
-      setEmocionFoto(null);
-      setEmocion(null);
-      setConsejo(null);
-      return;
-    }
-
-    const data = await res.json();
-    console.log("Respuesta de Gemini:", data);
-
-    setNombre(data.nombre);
-    setEmocionFoto(data.emocion_foto);
-    setEmocion(data.emocion);
-    setConsejo(data.consejo);
-
-    // 2. Guardar el consejo en la base de datos
-    if (data.consejo) {
-      await fetch("http://localhost:8000/guardar_consejo", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: userData._id,
-          emocion_foto: data.emocion_foto,
-          emocion: data.emocion,
-          consejo: data.consejo,
-        }),
-      });
-    }
-
-  } catch (err) {
-    console.error("Error al conectar con Gemini:", err);
-    alert("❌ Error al conectar con el servidor.");
-    setNombre(null);
-    setEmocionFoto(null);
-    setEmocion(null);
-    setConsejo(null);
-  }
-};
 
   return (
     <div className="MirrorView">
@@ -163,12 +161,6 @@ const handleVerificarRostroSubmit = async (e) => {
           </p>
         </div>
       </div>
-
-      <form onSubmit={handleVerificarRostroSubmit}>
-        <button type="submit" className="btn-send">
-          Verificar rostro ahora
-        </button>
-      </form>
     </div>
   );
 }
