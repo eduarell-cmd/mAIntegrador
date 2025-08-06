@@ -16,17 +16,20 @@ def reducir_resolucion_array(path):
         print(f"Error reduciendo resolución de {path}: {e}")
         return None
 
-def verificar_rostro_laptop():
+def verificar_rostro_laptop(image_url: str):
     model_name = "Facenet512"
     resultado = {
         "es_misma_persona": False,
         "emociones": {},
         "error": None
     }
+
+    if not image_url:
+        resultado["error"] = " ❌ No se proporcionó una URL de imagen"
+        return resultado
+
     try:
-        # Descargar imagen conocida desde una URL y obtener su codificación facial
-        url = "https://res.cloudinary.com/dfczlyftc/image/upload/v1754083563/pxylg533dfapx6l57btj.jpg"
-        response = requests.get(url)
+        response = requests.get(image_url)
         response.raise_for_status()
         known_image = face_recognition.load_image_file(BytesIO(response.content))
         known_face_encoding = face_recognition.face_encodings(known_image)[0]

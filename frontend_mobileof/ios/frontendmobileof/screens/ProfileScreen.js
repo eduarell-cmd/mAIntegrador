@@ -437,7 +437,7 @@ const ProfileScreen = ({ route, navigation, handleCameraAccess }) => {
               </View>
             </>
           ) : (
-            <Text style={styles.tipText}>No hay consejos para hoy</Text>
+            <Text style={styles.tipText}>No tips for today</Text>
           )}
         </View>
 
