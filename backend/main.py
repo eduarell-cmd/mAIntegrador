@@ -15,12 +15,44 @@ from validaciones.clima import *
 from gemini import geminiprompt, normalizar_emocion
 from datetime import datetime, timedelta
 from collections import Counter
+from typing import List
 
 # Importar el sistema de autenticación
 from auth.auth_routes import auth_router
 from auth.middleware import get_current_user, get_current_user_optional
 
 app = FastAPI()
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def broadcast(self, data: dict):
+        # Envía los datos a todas las conexiones activas (espejos conectados)
+        message = json.dumps(data)
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+# Crea una instancia del manejador
+manager = ConnectionManager()
+
+# Endpoint para que Mirror.jsx se conecte
+@app.websocket("/ws/mirror")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            # Mantenemos la conexión abierta escuchando
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 
 # Habilitar CORS para permitir que el frontend se conecte
 app.add_middleware(
@@ -205,9 +237,6 @@ async def guardar_consejo(data: dict = Body(...)):
         print(f"Error guardando consejo: {e}")
         raise HTTPException(status_code=500, detail="Error guardando consejo")
 
-from fastapi import APIRouter, HTTPException
-from datetime import datetime
-
 @app.get("/consejos_hoy/{user_id}")
 async def consejos_hoy(user_id: str):
     hoy = datetime.now().strftime("%Y-%m-%d")
@@ -315,6 +344,7 @@ async def consejo(user_data: dict = Body(...)):
     print("➡️ Llamando a geminiprompt() con los siguientes datos: ", user_data)
     texto = await geminiprompt(user_data)
     print(f"✅ Respuesta de geminiprompt: {texto}")
+    await manager.broadcast(texto)
     return texto
 
 # Nueva ruta protegida de ejemplo

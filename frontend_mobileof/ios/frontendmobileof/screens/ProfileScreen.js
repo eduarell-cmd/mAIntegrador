@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   Image,
   SafeAreaView,
-  ImageBackground
+  ImageBackground,
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import DownArrowIcon from '../assets/icons/downArrow.png';
 import happyFace from '../assets/images/happy.png';
@@ -17,6 +19,12 @@ import neutralFace from '../assets/images/neutral.png';
 import fearFace from '../assets/images/fear.png';
 import disgustFace from '../assets/images/disgust.png';
 import angryFace from '../assets/images/angry.png';
+
+import { useFocusEffect } from '@react-navigation/native';
+import { API_BASE_URL } from '../../../services/config';
+import { getAccessToken } from '../../../services/authService';
+import { useAuth } from '../../../services/authContext';
+import { jwtDecode } from 'jwt-decode';
 
 import cameraIconImg from '../assets/icons/camera.png';
 import fondo from '../assets/images/ciruclosfondo.png';
@@ -30,34 +38,54 @@ const happyImage = happyFace;
 const Neutral = neutralFace;
 const DownArrow = DownArrowIcon;
 
-// --- DATOS DE EJEMPLO para CONSEJOS---
-const consejosHoy = [
-    { emocion: 'happy', consejo: 'Aprovecha esta energía para conectar con otros. Una sonrisa puede cambiar el día de alguien.' },
-    { emocion: 'neutral', consejo: 'Es un buen momento para la introspección. Medita sobre tus metas y cómo te sientes.' },
-    { emocion: 'sad', consejo: 'Permítete sentir. Escucha música tranquila o escribe lo que sientes. No estás solo.' },
-];
-
 // INSTANCIACION DE LAS CONSTANTES PARA LAS IMAGENES
 const emocionesInfo = {
-    happy: { nombre: 'Felicidad', imagen: happyImage },
-    neutral: { nombre: 'Neutralidad', imagen: Neutral },
-    sad: { nombre: 'Tristeza', imagen: sadImageFace },
-    angry: { nombre: 'Enojo', imagen: angryFace },
-    surprise: { nombre: 'Sorpresa', imagen: surprisedFace },
-    disgust: { nombre: 'Disgusto', imagen: disgustFace },
-    fear: { nombre: 'Miedo', imagen: fearFace },
+  angry: {
+    nombre: "Angry",
+    mensaje: "You showed some anger today. Try to relax and take care of yourself.",
+    imagen: angryFace // Ya tienes esta variable importada
+  },
+  disgust: {
+    nombre: "Disgust",
+    mensaje: "You felt a bit uncomfortable today. It's okay to notice what bothers you.",
+    imagen: disgustFace
+  },
+  fear: {
+    nombre: "Fear",
+    mensaje: "You seemed a bit worried today. Remember, it's normal to feel this way sometimes.",
+    imagen: fearFace
+  },
+  happy: {
+    nombre: "Happy",
+    mensaje: "You looked happy today! Enjoy these positive moments.",
+    imagen: happyFace
+  },
+  sad: {
+    nombre: "Sad",
+    mensaje: "You felt a bit down today. Take time for yourself and reach out if you need support.",
+    imagen: sadImageFace
+  },
+  surprise: { // El nombre de la emoción es 'surprise' no 'surprised'
+    nombre: "Surprised",
+    mensaje: "You experienced some surprises today. Life is full of unexpected moments.",
+    imagen: surprisedFace
+  },
+  neutral: {
+    nombre: "Neutral",
+    mensaje: "Your mood was calm and balanced today.",
+    imagen: neutralFace
+  }
 };
 
-// --- DATOS PARA LA GRÁFICA DE BARRAS ---
-const dailyEmotionData = [
-    { name: 'angry', value: 75, color: 'rgba(239, 38, 38, 0.9)', icon: angryFace },
-    { name: 'disgust', value: 20, color: 'rgba(85, 107, 47, 0.8)', icon: disgustFace },
-    { name: 'fear', value: 40, color: 'rgba(148, 74, 148, 0.9)', icon: fearFace },
-    { name: 'happy', value: 90, color: 'rgba(255, 255, 113, 0.9)', icon: happyFace },
-    { name: 'sad', value: 60, color: 'rgba(77, 149, 242, 0.9)', icon: sadImageFace },
-    { name: 'surprise', value: 80, color: 'rgb(255, 152, 26)', icon: surprisedFace },
-    { name: 'neutral', value: 30, color: 'rgba(128, 128, 128, 0.7)', icon: neutralFace },
-];
+const emotionColors = {
+  angry: 'rgba(239, 38, 38, 0.9)',
+  disgust: 'rgba(85, 107, 47, 0.8)',
+  fear: 'rgba(148, 74, 148, 0.9)',
+  happy: 'rgba(255, 255, 113, 0.9)',
+  sad: 'rgba(77, 149, 242, 0.9)',
+  surprise: 'rgb(255, 152, 26)',
+  neutral: 'rgba(128, 128, 128, 0.7)',
+};
 
 const COLORS = {
   background: '#0a0a0a',
@@ -68,29 +96,211 @@ const COLORS = {
   primary: '#4e4e4e',
 };
 
-// DIAS QUE SE USO LA APP - DAILY TRACKING
-const usedDays = [0, 1, 5, 12, 20];
+const ProfileScreen = ({ route, navigation, handleCameraAccess }) => {
+  const { logout } = useAuth();
 
-// --- DATOS DE EJEMPLO PARA LA SEMANA ---
-const weeklyEmotions = [
-  { day: 'MON', emotion: 'happy' },
-  { day: 'TUE', emotion: 'neutral' },
-  { day: 'WED', emotion: 'sad' },
-  { day: 'THU', emotion: 'happy' },
-  { day: 'FRI', emotion: null }, // Día sin registro
-  { day: 'SAT', emotion: 'neutral' },
-  { day: 'SUN', emotion: null }, // Día sin registro
-];
+  const handleCameraAndVerify = async () => {
+  try {
+    await handleCameraAccess(); // tu lógica actual para tomar la foto
+    // Luego, enviar petición al backend que activa la verificación
+    const token = await getAccessToken();
+    const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+    const resp = await fetch(`${API_BASE_URL}/trigger_verify`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ user_id: decodedUserId /* o route.params.user */ }),
+    });
+    if (!resp.ok) {
+      console.error('Error al disparar verificación en mirror', await resp.text());
+    } else {
+      console.log('Verificación desencadenada exitosamente');
+    }
+  } catch (err) {
+    console.error('Error en cámara/verificación', err);
+    Alert.alert('Error', 'No se pudo realizar la verificación.');
+  }
+};
 
-const ProfileScreen = ({ handleCameraAccess }) => {
-  // --- Lógica de ejemplo para los consejos ---
+  const handleLogout = async () => {
+    await logout(); // Esto borra los tokens del AsyncStorage
+    navigation.replace('Login'); // Envía al usuario de vuelta al Login
+  };
+
+  // --- Estados para manejar los datos dinámicos ---
+  const [user, setUser] = React.useState(route.params?.user || null);
+  const [loading, setLoading] = React.useState(true);
+  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+  
+  // Estados para cada sección (reemplazan los datos de ejemplo)
+  const [consejos, setConsejos] = React.useState([]);
+  const [weeklyEmotions, setWeeklyEmotions] = React.useState(Array(7).fill({ day: '...', emotion: null }));
+  const [dailyEmotion, setDailyEmotion] = React.useState(null);
+  const [emotionChart, setEmotionChart] = React.useState([]);
+  const [trackerDays, setTrackerDays] = React.useState(Array(31).fill(false));
+
+  // El estado para el índice del consejo ya lo tienes, puedes mantenerlo
   const [indiceConsejo, setIndiceConsejo] = React.useState(0);
+
+  const fetchProfileData = async () => {
+    console.log("--- Iniciando fetchProfileData ---");
+    if (!userId) {
+      console.log("fetchProfileData abortado: Aún no hay userId.");
+      return;
+    }
+    
+    console.log(`UserID para el fetch: ${userId}`);
+    setLoading(true);
+
+    try {
+      const token = await getAccessToken();
+      //const headers = { 'Authorization': `Bearer ${token}` };
+
+      console.log("Intentando fetch a: /consejos_hoy...");
+      const consejosRes = await fetch(`${API_BASE_URL}/consejos_hoy/${userId}`, { headers });
+      console.log(`Respuesta de /consejos_hoy -> Status: ${consejosRes.status}`);
+
+      if (consejosRes.ok) {
+        const data = await consejosRes.json();
+        console.log("Datos de consejos recibidos:", data);
+        setConsejos(data.consejos || []);
+      } else {
+        const errorText = await consejosRes.text();
+        console.error("Error en la respuesta de /consejos_hoy:", errorText);
+      }
+
+      // Por ahora, las otras llamadas están desactivadas para la prueba.
+
+    } catch (error) {
+      console.error("ERROR CATASTRÓFICO en fetch:", error);
+      Alert.alert("Error de Red", "No se pudo conectar al servidor. Revisa la IP, el puerto y la conexión WiFi.");
+    } finally {
+      console.log("--- Finalizando fetchProfileData. setLoading(false) ---");
+      setLoading(false);
+    }
+  };
+
+  const refreshProfileData = useCallback(async (showLoading = true) => {
+  if (showLoading) setLoading(true);
+
+  try {
+    const token = await getAccessToken();
+    if (!token) return navigation.replace('Login');
+    
+    const decodedToken = jwtDecode(token);
+    const currentUserId = decodedToken.user_id;
+    if (!currentUserId) throw new Error("ID de usuario no encontrado.");
+
+    const headers = { 'Authorization': `Bearer ${token}` };
+
+    const [promedioRes, semanalRes, trackerRes, consejosRes] = await Promise.all([
+      fetch(`${API_BASE_URL}/promedioemocion/${currentUserId}`, { headers }),
+      fetch(`${API_BASE_URL}/weekly_emotions/${currentUserId}`, { headers }),
+      fetch(`${API_BASE_URL}/tracker/${currentUserId}`, { headers }),
+      fetch(`${API_BASE_URL}/consejos_hoy/${currentUserId}`, { headers }),
+    ]);
+
+    if (promedioRes.ok) {
+        const data = await promedioRes.json();
+        setDailyEmotion(data.emocion_dominante_hoy);
+        const chartData = Object.keys(data.promedio).map(key => ({
+            name: key, value: data.promedio[key], color: emotionColors[key] || '#ccc', icon: emocionesInfo[key]?.imagen,
+        }));
+        setEmotionChart(chartData);
+    }
+    if (semanalRes.ok) {
+        const data = await semanalRes.json();
+        setWeeklyEmotions(data.weekly_emotions);
+    }
+    if (trackerRes.ok) {
+        const data = await trackerRes.json();
+        const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+        setTrackerDays(data.dias.slice(0, daysInMonth));
+    }
+    if (consejosRes.ok) {
+        const data = await consejosRes.json();
+        setConsejos(data.consejos || []);
+        setIndiceConsejo(0);
+    }
+  } catch (error) {
+    console.error("Error al refrescar los datos:", error);
+  } finally {
+    if (showLoading) setLoading(false);
+  }
+}, [navigation]);
+
+  
+  useFocusEffect(
+    useCallback(() => {
+      refreshProfileData();
+    }, [refreshProfileData])
+  );
+
+  const handleFaceAnalysis = async () => {
+    if (isAnalyzing) return;
+    setIsAnalyzing(true);
+    Alert.alert("Analizando...", "Estamos analizando tu expresión, por favor espera.");
+
+    try {
+      const token = await getAccessToken();
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      };
+
+      // 1. Llama a /geminiprompt para obtener el análisis
+      const geminiRes = await fetch(`${API_BASE_URL}/geminiprompt`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(user), // Usa el objeto 'user' del estado
+      });
+
+      if (!geminiRes.ok) {
+        throw new Error("Respuesta inválida del servidor de análisis.");
+      }
+      const analysisData = await geminiRes.json();
+
+      // 2. Llama a /guardar_consejo para almacenar el resultado
+      if (analysisData.consejo) {
+        await fetch(`${API_BASE_URL}/guardar_consejo`, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({
+            user_id: jwtDecode(token).user_id,
+            emocion_foto: analysisData.emocion_foto,
+            emocion: analysisData.emocion,
+            consejo: analysisData.consejo,
+          }),
+        });
+      }
+
+      // 3. Refresca los datos del perfil para mostrar la nueva info
+      await refreshProfileData(false);
+      Alert.alert("¡Éxito!", "Tu perfil ha sido actualizado.");
+
+    } catch (error) {
+      Alert.alert("Error", `Ocurrió un problema durante el análisis: ${error.message}`);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   const anteriorConsejo = () => {
-    setIndiceConsejo((prev) => (prev > 0 ? prev - 1 : consejosHoy.length - 1));
+    setIndiceConsejo((prev) => (prev > 0 ? prev - 1 : consejos.length - 1));
   };
   const siguienteConsejo = () => {
-    setIndiceConsejo((prev) => (prev < consejosHoy.length - 1 ? prev + 1 : 0));
+    if (consejos.length > 0){
+      setIndiceConsejo((prev) => (prev < consejos.length - 1 ? prev + 1 : 0));
+    }
   };
+
+    if (loading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background}}>
+        <ActivityIndicator size="large" color={COLORS.secondary} />
+        <Text style={{color: 'white', marginTop: 10}}>Cargando perfil...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.safeArea}>
@@ -108,16 +318,16 @@ const ProfileScreen = ({ handleCameraAccess }) => {
         {/* User Info */}
         <View style={styles.userInfoContainer}>
           <Image 
-            source={require('../assets/images/mainavatar.png')} 
+            source={user?.image_url ? { uri: user.image_url } : require('../assets/images/mainavatar.png')}
             style={styles.avatar} 
           />
 
           <View style={styles.verticalLine} />
 
           <View style={styles.userTextContainer}>
-            <Text style={styles.username}>Angel Dittrich</Text>
-            <Text style={styles.prompt}>"Start your day with a piano warmup!"</Text>
-            <Text style={styles.prompt}>Age: 22</Text>
+            <Text style={styles.username}>{user?.nombre || 'Usuario'}</Text>
+            <Text style={styles.prompt}>{user?.descripcion || 'Sin descripción.'}</Text>
+            <Text style={styles.prompt}>Age: {user?.edad ? `${new Date().getFullYear() - new Date(user.edad).getFullYear()} years` : 'N/A'}</Text>
           </View>
         </View>
 
@@ -128,22 +338,20 @@ const ProfileScreen = ({ handleCameraAccess }) => {
           <View style={styles.card}>
             <Text style={styles.sectionTitle}>Tracking Record</Text>
             <View style={styles.daysRow}>
-              {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day, index) => (
+              {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
                 <View key={index} style={styles.dayCircle}>
                   <Text style={styles.dayText}>{day}</Text>
                 </View>
               ))}
             </View>
             <View style={styles.grid}>
-              {Array.from({ length: 35 }).map((_, index) => (
+              {trackerDays.map((day, index) => (
                 <View
                   key={index}
                   style={[
                     styles.gridCircle,
                     {
-                      backgroundColor: usedDays.includes(index)
-                        ? '#df0aadff'
-                        : '#353535ff',
+                      backgroundColor: day ? '#df0aadff' : '#353535ff',
                     },
                   ]}
                 />
@@ -153,33 +361,53 @@ const ProfileScreen = ({ handleCameraAccess }) => {
 
           {/* Emoción de hoy */}
           <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Daily emotion</Text>
-            <Image source={happyImage} style={styles.dailyEmotionImage} />
-            <Text style={styles.prompt}>Your mood seems happy today.</Text>
+            {dailyEmotion && emocionesInfo[dailyEmotion] ? (
+              <>
+                {/* Esto muestra el nombre de la emoción como título */}
+                <Text style={styles.username}>{emocionesInfo[dailyEmotion].nombre}</Text>
+                
+                <Image source={emocionesInfo[dailyEmotion].imagen} style={styles.dailyEmotionImage} />
+                
+                {/* Esto muestra el mensaje detallado */}
+                <Text style={styles.prompt}>{emocionesInfo[dailyEmotion].mensaje}</Text>
+              </>
+            ) : ( 
+              <Text style={styles.prompt}>No records for today</Text>
+            )}
           </View>
         </View>
 
         {/* Botón cámara */}
         <View style={styles.explanationContainer}>
-            <Text style={styles.sectionTitle}>Take a photo</Text>
-          <TouchableOpacity style={styles.circleButton} onPress={handleCameraAccess}>
-            {/* <Image source={cameraIconImg} style={styles.cameraIcon} /> */}
-            <Text style={styles.cameraIcon}>📷</Text>
+          <Text style={styles.sectionTitle}>Take a photo</Text>
+          <TouchableOpacity 
+            style={styles.circleButton} 
+            onPress={handleFaceAnalysis} 
+            disabled={isAnalyzing}
+          >
+            {isAnalyzing ? (
+              <ActivityIndicator size="large" color={COLORS.secondary} />
+            ) : (
+              <Text style={styles.cameraIcon}>📷</Text>
+            )}
           </TouchableOpacity>
           <Text style={styles.explanationText}>
-            Presiona para que el espejo capture tu expresión actual y analice tu rostro.
+            {isAnalyzing 
+              ? "Analizando tu rostro..." 
+              : "Presiona para que el espejo capture tu expresión actual y analice tu rostro."
+            }
           </Text>
         </View>
 
         {/* --- SECCIÓN DEL CONSEJO PSICOLÓGICO --- */}
         <View style={styles.userTipContainer}>
-          {consejosHoy.length > 0 ? (
+          {consejos.length > 0 ? (
             <>
               {/* Contenedor de la emoción */}
               <View style={styles.emotionWrapper}>
                   <View style={styles.emotionContainer}>
                       <Image
-                          source={emocionesInfo[consejosHoy[indiceConsejo].emocion]?.imagen || Neutral}
+                          source={emocionesInfo[consejos[indiceConsejo]?.emocion]?.imagen || Neutral}
                           style={styles.emotionImage}
                       />
                   </View>
@@ -191,10 +419,10 @@ const ProfileScreen = ({ handleCameraAccess }) => {
               {/* Zona de Texto */}
               <View style={styles.tipTextZone}>
                 <Text style={styles.emotionTitle}>
-                  {emocionesInfo[consejosHoy[indiceConsejo].emocion]?.nombre || "Consejo"}
+                  {emocionesInfo[consejos[indiceConsejo].emocion]?.nombre || "Consejo"}
                 </Text>
                 <Text style={styles.tipText}>
-                  {consejosHoy[indiceConsejo].consejo}
+                  {consejos[indiceConsejo].consejo}
                 </Text>
               </View>
 
@@ -216,7 +444,7 @@ const ProfileScreen = ({ handleCameraAccess }) => {
         {/* Seguimiento semanal */}
         {/* --- SEGUIMIENTO SEMANAL (IMPLEMENTADO) --- */}
         <View style={styles.cardFullWidth}>
-          <Text style={styles.sectionTitle}>Seguimiento Semanal</Text>
+          <Text style={styles.sectionTitle}>Weekly Tracker</Text>
           <View style={styles.weeklyContainer}>
             {weeklyEmotions.map((item, index) => (
               <TouchableOpacity key={index} style={styles.weeklyDayContainer}>
@@ -240,7 +468,7 @@ const ProfileScreen = ({ handleCameraAccess }) => {
 
         {/* --- GRÁFICA DE EMOCIONES (IMPLEMENTADA) --- */}
         <View style={styles.cardFullWidth}>
-          <Text style={styles.sectionTitle}>Gráfica de Emociones</Text>
+          <Text style={styles.sectionTitle}>Your Emotions</Text>
           <View style={styles.graphContainer}>
             {/* Fondo de la Gráfica (Líneas) */}
             <View style={styles.graphBackground}>
@@ -254,7 +482,7 @@ const ProfileScreen = ({ handleCameraAccess }) => {
 
             {/* Barras de Progreso */}
             <View style={styles.barsContainer}>
-                {dailyEmotionData.map((item) => (
+                {emotionChart.map((item) => (
                     <View key={item.name} style={[styles.bar, {height: `${item.value}%`, backgroundColor: item.color}]} />
                 ))}
             </View>
@@ -262,7 +490,7 @@ const ProfileScreen = ({ handleCameraAccess }) => {
 
           {/* Iconos/Etiquetas de Emociones */}
           <View style={styles.emotionLabelsContainer}>
-              {dailyEmotionData.map((item) => (
+              {emotionChart.map((item) => (
                   <View key={item.name} style={styles.emotionLabelItem}>
                       <Image source={item.icon} style={styles.emotionLabelIcon} />
                   </View>
