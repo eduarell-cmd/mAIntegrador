@@ -350,47 +350,8 @@ async def get_public_data(current_user: dict = Depends(get_current_user_optional
             "user_authenticated": False
         }
 
-# @app.post("/signup", response_model=User)
-# async def signup(persona: UserCreate):
-#     try:
-#         # Mostrar los datos recibidos en la consola
-#         print("Datos recibidos en signup:")
-#         print("Nombre:", persona.nombre)
-#         print("Edad:", persona.edad)
-#         print("Preferencias:", persona.preferencias)
-#         print("Sexo:", persona.sexo)
-#         print("Correo:", persona.correo)
-#         print("Palabra de seguridad:", persona.palabra_de_seguridad)
-#         print("Password:", persona.password)
-        
-#         # Convertir UserCreate a diccionario para guardar en la base de datos
-#         user_data = persona.model_dump()
-        
-#         # Guardar en la base de datos
-#         result = await personas_collection.insert_one(user_data)
-#         print(result)
-        
-#         # Verificar si se guardó correctamente
-#         if not result.inserted_id:
-#             raise HTTPException(
-#                 status_code=500,
-#                 detail="Error al guardar en la base de datos"
-#             )
-        
-#         # Crear objeto User con el ID generado
-#         created_user = User(
-#             id=result.inserted_id,
-#             **user_data
-#         )
-        
-#         return created_user
-#     except HTTPException as he:
-#         print("Error de validación:", str(he.detail))
-#         raise he
-#     except Exception as e:
-#         print("Error en signup:", str(e))
-#         raise HTTPException(
-#             status_code=500,
-#             detail=f"Error al procesar el registro: {str(e)}"
-#         )
+@app.put("/profile/{user_id}")
+async def edit_profile_endpoint(user_id:str, data:UpdateUser):
+    return await editprofile(user_id,data)
+
 

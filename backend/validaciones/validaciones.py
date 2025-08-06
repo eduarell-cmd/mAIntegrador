@@ -80,3 +80,31 @@ async def loginsito(data:LoginInput):
         raise HTTPException(status_code=401, detail="Contraseña incorrecta")
 
     return usuario
+
+async def editprofile(user_id:str, data:UpdateUser):
+    try:
+        obj_id = ObjectId(user_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail=f"El ID de usuario '{user_id}' no es válido.")
+
+    update_data = data.model_dump(exclude_unset=True)
+
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No se proporcionaron datos para actualizar.")
+        
+
+    if "password" in update_data and update_data["password"]:
+        hashed_password = bcrypt.hashpw(
+            update_data["password"].encode('utf-8'), 
+            bcrypt.gensalt()
+        )
+        update_data["password"] = hashed_password.decode('utf-8')
+
+    result = await personas_collection.update_one(
+        {"_id": obj_id},
+        {"$set": update_data}
+    )
+
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail=f"No se encontró el usuario con ID '{user_id}'.")
+    return {"message": "Perfil actualizado exitosamente."}

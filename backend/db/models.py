@@ -43,4 +43,8 @@ class User(UserBase):
         "populate_by_name": True,  
         "json_encoders": {ObjectId: str}
     }
-    
+
+class UpdateUser(BaseModel):
+    nombre: Optional[str] = None
+    password: Optional[str] = None
+    descripcion: Optional[str] = None
