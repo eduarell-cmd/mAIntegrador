@@ -8,14 +8,12 @@
 
 .go-home {
     height: 5rem; width: 5rem;
-    background-color: rgba(2, 4, 36, 0.7);
     border-radius: 50%;
     position:fixed;
     top: 37%;
     left: 47.3%;
     z-index: 100;
     transition: ease-in-out 0.2s;
-    box-shadow: rgba(255, 255, 255, 0.445) 0 0 8px;
 }
 
 .go-home:hover {
@@ -470,18 +468,6 @@
 .hd3 {top: calc(8% + 25%);}
 .hd4 {top: calc(8% + 13%);}
 
-@media (max-width: 599px) {
-    .ProfileView {
-    min-height: 200vh;
-}
-}
-
-@media (min-width: 600px) and (max-width: 1023px) {
-    .ProfileView {
-    min-height: 200vh;
-}
-}
-
 /* SUPER HOVER OF ELEMENTS */
 
 .user-info, .user-tip, .user-weekly, .monthly-record, .user-emotion, .daily-emotions {
@@ -500,6 +486,7 @@
     background-color: rgba(0, 0, 0, 0.35);
     backdrop-filter: blur(6px);
     transition: ease-in-out 0.2s;
+    z-index: 100;
 }
 
 .modal-settings {
@@ -579,7 +566,7 @@
 
 .modal-logout {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
     flex-direction: column;
     border-radius: 6vh;
@@ -588,7 +575,7 @@
     height: 50vh;
     width: 40vw;
     z-index: 1000;
-    background: linear-gradient(120deg, black, rgb(95, 2, 95) );
+    background: linear-gradient(120deg, black, rgb(95, 2, 95, 0.7));
 }
 
 .modal-logout p {
@@ -600,7 +587,8 @@
     box-shadow: rgb(234, 234, 234, 0.4) 0 0 10px;
     background: linear-gradient(120deg, rgb(117, 0, 0), rgb(231, 0, 0));
     color: white;
-    transition: ease-in-out 0.12s;
+    transition: ease-in-out 0.2s;
+    margin-top: 3rem;
 }
 
 .logout-btn:hover {
@@ -608,4 +596,116 @@
     scale: 1.07;
     background: linear-gradient(120deg, rgb(77, 0, 0), rgb(147, 0, 0));
     color: white;
+    border: none;
+}
+
+@media (max-width: 599px) {
+    .ProfileView {
+        min-height: 200vh;
+        width: 100vw;
+    }
+    .weekly-emotion .emotion-container {
+        height: 3rem;
+        width: 3rem;
+    }
+
+    .user-info {
+        width: 90%;
+    }
+
+    .left-p-section {
+        width: 100vw;
+        margin: 0;
+    }
+
+    .right-p-section {
+        width: 100vw;
+        margin: 0;
+    }
+
+    .user-emotion, .monthly-record {
+        border-radius: 4vh;
+    }
+
+    .tracked-empty {
+        scale: 0.8;
+    }
+    
+    .every-day .active-circle-day, .every-day .empty-circle-day {
+        height: 10px; width: 10px;
+    }
+
+    .p-img {
+        height: 5rem; width: 5rem;
+    }
+
+    .p-info h1 {
+        font-size: 1.5rem;
+    }
+
+    .settings-container {
+        position: absolute;
+        height: 3rem;
+        width: 150px;
+        background-color: rgba(12, 12, 12, 0.4);
+        bottom: 10%;
+        left: 55%; /* Igual que el botón */
+        z-index: 0;
+        border-radius: 5vh;
+        display: flex;
+        align-items: center;
+        visibility: hidden;
+        transform: scaleX(0);
+        transform-origin: right center; /* <- Hace que se expanda desde la derecha */
+        transition: transform 0.3s ease-in-out, visibility 0s linear 0.3s;
+    }
+
+    .go-home {
+        top: 1rem;
+        left: 1rem;
+    }
+
+    .modal-logout {
+        width: 80vw;
+    }
+
+    .modal-logout h1 {
+        font-size: 1rem;
+    }
+
+    .modal-logout p {
+        font-size: 0.9rem;
+        padding: 1rem;
+    }
+
+    .modal-settings {
+        width: 80vw;
+    }
+
+    .modal-settings h1 {
+        font-size: 1.5rem;
+    }
+
+    .input-margin1, .input-margin2, .input-margin3 {
+        width: 230px;
+    }
+
+    .edit-profile-form {
+        height: 30rem;
+    }
+
+    .edit-desc-prompt {
+        width: 80%;
+        font-size: 0.8rem;
+    }
+
+    .save-edit-changes {
+        scale: 0.7;
+    }
+}
+
+@media (min-width: 600px) and (max-width: 1023px) {
+    .ProfileView {
+    min-height: 200vh;
+}
 }

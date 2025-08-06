@@ -513,14 +513,14 @@ const handleImageUpload = (e) => {
         {/* <button type="submit" id='backend-test' className='backend-test'>boton de backend</button> */}
       </form>
         
-      <div className="btn-container">
+      {/* <div className="btn-container">
 
         <Link to="/Mirror" className="loginBtn">
           Mirror View
           <div className="loginBtnCircle"></div>
         </Link>
 
-      </div>
+      </div> */}
       
 
     </div>
