@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
+import { API_BASE_URL } from '../../../services/config';
 
 // 🎨 Colores globales (originales)
 const COLORS = {
@@ -163,7 +164,8 @@ export default function SignUpScreen({ navigation }) {
   };
 
   const registerUser = async (userData) => {
-    const backendUrl = 'http://192.168.1.77:8000/auth/signup';
+    const urlsignup = API_BASE_URL+'/auth/signup'
+    const backendUrl =  urlsignup;
     const response = await fetch(backendUrl, {
       method: 'POST',
       headers: {

@@ -25,3 +25,6 @@ venv
 .venv
 
 node_modules/
+
+#config de mobile para no batallar con las ips
+frontend_mobileof/services/config.js

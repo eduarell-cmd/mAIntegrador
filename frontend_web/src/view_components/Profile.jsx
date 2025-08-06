@@ -80,15 +80,14 @@ export default function Profile() {
     setEditProfileData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleEditProfileSubmit = (e) => {
+  const handleEditProfileSubmit = async (e) => {
     e.preventDefault();
     if (editProfileData.password !== editProfileData.confirmarPassword) {
       alert("Las contraseñas no coinciden.");
       return;
     }
-    console.log('Datos a actualizar:', editProfileData);
+    await actualizarPerfil();
     setShowEditModal(false);
-    // aquí llamas a tu API para guardar los cambios
   };
   
   const [trackerDias, setTrackerDias] = useState(Array(31).fill(false));
@@ -233,6 +232,93 @@ export default function Profile() {
       setWeeklyEmotions(data.weekly_emotions || []);
     } catch (err) {
       console.error("Error obteniendo emociones semanales:", err);
+    }
+  };
+
+  const handleLogout = async () => {
+    const token = localStorage.getItem('token'); 
+
+    if (token) {
+      try {
+        // Llama al endpoint de logout, enviando el token en el header Y un body
+        await fetch('http://127.0.0.1:8000/auth/logout', { // ✅ URL con prefijo /auth
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json', // Necesario para enviar un body JSON
+            'Authorization': `Bearer ${token}`
+          },
+          // ✅ AÑADIMOS EL BODY que espera el backend
+          body: JSON.stringify({
+            revoke_refresh_token: false 
+          })
+        });
+      } catch (error) {
+        console.error("Error al contactar al servidor para logout:", error);
+      }
+    }
+
+    // Esta parte se queda exactamente igual
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    setUser(null);
+    navigate('/'); // Redirige a la landing page
+  };
+
+  const actualizarPerfil = async () => {
+    if (!user || !user._id) {
+      alert("No se pudo obtener la información del usuario para actualizar.");
+      return;
+    }
+
+    // 1. Prepara solo los datos que el usuario llenó
+    const payload = {};
+    if (editProfileData.nombre) {
+      payload.nombre = editProfileData.nombre;
+    }
+    if (editProfileData.password) {
+      payload.password = editProfileData.password;
+    }
+    if (editProfileData.descripcion) {
+      payload.descripcion = editProfileData.descripcion;
+    }
+
+    // Si no hay nada que actualizar, no hagas la llamada
+    if (Object.keys(payload).length === 0) {
+      alert("No hay cambios para guardar.");
+      return;
+    }
+
+    try {
+      // 2. Llama al endpoint de la API con el método PUT
+      const response = await fetch(`http://127.0.0.1:8000/profile/${user._id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        // Si hay un error del backend (ej: 404, 400), muéstralo
+        throw new Error(result.detail || 'Ocurrió un error al actualizar.');
+      }
+
+      // 3. Si todo sale bien, actualiza la info local
+      alert(result.message); // Muestra "Perfil actualizado exitosamente"
+
+      // Actualiza el estado local para que los cambios se vean al instante
+      const updatedUser = { ...user, ...payload };
+      delete updatedUser.password; // No guardes la contraseña en el estado
+      
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+
+
+    } catch (error) {
+      console.error("Error al actualizar el perfil:", error);
+      alert(error.message);
     }
   };
 
@@ -553,7 +639,7 @@ Describe tu personalidad o intereses. Ej:
           <div className="modal-logout">
             <h1>You are about to log out</h1>
             <p>Are you sure you want to continue? <br /> <br /> If not, click anywhere outside this box in order to close it.</p>
-            <button className='logout-btn'>⏻ Log out</button>
+            <button className='logout-btn' onClick={handleLogout}>⏻ Log out</button>
           </div>
         </div>
     )}
