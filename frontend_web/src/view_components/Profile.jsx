@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 import './Profile.css'
 import { CirclesBackground } from '../small_components/CirclesBackground';
@@ -12,6 +13,7 @@ import Fear from '../assets/images/fear.png';
 import Surprised from '../assets/images/surprised.png';
 import Angry from '../assets/images/angry.png';
 import Disgust from '../assets/images/disgust.png';
+import logo from '../assets/icons/logo-mai.png'
 
 const emocionesInfo = {
   angry: {
@@ -53,6 +55,42 @@ const emocionesInfo = {
 
 
 export default function Profile() {
+
+  const [showSureModal, setShowSureModal] = useState(false);
+
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editProfileData, setEditProfileData] = useState({
+    nombre: '',
+    password: '',
+    confirmarPassword: '',
+    descripcion: '',
+  });
+  
+  // ——— Carga inicial ———
+  useEffect(() => {
+    // obtén user de localStorage
+    const userData = localStorage.getItem('user');
+    if (userData) setUser(JSON.parse(userData));
+    // aquí tus llamadas: obtenerPromedio(), obtenerTracker(), etc.
+  }, []);
+
+  // ——— Handlers del modal de edición ———
+  const handleEditProfileChange = (e) => {
+    const { name, value } = e.target;
+    setEditProfileData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditProfileSubmit = (e) => {
+    e.preventDefault();
+    if (editProfileData.password !== editProfileData.confirmarPassword) {
+      alert("Las contraseñas no coinciden.");
+      return;
+    }
+    console.log('Datos a actualizar:', editProfileData);
+    setShowEditModal(false);
+    // aquí llamas a tu API para guardar los cambios
+  };
+  
   const [trackerDias, setTrackerDias] = useState(Array(31).fill(false));
   const [weeklyEmotions, setWeeklyEmotions] = useState(Array(7).fill(null));
   const [consejosHoy, setConsejosHoy] = useState([]);
@@ -83,13 +121,10 @@ export default function Profile() {
       if (!res.ok) throw new Error("Error en la API");
       const data = await res.json();
 
-      if (data.promedio) {
+      if (data) {
         setEmocionesAcumuladas(data.promedio);
 
-        const emociones = data.promedio;
-        const dominante = Object.keys(emociones).reduce((a, b) => emociones[a] > emociones[b] ? a : b);
-
-        setDominante(dominante);
+        setDominante(data.emocion_dominante_hoy);
 
       }
     } catch (err) {
@@ -229,18 +264,28 @@ export default function Profile() {
 
   const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
   // +6 para que Lunes sea el primer día (0 = Lunes, 6 = Domingo)
+
+  const navigate = useNavigate();
+
+  const handleGoHome = () => {
+    navigate('/'); // Asegúrate de tener esta ruta configurada
+  };
     
   return (
     <div className='ProfileView'>
         <CirclesBackground />
+
+        <div className="go-home flex-center" onClick={handleGoHome}><img src={logo} alt="" /></div>
+        <h3 className='home-banner'>Go home</h3>
+
         <div className="left-p-section">
             <div className='user-info'>
               <div className="p-img flex-center"><img src={user ? user.image_url : PAvatar} alt="avatar" /></div>
               <div className="p-info">
-                <h1>{user ? user.nombre : 'Nombre de usuario'}</h1>
+                <h1>{user ? user.nombre : 'Username'}</h1>
                 <h3>{user ? calcularEdad(user.edad) : ''}</h3>
               </div>
-              <div className="p-settings flex-center"><img src={settingsIcon} alt="" /></div>
+              <div className="p-settings flex-center" onClick={() => setShowEditModal(true)} ><img src={settingsIcon} alt=""/></div>
             </div>
             <div className='user-tip'>
               {consejosHoy.length > 0 ? (
@@ -262,7 +307,7 @@ export default function Profile() {
                   </div>
                 </>
               ) : (
-                <p>No hay consejos para hoy</p>
+                <p>There are no tips for today</p>
               )}
             </div>
             <div className='user-weekly'>
@@ -317,11 +362,25 @@ export default function Profile() {
                   </div>
                 </div>
                 <div className="user-emotion">
-                  <h2>{emocionesInfo[dominante]?.nombre || "Neutral"}</h2>
-                  <div className="emotion-container interactive">
-                    <img src={emocionesInfo[dominante]?.imagen || Neutral} alt="emotion" />
-                  </div>
-                  <p>{emocionesInfo[dominante]?.mensaje || "Your mood seems neutral today."}</p>
+                    {dominante ? (
+                        <>
+                            {/* Esto se muestra si hay una emoción dominante */}
+                            <h2>{emocionesInfo[dominante]?.nombre || "Emoción"}</h2>
+                            <div className="emotion-container interactive">
+                                <img src={emocionesInfo[dominante]?.imagen || Neutral} alt="emotion" />
+                            </div>
+                            <p>{emocionesInfo[dominante]?.mensaje || "Análisis del día."}</p>
+                        </>
+                    ) : (
+                        <>
+                            {/* Esto se muestra si NO hay emoción */}
+                            <h2>-</h2>
+                            <div className="emotion-container interactive">
+                                <div className="empty-emotion">-</div>
+                            </div>
+                            <p>No records for today</p>
+                        </>
+                    )}
                 </div>
             </div>
             {/* lineas horizontales de FRONT - NO BACK - NO MOVER */}
@@ -348,7 +407,7 @@ export default function Profile() {
                 )
             */}
 
-            <button onClick={obtenerEmociones}>Analizar emoción</button>
+            {/* <button onClick={obtenerEmociones}>Analizar emoción</button> */}
 
               <div className="d-progress-bars">
                 {/* AQUI SE PONEN LOS PORCENTAJES DE LAS EMOCIONES EN EL STYLE DE HEIGHT */}
@@ -411,6 +470,94 @@ export default function Profile() {
 
             </div>
         </div>
+
+
+        {/* ——— Modal de edición ——— */}
+      {showEditModal && (
+        <div
+          className="modal-settings-background flex-center"
+          onClick={e =>
+            e.target.classList.contains('modal-settings-background') &&
+            setShowEditModal(false)
+          }
+        >
+          <div className="modal-settings">
+            <h1>Edit profile</h1>
+
+            <form
+              onSubmit={handleEditProfileSubmit}
+              className="edit-profile-form"
+            >
+              <label className="entryArea e-p-entry">
+                <input
+                  type="text"
+                  name="nombre"
+                  className='input-margin1 input-edit'
+                  value={editProfileData.nombre}
+                  onChange={handleEditProfileChange}
+                />
+                <div className="labelLine labelLineDef">Name</div>
+              </label>
+
+              <label className="entryArea e-p-entry">
+                <input
+                  className='input-margin2 input-edit'
+                  type="password"
+                  name="password"
+                  value={editProfileData.password}
+                  onChange={handleEditProfileChange}
+                />
+                <div className="labelLine labelLineDef">New Password</div>
+              </label>
+
+              <label className="entryArea e-p-entry">
+                <input
+                  className='input-margin3 input-edit'
+                  type="password"
+                  name="confirmarPassword"
+                  value={editProfileData.confirmarPassword}
+                  onChange={handleEditProfileChange}
+                />
+                <div className="labelLine labelLineDef">Confirm Password</div>
+              </label>
+              
+                <textarea
+                  className="desc-text-input edit-desc-prompt"
+                  name="descripcion"
+                  value={editProfileData.descripcion}
+                  onChange={handleEditProfileChange}
+                  placeholder={`
+Describe tu personalidad o intereses. Ej:
+- Pasatiempos
+- Estilo de vida
+- Necesidades emocionales
+- Valores
+                  `}
+                />
+              <div className="buttons-modal">
+                <button type="submit" className="btn-send save-edit-changes">Save</button>
+                <a className="logout" onClick={() => setShowSureModal(true)}>⏻ Log out</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    {showSureModal && (
+      <div
+          className="modal-settings-background flex-center"
+          onClick={e =>
+            e.target.classList.contains('modal-settings-background') &&
+            setShowSureModal(false)
+          }
+        >
+          <div className="modal-logout">
+            <h1>You are about to log out</h1>
+            <p>Are you sure you want to continue? <br /> <br /> If not, click anywhere outside this box in order to close it.</p>
+            <button className='logout-btn'>⏻ Log out</button>
+          </div>
+        </div>
+    )}
+
     </div>
   )
 }

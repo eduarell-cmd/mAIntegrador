@@ -356,14 +356,15 @@ const handleImageUpload = (e) => {
             {/* <br/>.  */}
             <label className='entryArea'>
               <input required type="date" name="edad" value={registerData.edad} onChange={handleRegisterChange} disabled={loading} />
-              <div className="labelLine">Birthday</div>
+              <div className="labelLine"></div>
             </label>
             {/* <br/>  cambiar Tipo de dato a bool */ }
             <label className='entryArea'>
-            <div className="labelLine">Género</div>
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+            <div className="labelLine gender-label">Gender:</div>
+            <div className='gender-div'>
               <label>
                 <input
+                  className='hombre-input'
                   type="radio"
                   name="genero"
                   value="male"
@@ -372,10 +373,11 @@ const handleImageUpload = (e) => {
                   disabled={loading}
                   required
                 />
-                Male
+                Male 
               </label>
               <label>
                 <input
+                  className='mujer-input'
                   type="radio"
                   name="genero"
                   value="female"
@@ -484,21 +486,21 @@ const handleImageUpload = (e) => {
                 name="descripcion"
                 value={registerData.descripcion}
                 onChange={handleRegisterChange}
-                placeholder="Describe tu personalidad o tus intereses usando de ejemplo el siguiente texto: 
+                placeholder="Describe your personality or your interests based on the following example:
 
-  Este ejemplo da información clara sobre:
+  This example gives clear information about:
 
-        - Pasatiempos
+        - Hobbies
 
-        - Estilo de vida
+        - LifeStyles
 
-        - Gustos personales
+        - Likes
 
-        - Necesidades emocionales
+        - Emotional needs
 
-        - Interacción social
+        - Social interaction
 
-        - Valores"
+        - Values"
               />
             </label>
             <div className="teach-btn flex-center" onClick={() => setShowPrompt(false)} >I have finished</div>

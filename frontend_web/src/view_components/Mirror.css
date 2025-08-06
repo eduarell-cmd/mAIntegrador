@@ -55,3 +55,23 @@ span {font-weight: 400;}
 }
 
 .tip-icon img {height: auto; width: 70%;}
+
+.countdown-view {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  height: 100vh;
+  text-align: center;
+}
+
+.countdown-view h1 {
+  font-size: 4rem;
+  margin-bottom: 2rem;
+}
+
+.countdown-view h2 {
+  font-size: 8rem;
+  font-weight: bold;
+}

@@ -10,17 +10,49 @@ from validaciones.validaciones import *
 import bcrypt # type: ignore
 import json
 from deepFace.faceid import verificar_rostro_laptop
-from deepFace.faceid2 import verificar_rostro
 from validaciones.horaapi import *
 from validaciones.clima import *
 from gemini import geminiprompt, normalizar_emocion
 from datetime import datetime, timedelta
+from collections import Counter
+from typing import List
 
 # Importar el sistema de autenticación
 from auth.auth_routes import auth_router
 from auth.middleware import get_current_user, get_current_user_optional
 
 app = FastAPI()
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def broadcast(self, data: dict):
+        # Envía los datos a todas las conexiones activas (espejos conectados)
+        message = json.dumps(data)
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+# Crea una instancia del manejador
+manager = ConnectionManager()
+
+# Endpoint para que Mirror.jsx se conecte
+@app.websocket("/ws/mirror")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            # Mantenemos la conexión abierta escuchando
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 
 # Habilitar CORS para permitir que el frontend se conecte
 app.add_middleware(
@@ -33,28 +65,6 @@ app.add_middleware(
 
 # Incluir las rutas de autenticación
 app.include_router(auth_router)# Evaluar como funciona esta linea
-
-@app.get("/facerecog")
-def face():
-    resultado = verificar_rostro()
-
-    def convertir(obj):
-        if isinstance(obj, dict):
-            return {k: convertir(v) for k, v in obj.items()}
-        elif isinstance(obj, list):
-            return [convertir(elem) for elem in obj]
-        elif hasattr(obj, 'item'):
-            return obj.item()
-        else:
-            return obj
-
-    resultado_convertido = convertir(resultado)
-    try:
-        print(json.dumps(resultado_convertido, indent=4, ensure_ascii=False))
-    except Exception as e:
-        print(e)
-
-    return {"mensaje": resultado_convertido}
 
 @app.post("/login", response_model=UserBase)
 async def login(data:LoginInput):
@@ -111,19 +121,6 @@ async def weather():
 
     return clima
 
-@app.get("/emocion")
-async def emotion():
-    resultado = verificar_rostro()
-
-    if resultado["error"]:
-        return JSONResponse(status_code=500, content={"error": resultado["error"]})
-
-    return {
-        "es_misma_persona": resultado["es_misma_persona"],
-        "emociones": resultado.get("emociones", {}),
-        "emocion_dominante": resultado.get("emocion_dominante", None)
-    }
-
 @app.post("/pruebaemocion")
 async def emotion_test(data: dict = Body(...)):
     user_id = data.get("user_id")
@@ -166,42 +163,50 @@ async def emotion_test(data: dict = Body(...)):
 
 @app.get("/promedioemocion/{user_id}")
 async def promedio_emocion(user_id: str):
-    # Buscar documento del usuario
     registro = await emociones_collection.find_one({"User_id": user_id})
 
-    if not registro or "Emociones" not in registro:
-        return {"promedio": None, "total_lecturas": 0}
-
-    # Fecha de hoy
-    hoy = datetime.now().strftime("%Y-%m-%d")
-
-    # Revisar la última emoción guardada
-    emociones = registro["Emociones"]
-    if not emociones or emociones[-1]["fecha"] != hoy:
-        # Si no hay emoción de hoy, reiniciar a 0
-        promedio = {
-            "angry": 0,
-            "disgust": 0,
-            "fear": 0,
-            "happy": 0,
-            "sad": 0,
-            "surprise": 0,
-            "neutral": 0,
+    if not registro or "Emociones" not in registro or not registro["Emociones"]:
+        return {
+            "promedio": {"angry": 0, "disgust": 0, "fear": 0, "happy": 0, "sad": 0, "surprise": 0, "neutral": 0},
+            "total_lecturas": 0,
+            "emocion_dominante_hoy": None
         }
-        return {"promedio": promedio, "total_lecturas": 0}
 
-    # Si es de hoy, calcular promedio normal
-    suma = {k: 0 for k in ["angry","disgust","fear","happy","sad","surprise","neutral"]}
-    total = 0
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    
+    suma_promedios = {"angry": 0, "disgust": 0, "fear": 0, "happy": 0, "sad": 0, "surprise": 0, "neutral": 0}
+    total_lecturas_hoy = 0
+    lista_dominantes_hoy = []
 
-    for entrada in emociones:
-        if entrada["fecha"] == hoy:
-            for key, val in entrada["Emociones_Acumuladas"].items():
-                suma[key] += float(val)
-            total += 1
+    for entrada in registro["Emociones"]:
+        if entrada.get("fecha") == hoy:
+            # Acumular para el promedio de las barras
+            if isinstance(entrada.get("Emociones_Acumuladas"), dict):
+                for key, val in entrada["Emociones_Acumuladas"].items():
+                    if key in suma_promedios:
+                        try:
+                            suma_promedios[key] += float(val)
+                        except (ValueError, TypeError):
+                            pass
+                total_lecturas_hoy += 1
 
-    promedio = {k: round(v / total, 2) if total > 0 else 0 for k, v in suma.items()}
-    return {"promedio": promedio, "total_lecturas": total}
+            # Guardar la emoción dominante de esta lectura para el cálculo de frecuencia
+            if entrada.get("emocion_dominante"):
+                lista_dominantes_hoy.append(entrada["emocion_dominante"])
+
+    # Calcular el promedio para las barras
+    promedio_barras = {k: round(v / total_lecturas_hoy, 2) if total_lecturas_hoy > 0 else 0 for k, v in suma_promedios.items()}
+    
+    # Calcular la emoción dominante del día
+    emocion_dominante_final = None 
+    if lista_dominantes_hoy:
+        emocion_dominante_final = Counter(lista_dominantes_hoy).most_common(1)[0][0]
+
+    return {
+        "promedio": promedio_barras, 
+        "total_lecturas": total_lecturas_hoy,
+        "emocion_dominante_hoy": emocion_dominante_final # Devolvemos la emoción correcta
+    }
 
 @app.post("/guardar_consejo")
 async def guardar_consejo(data: dict = Body(...)):
@@ -231,9 +236,6 @@ async def guardar_consejo(data: dict = Body(...)):
     except Exception as e:
         print(f"Error guardando consejo: {e}")
         raise HTTPException(status_code=500, detail="Error guardando consejo")
-
-from fastapi import APIRouter, HTTPException
-from datetime import datetime
 
 @app.get("/consejos_hoy/{user_id}")
 async def consejos_hoy(user_id: str):
@@ -295,49 +297,54 @@ async def get_tracker(user_id: str):
 @app.get("/weekly_emotions/{user_id}")
 async def get_weekly_emotions(user_id: str):
     try:
-        # Obtener el documento del usuario
         doc = await emociones_collection.find_one({"User_id": user_id})
         if not doc or "Emociones" not in doc:
-            return JSONResponse(
-                status_code=404,
-                content={"error": "No se encontraron emociones para este usuario"}
-            )
+            return JSONResponse(status_code=404, content={"error": "No se encontraron emociones"})
 
-        # Obtener fechas de los últimos 7 días
         today = datetime.now()
-        week_dates = [(today - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(6, -1, -1)]
+        week_dates_str = [(today - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(6, -1, -1)]
         
-        # Buscar emociones dominantes para cada día
-        weekly_emotions = {}
-        for entry in doc["Emociones"]:
-            if entry["fecha"] in week_dates:
-                weekly_emotions[entry["fecha"]] = entry["emocion_dominante"]
+        # 1. Agrupar todas las emociones dominantes por fecha
+        emotions_by_date = {}
+        for entry in doc.get("Emociones", []):
+            fecha = entry.get("fecha")
+            emocion = entry.get("emocion_dominante")
+            if fecha and emocion and fecha in week_dates_str:
+                if fecha not in emotions_by_date:
+                    emotions_by_date[fecha] = []
+                emotions_by_date[fecha].append(emocion)
         
-        # Formatear respuesta con días de la semana
+        # 2. Calcular la emoción más frecuente para cada día
+        dominant_emotion_per_day = {}
+        for date, emotions_list in emotions_by_date.items():
+            # Counter cuenta las ocurrencias de cada emoción (ej: {'angry': 2, 'neutral': 1})
+            # .most_common(1) devuelve el más común en una lista: [('angry', 2)]
+            # [0][0] extrae el nombre de la emoción: 'angry'
+            most_common_emotion = Counter(emotions_list).most_common(1)[0][0]
+            dominant_emotion_per_day[date] = most_common_emotion
+            
+        # 3. Formatear la respuesta final
         response = []
-        for date_str in week_dates:
-            day_name = (datetime.strptime(date_str, "%Y-%m-%d")).strftime("%a")
-            emotion = weekly_emotions.get(date_str, None)
+        for date_str in week_dates_str:
+            day_name = (datetime.strptime(date_str, "%Y-%m-%d")).strftime("%a") # %a para "Mon", "Tue", etc.
+            emotion = dominant_emotion_per_day.get(date_str, None) # Usa el valor calculado
             response.append({
-                "date": date_str,
                 "day": day_name,
                 "emotion": emotion
             })
-        
+            
         return {"weekly_emotions": response}
     
     except Exception as e:
         print(f"Error obteniendo emociones semanales: {e}")
-        return JSONResponse(
-            status_code=500,
-            content={"error": "Error interno del servidor"}
-        )
+        return JSONResponse(status_code=500, content={"error": "Error interno del servidor"})
 
 @app.post("/geminiprompt")
 async def consejo(user_data: dict = Body(...)):
     print("➡️ Llamando a geminiprompt() con los siguientes datos: ", user_data)
     texto = await geminiprompt(user_data)
     print(f"✅ Respuesta de geminiprompt: {texto}")
+    await manager.broadcast(texto)
     return texto
 
 # Nueva ruta protegida de ejemplo

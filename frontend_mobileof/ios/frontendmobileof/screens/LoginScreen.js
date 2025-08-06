@@ -42,9 +42,9 @@ export default function LoginScreen({ navigation }) {
     if (email && password) {
       setLoading(true);
       try {
-        await login(email, password);
+        const loginData = await login(email, password); 
         loginSuccess();
-        navigation.replace('LoggedIn');
+        navigation.replace('Profile', { user: loginData.user }); 
       } catch (e) {
         Alert.alert('Error', e.message);
       } finally {

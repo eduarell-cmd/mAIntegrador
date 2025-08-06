@@ -56,18 +56,23 @@ def recortar_centro(imagen, porcentaje_ancho=0.4, porcentaje_alto=0.9):
     recorte = imagen[y_inicio:y_inicio+nuevo_alto, x_inicio:x_inicio+nuevo_ancho]
     return recorte, (x_inicio, y_inicio, nuevo_ancho, nuevo_alto)
 
-def verificar_rostro():
+def verificar_rostro(image_url: str):
     resultado = {
         "es_misma_persona": False,
         "emociones": {},
         "error": None
     }
 
+    if not image_url:
+        resultado["error"] = "No se proporcionó una URL de imagen para la comparación."
+        return resultado
+        
+    url = image_url 
+
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    # Descargar imagen conocida desde una URL y obtener su codificación facial
-    url = "https://res.cloudinary.com/dfczlyftc/image/upload/v1754083563/pxylg533dfapx6l57btj.jpg"
     
     try:
+        print(f"🔗 Usando URL de referencia: {url}")
         response = requests.get(url)
         response.raise_for_status()
         ref_content = response.content

@@ -23,6 +23,7 @@
     "expo-linear-gradient": "~14.1.5",
     "expo-media-library": "~17.1.7",
     "expo-status-bar": "~2.2.3",
+    "jwt-decode": "^4.0.0",
     "react": "19.0.0",
     "react-native": "0.79.4",
     "react-native-gesture-handler": "^2.27.1",
