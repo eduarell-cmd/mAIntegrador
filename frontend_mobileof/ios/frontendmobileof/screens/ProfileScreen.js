@@ -23,8 +23,9 @@ import angryFace from '../assets/images/angry.png';
 import { useFocusEffect } from '@react-navigation/native';
 import { API_BASE_URL } from '../../../services/config';
 import { getAccessToken } from '../../../services/authService';
-import { useAuth } from '../../../services/authContext';
+import { useAuth } from '../../../services/authContext'; 
 import { jwtDecode } from 'jwt-decode';
+import { useNavigation } from '@react-navigation/native';
 
 import cameraIconImg from '../assets/icons/camera.png';
 import fondo from '../assets/images/ciruclosfondo.png';
@@ -121,10 +122,11 @@ const ProfileScreen = ({ route, navigation, handleCameraAccess }) => {
   }
 };
 
-  const handleLogout = async () => {
+const handleLogout = async () => {
     await logout(); // Esto borra los tokens del AsyncStorage
     navigation.replace('Login'); // Envía al usuario de vuelta al Login
   };
+
 
   // --- Estados para manejar los datos dinámicos ---
   const [user, setUser] = React.useState(route.params?.user || null);
@@ -329,9 +331,11 @@ const ProfileScreen = ({ route, navigation, handleCameraAccess }) => {
             <Text style={styles.prompt}>{user?.descripcion || 'Sin descripción.'}</Text>
             <Text style={styles.prompt}>Age: {user?.edad ? `${new Date().getFullYear() - new Date(user.edad).getFullYear()} years` : 'N/A'}</Text>
           </View>
+
         </View>
-
-
+          <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+          <Text style={styles.logoutText}>⏻ Log out</Text>
+          </TouchableOpacity>
         {/* Tracking Record + Emoción */}
         <View style={styles.rowContainer}>
           {/* Tracking Record */}
@@ -393,8 +397,8 @@ const ProfileScreen = ({ route, navigation, handleCameraAccess }) => {
           </TouchableOpacity>
           <Text style={styles.explanationText}>
             {isAnalyzing 
-              ? "Analizando tu rostro..." 
-              : "Presiona para que el espejo capture tu expresión actual y analice tu rostro."
+              ? "Analyzing your face..." 
+              : "Press to have the mirror capture your current expression and analyze your face."
             }
           </Text>
         </View>
@@ -522,9 +526,9 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     borderRadius: 20,
     padding: 20,
-    marginBottom: 20,
+    marginBottom: 0,
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 30,
     marginHorizontal: 10,
     flexDirection: 'row',
     alignItems: 'center',
@@ -863,6 +867,27 @@ const styles = StyleSheet.create({
   },
   mTop: {
     marginTop: 28,
+  },
+
+logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ff0000ff',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    marginTop: 20,
+    marginBottom: 20,
+    marginHorizontal:5
+  },
+  logoutIcon: {
+    marginRight: 8,
+  },
+  logoutText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   }
 });
 
