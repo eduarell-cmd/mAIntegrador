@@ -575,7 +575,7 @@
     height: 50vh;
     width: 40vw;
     z-index: 1000;
-    background: linear-gradient(120deg, black, rgb(95, 2, 95) );
+    background: linear-gradient(120deg, black, rgb(95, 2, 95, 0.7));
 }
 
 .modal-logout p {
@@ -601,9 +601,9 @@
 
 @media (max-width: 599px) {
     .ProfileView {
-    min-height: 200vh;
-    width: 100vw;
-}
+        min-height: 200vh;
+        width: 100vw;
+    }
     .weekly-emotion .emotion-container {
         height: 3rem;
         width: 3rem;
@@ -675,6 +675,7 @@
 
     .modal-logout p {
         font-size: 0.9rem;
+        padding: 1rem;
     }
 
     .modal-settings {
@@ -683,6 +684,23 @@
 
     .modal-settings h1 {
         font-size: 1.5rem;
+    }
+
+    .input-margin1, .input-margin2, .input-margin3 {
+        width: 230px;
+    }
+
+    .edit-profile-form {
+        height: 30rem;
+    }
+
+    .edit-desc-prompt {
+        width: 80%;
+        font-size: 0.8rem;
+    }
+
+    .save-edit-changes {
+        scale: 0.7;
     }
 }
 
