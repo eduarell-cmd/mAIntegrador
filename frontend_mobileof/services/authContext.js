@@ -1,4 +1,7 @@
+// /services/authContext.js (MODIFICADO)
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
+// Asegúrate de que getAccessToken esté exportado desde authService
 import { getAccessToken, logout as authLogout } from './authService';
 
 const AuthContext = createContext();
@@ -26,10 +29,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, loading, loginSuccess, logout }}>
+    //                                          AÑADIMOS getAccessToken AQUÍ
+    //                                                          ▼
+    <AuthContext.Provider value={{ isAuthenticated, loading, loginSuccess, logout, getAccessToken }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext); 
+export const useAuth = () => useContext(AuthContext);

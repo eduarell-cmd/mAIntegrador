@@ -12,6 +12,31 @@ from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 
+# auth_models.py (al final del archivo)
+# ... (modelos existentes) ...
+
+class QRGenerateResponse(BaseModel):
+    """
+    Modelo para la respuesta de generación del QR.
+    
+    ¿Qué contiene esta respuesta?
+    - session_id: ID único de la sesión QR.
+    - qr_data: URL de deep link para el código QR.
+    """
+    session_id: str = Field(..., description="ID único de la sesión QR")
+    qr_data: str = Field(..., description="URL de deep link para el código QR")
+
+class QRStatusResponse(BaseModel):
+    """
+    Modelo para la respuesta de estado de la sesión QR.
+    
+    ¿Qué contiene esta respuesta?
+    - status: Estado de la sesión ('pending', 'authenticated').
+    - token: Token de acceso JWT si la sesión está autenticada.
+    """
+    status: str = Field(..., description="Estado de la sesión QR")
+    token: Optional[str] = Field(None, description="Token de acceso si el login fue exitoso")
+
 class TokenResponse(BaseModel):
     """
     Modelo para la respuesta de login/refresh token
