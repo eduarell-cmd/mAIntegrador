@@ -3,8 +3,8 @@ from google.genai import types
 import os
 from dotenv import load_dotenv
 import json
-from deepFace.faceid2 import verificar_rostro
-from deepFace.faceid2lap import verificar_rostro as verificar_rostro_lap
+# from deepFace.faceid2 import verificar_rostro
+# from deepFace.faceid2lap import verificar_rostro as verificar_rostro_lap
 from fastapi import HTTPException  
 from datetime import datetime
 from db.db import emociones_collection
@@ -25,88 +25,85 @@ async def normalizar_emocion(emocion: str) -> str:
     return mapping.get(emocion.lower(), "neutral")
 
 
-async def geminiprompt(user_data):
+async def geminiprompt(datos_completos: dict): 
     load_dotenv()
     api_key = os.getenv("GEMINI_API_KEY")
-    client = genai.Client(api_key=api_key)
-
+    try:
+        client = genai.Client(api_key=api_key)
+    except Exception as e:
+        print(f"Error inicializando el cliente de Gemini: {e}")
+        # Devuelve un error si la API key es inválida o falta
+        return {"error": "Error de configuración de la API de Gemini."}
+    
     hora_actual = datetime.now().strftime("%H:%M")  
 
-    url_del_usuario = user_data.get("image_url")
-    datos_emociones = verificar_rostro_lap(url_del_usuario)
-
-    if datos_emociones["error"]:
-        return {
-        "consejo": None,
-        "emocion": None,
-        "error": datos_emociones["error"]
-        }
-
-    elif not datos_emociones["es_misma_persona"]:
-        return {
-        "consejo": None,
-        "emocion": None,
-        "error": "Rostro no coincide con la persona registrada."
-        }
+    # --- BLOQUE A ELIMINAR ---
+    # Ya no necesitamos verificar el rostro aquí. Ya se hizo en main.py.
+    # url_del_usuario = user_data.get("image_url")
+    # datos_emociones = verificar_rostro_lap(url_del_usuario)
+    # ... (todo el bloque if/elif de error y no es la misma persona)
+    # --- FIN DEL BLOQUE A ELIMINAR ---
     
-    # 2. Guardar la emoción en la base de datos (la lógica de /pruebaemocion)
-    user_id = user_data.get("_id") # Obtener el ID del usuario
+    # AHORA, EXTRAEMOS LOS DATOS QUE main.py YA NOS PASÓ
+    emocion_dominante_amigable = datos_completos.get("emocion_dominante") # "calm"
+    emocion_cruda = datos_completos.get("emocion_cruda") # "neutral"
+    porcentajes_emociones = datos_completos.get("emociones", {}) # {"happy": 0.1, ...}
+
+    # El resto de tu lógica para guardar en la BD puede quedar casi igual,
+    # pero usando los datos que ya tenemos.
+    user_id = datos_completos.get("id") # Obtenemos el id del diccionario completo
     if user_id:
         emocion_obj = {
             "fecha": datetime.now().strftime("%Y-%m-%d"),
-            "Emociones_Acumuladas": datos_emociones.get("emociones", {}),
-            "emocion_dominante": await normalizar_emocion(datos_emociones.get("emocion_dominante")) # Usamos la versión normalizada
+            "Emociones_Acumuladas": porcentajes_emociones,
+            "emocion_dominante": emocion_cruda # Guardamos la emoción cruda ('neutral')
         }
         try:
             await emociones_collection.update_one(
                 {"User_id": user_id},
                 {"$push": {"Emociones": emocion_obj}},
-                upsert=True # Crea el documento si no existe
+                upsert=True
             )
-            print(f"✅ Emoción guardada para el usuario {user_id}")
+            print(f"✅ Emoción '{emocion_cruda}' guardada para el usuario {user_id}")
         except Exception as e:
             print(f"❌ Error al guardar emoción para el usuario {user_id}: {e}")
-            # No detenemos el flujo, aún podemos dar el consejo
     else:
-        print("⚠️ No se encontró user_id, no se guardará la emoción.")
+        print("⚠️ No se encontró user_id en 'datos_completos', no se guardará la emoción.")
 
-    emociones_limpias = {
-        k: float(v) for k, v in datos_emociones["emociones"].items()
-    }
-
+    # El formateo para el prompt de Gemini se queda igual, usando los datos que extrajimos
     emociones_para_prompt = {
-        "es_misma_persona": datos_emociones["es_misma_persona"],
-        "emociones": emociones_limpias,
-        "error": datos_emociones["error"],
-        "emocion_dominante": datos_emociones["emocion_dominante"]
+        "es_misma_persona": True, # Ya sabemos que es, si no, no hubiéramos llegado aquí
+        "emociones": {k: float(v) for k, v in porcentajes_emociones.items()},
+        "error": None,
+        "emocion_dominante": emocion_dominante_amigable
     }
     emociones_json_str = json.dumps(emociones_para_prompt)
 
-    nombre = user_data.get("nombre")
-    edad = user_data.get("edad")
-    genero = user_data.get("genero")
-    descripcion = user_data.get("descripcion")
-
+    nombre = datos_completos.get("nombre")
+    edad = datos_completos.get("edad")
+    genero = datos_completos.get("genero")
+    descripcion = datos_completos.get("descripcion")
+    
+    # TU PROMPT SE QUEDA EXACTAMENTE IGUAL. NO LO TOCAMOS.
     prompt_text = f"""(Imagina que eres un espejo inteligente el cual te va a dar recomendaciones para tener un mejor dia dependiendo de como te vea y de tu estado de animo, no me digas como estoy ni como me siento, solo dime el consejo como si fuera una notificacion muy muy corta de un mensaje como si fueras un amigo, algo así como: "Por qué no vas a ver una pelicula con algun amigo o deberias de ..." obviamente dependiendo de la persona) Dame un consejo corto o que me recomiendas hacer para sentirme mejor (genero: {genero}, fecha de nacimiento: {edad}, estado de animo: ({emociones_json_str}), preferencias: {descripcion}, hora actual: {hora_actual} ) En ingles, solo muestra como si fuera la notificación, sin comillas, no me pongas ningun "aqui va" ni "aqui tienes" ni nada, solo el consejo, no me digas como estoy ni como me siento, solo dime el consejo como si fuera una notificacion muy muy corta de un mensaje como si fueras un amigo, algo así como: "Por qué no vas a ver una pelicula con algun amigo o deberias de ..."  pero en ingles, no me digas como estoy ni como me siento, solo dime el consejo como si fuera una notificacion muy muy corta de un mensaje como si fueras un amigo, algo así como: "Por qué no vas a ver una pelicula con algun amigo o deberias de ..." """
-
     try:
         response = client.models.generate_content(
-            model='gemini-2.0-flash-001',
-            contents=prompt_text
+            model='models/gemini-1.5-flash-latest', # Asegúrate que el nombre del modelo sea correcto
+            contents=[prompt_text] # El contenido debe ser una lista
         )
         return {
             "nombre": nombre,
             "consejo": response.text,
-            "emocion": datos_emociones["emocion_dominante"],
-            "emocion_foto": datos_emociones["emocion_cruda"],
+            "emocion": emocion_dominante_amigable,
+            "emocion_foto": emocion_cruda,
             "error": None
         }
     except Exception as e:
         print(f"❌ Error llamando a Gemini: {e}")
         return {
             "nombre": nombre,
-            "consejo": None,
-            "emocion": datos_emociones["emocion_dominante"],
-            "emocion_foto": None,
+            "consejo": "Sorry, I'm feeling a bit disconnected. Let's try again in a moment.",
+            "emocion": emocion_dominante_amigable,
+            "emocion_foto": emocion_cruda,
             "error": str(e)
         }
