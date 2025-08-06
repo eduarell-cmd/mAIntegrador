@@ -13,7 +13,9 @@ import Fear from '../assets/images/fear.png';
 import Surprised from '../assets/images/surprised.png';
 import Angry from '../assets/images/angry.png';
 import Disgust from '../assets/images/disgust.png';
-import logo from '../assets/icons/logo-mai.png'
+import logo from '../assets/icons/logo-mai.png';
+import edit from '../assets/icons/edit.png';
+import out from '../assets/icons/out.png';
 
 const emocionesInfo = {
   angry: {
@@ -362,7 +364,7 @@ export default function Profile() {
         <CirclesBackground />
 
         <div className="go-home flex-center" onClick={handleGoHome}><img src={logo} alt="" /></div>
-        <h3 className='home-banner'>Go home</h3>
+        {/* <h3 className='home-banner'>Go home</h3> */}
 
         <div className="left-p-section">
             <div className='user-info'>
@@ -371,7 +373,11 @@ export default function Profile() {
                 <h1>{user ? user.nombre : 'Username'}</h1>
                 <h3>{user ? calcularEdad(user.edad) : ''}</h3>
               </div>
-              <div className="p-settings flex-center" onClick={() => setShowEditModal(true)} ><img src={settingsIcon} alt=""/></div>
+              <div className="p-settings flex-center"><img src={settingsIcon} alt=""/></div>
+              <div className="settings-container">
+                <div className="edit-profile flex-center" onClick={() => setShowEditModal(true)}><img src={ edit } alt="" /></div>
+                <div className="open-logout flex-center" onClick={() => setShowSureModal(true)}><img src={ out } alt="" /></div>
+              </div>
             </div>
             <div className='user-tip'>
               {consejosHoy.length > 0 ? (
@@ -622,7 +628,7 @@ Describe tu personalidad o intereses. Ej:
                 />
               <div className="buttons-modal">
                 <button type="submit" className="btn-send save-edit-changes">Save</button>
-                <a className="logout" onClick={() => setShowSureModal(true)}>⏻ Log out</a>
+                {/* <a className="logout" onClick={() => setShowSureModal(true)}>⏻ Log out</a> */}
               </div>
             </form>
           </div>
