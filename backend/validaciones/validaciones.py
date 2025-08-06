@@ -6,6 +6,8 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from auth.session_manager import *
+from auth.jwt_handler import *
 from validaciones.validaciones import *
 import bcrypt
 
@@ -108,3 +110,46 @@ async def editprofile(user_id:str, data:UpdateUser):
     if result.modified_count == 0:
         raise HTTPException(status_code=404, detail=f"No se encontró el usuario con ID '{user_id}'.")
     return {"message": "Perfil actualizado exitosamente."}
+
+async def logout_user_session(
+    logout_data: LogoutRequest, 
+    current_user: dict, 
+    access_token: str
+):
+    """
+    Contiene la lógica de negocio para cerrar la sesión de un usuario.
+    
+    Args:
+        logout_data (LogoutRequest): Datos del body de la petición.
+        current_user (dict): Payload del token del usuario actual.
+        access_token (str): El string del token JWT que se está usando.
+    """
+    try:
+        # 1. Agregar el access token a la blacklist para invalidarlo
+        #    Asumo que jwt_handler tiene la duración del token
+        expires_in = jwt_handler.access_token_expire_minutes * 60
+        session_manager.add_to_blacklist(access_token, expires_in)
+        
+        # 2. Lógica opcional para revocar el refresh token (si aplica)
+        if logout_data.revoke_refresh_token:
+            # Aquí iría tu lógica para invalidar también el refresh token
+            pass
+        
+        # 3. Limpiar la información de la sesión específica de Redis
+        user_id = current_user.get("user_id")
+        session_id = current_user.get("session_id")
+        
+        if user_id and session_id:
+            session_manager.remove_user_session(user_id, session_id)
+        
+        print(f"Logout exitoso: {current_user.get('correo')}")
+        
+        # 4. Devolver respuesta de éxito
+        return {"message": "Sesión cerrada exitosamente"}
+        
+    except Exception as e:
+        print(f"Error en la lógica de logout: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error interno del servidor al procesar el logout"
+        )

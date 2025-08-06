@@ -235,6 +235,35 @@ export default function Profile() {
     }
   };
 
+  const handleLogout = async () => {
+    const token = localStorage.getItem('token'); 
+
+    if (token) {
+      try {
+        // Llama al endpoint de logout, enviando el token en el header Y un body
+        await fetch('http://127.0.0.1:8000/auth/logout', { // ✅ URL con prefijo /auth
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json', // Necesario para enviar un body JSON
+            'Authorization': `Bearer ${token}`
+          },
+          // ✅ AÑADIMOS EL BODY que espera el backend
+          body: JSON.stringify({
+            revoke_refresh_token: false 
+          })
+        });
+      } catch (error) {
+        console.error("Error al contactar al servidor para logout:", error);
+      }
+    }
+
+    // Esta parte se queda exactamente igual
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    setUser(null);
+    navigate('/'); // Redirige a la landing page
+  };
+
   const actualizarPerfil = async () => {
     if (!user || !user._id) {
       alert("No se pudo obtener la información del usuario para actualizar.");
@@ -610,7 +639,7 @@ Describe tu personalidad o intereses. Ej:
           <div className="modal-logout">
             <h1>You are about to log out</h1>
             <p>Are you sure you want to continue? <br /> <br /> If not, click anywhere outside this box in order to close it.</p>
-            <button className='logout-btn'>⏻ Log out</button>
+            <button className='logout-btn' onClick={handleLogout}>⏻ Log out</button>
           </div>
         </div>
     )}

@@ -15,11 +15,11 @@ from validaciones.clima import *
 from gemini import geminiprompt, normalizar_emocion
 from datetime import datetime, timedelta
 from collections import Counter
-
+from auth.session_manager import *
+from auth.jwt_handler import *
 # Importar el sistema de autenticación
-from auth.auth_routes import auth_router
+from auth.auth_routes import auth_router, logout
 from auth.middleware import get_current_user, get_current_user_optional
-
 app = FastAPI()
 
 # Habilitar CORS para permitir que el frontend se conecte
@@ -354,4 +354,23 @@ async def get_public_data(current_user: dict = Depends(get_current_user_optional
 async def edit_profile_endpoint(user_id:str, data:UpdateUser):
     return await editprofile(user_id,data)
 
+@auth_router.post("/logout")
+async def logout_endpoint(
+    logout_data: LogoutRequest,
+    current_user: dict = Depends(get_current_user),
+    request: Request = None
+):
+    """
+    Endpoint para cerrar sesión. Delega la lógica al servicio.
+    """
+    # Extrae el token del header para pasarlo a la función de lógica
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token de autorización inválido o ausente"
+        )
+    access_token = auth_header.split(" ")[1]
 
+    # Llama a la función de lógica con todos los datos recolectados
+    return await logout_user_session(logout_data, current_user, access_token)
