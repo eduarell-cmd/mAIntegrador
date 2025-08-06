@@ -13,7 +13,9 @@ import Fear from '../assets/images/fear.png';
 import Surprised from '../assets/images/surprised.png';
 import Angry from '../assets/images/angry.png';
 import Disgust from '../assets/images/disgust.png';
-import logo from '../assets/icons/logo-mai.png'
+import logo from '../assets/icons/logo-mai.png';
+import edit from '../assets/icons/edit.png';
+import out from '../assets/icons/out.png';
 
 const emocionesInfo = {
   angry: {
@@ -371,7 +373,11 @@ export default function Profile() {
                 <h1>{user ? user.nombre : 'Username'}</h1>
                 <h3>{user ? calcularEdad(user.edad) : ''}</h3>
               </div>
-              <div className="p-settings flex-center" onClick={() => setShowEditModal(true)} ><img src={settingsIcon} alt=""/></div>
+              <div className="p-settings flex-center"><img src={settingsIcon} alt=""/></div>
+              <div className="settings-container">
+                <div className="edit-profile flex-center" onClick={() => setShowEditModal(true)}><img src={ edit } alt="" /></div>
+                <div className="open-logout flex-center" onClick={() => setShowSureModal(true)}><img src={ out } alt="" /></div>
+              </div>
             </div>
             <div className='user-tip'>
               {consejosHoy.length > 0 ? (
