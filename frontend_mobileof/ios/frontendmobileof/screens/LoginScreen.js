@@ -12,7 +12,10 @@ import {
   StatusBar,
   ActivityIndicator,
   Image,
-  ImageBackground
+  ImageBackground,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import MaskedView from '@react-native-masked-view/masked-view';
 import fondo from '../assets/images/ciruclosfondo.png';
@@ -56,96 +59,94 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-    <ImageBackground
-      source={fondo}
-      resizeMode="cover"
-      style={{
-        flex: 1,
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      
-
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
-
-      {/* Encabezado fuera de la carta */}
-      <View style={styles.header}>
-        <Image source={logo} style={styles.logo} />
-
-        <View style={styles.titleRow}>
-          <Text style={styles.appTitle}>M.</Text>
-          <MaskedView
-            maskElement={<Text style={[styles.appTitle, { backgroundColor: 'transparent' }]}>AI</Text>}
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.container}>
+          <ImageBackground
+            source={fondo}
+            resizeMode="cover"
+            style={{
+              flex: 1,
+              width: '100%',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            <LinearGradient
-              colors={['#00f0ff', '#ff00ff', '#9f5fff']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-            >
-              <Text style={[styles.appTitle, { opacity: 0 }]}>AI</Text>
-            </LinearGradient>
-          </MaskedView>
+            <StatusBar barStyle="light-content" backgroundColor={COLORS.background} />
+
+            {/* Encabezado fuera de la carta */}
+            <View style={styles.header}>
+              <Image source={logo} style={styles.logo} />
+              <View style={styles.titleRow}>
+                <Text style={styles.appTitle}>M.</Text>
+                <MaskedView
+                  maskElement={<Text style={[styles.appTitle, { backgroundColor: 'transparent' }]}>AI</Text>}
+                >
+                  <LinearGradient
+                    colors={['#00f0ff', '#ff00ff', '#9f5fff']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                  >
+                    <Text style={[styles.appTitle, { opacity: 0 }]}>AI</Text>
+                  </LinearGradient>
+                </MaskedView>
+              </View>
+            </View>
+
+            {/* Carta de login */}
+            <BlurView intensity={40} tint="dark" style={styles.cardContainer}>
+              <Text style={styles.cardTitle}>Login</Text>
+              <Text style={styles.subtitle}>Please sign in to continue</Text>
+
+              <View style={styles.form}>
+                <TextInput
+                  placeholder="E-mail"
+                  placeholderTextColor={COLORS.textMuted}
+                  style={styles.input}
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+                <TextInput
+                  placeholder="Password"
+                  placeholderTextColor={COLORS.textMuted}
+                  style={styles.input}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                />
+
+                <TouchableOpacity
+                  style={[styles.button, loading && styles.buttonDisabled]}
+                  onPress={handleLogin}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator color={COLORS.primary} />
+                  ) : (
+                    <Text style={styles.buttonText}>Log in</Text>
+                  )}
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+                  <Text style={styles.link}>
+                    No account? <Text style={styles.linkAccent}>Sign up</Text>
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </BlurView>
+          </ImageBackground>
         </View>
-      </View>
-
-      {/* Carta de login */}
-      <BlurView intensity={40} tint="dark" style={styles.cardContainer}>
-        <Text style={styles.cardTitle}>Login</Text>
-        <Text style={styles.subtitle}>Please sign in to continue</Text>
-
-        <View style={styles.form}>
-          <TextInput
-            placeholder="E-mail"
-            placeholderTextColor={COLORS.textMuted}
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          <TextInput
-            placeholder="Password"
-            placeholderTextColor={COLORS.textMuted}
-            style={styles.input}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
-
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color={COLORS.primary} />
-            ) : (
-              <Text style={styles.buttonText}>Log in</Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <Text style={styles.link}>
-              No account? <Text style={styles.linkAccent}>Sign up</Text>
-            </Text>
-          </TouchableOpacity>
-
-          {/* BOTÓN TEMPORAL DE PERFIL */}
-          <TouchableOpacity
-            style={[styles.profileTestButton]}
-            onPress={() => navigation.navigate('Profile')}
-          >
-            <Text style={styles.profileTestButtonText}>Perfil</Text>
-          </TouchableOpacity>
-        </View>
-      </BlurView>
-      </ImageBackground>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
-
 }
 
 const GradientText = () => {
@@ -168,12 +169,8 @@ const GradientText = () => {
         </LinearGradient>
       </MaskedView>
     </View>
-
   );
 };
-
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -181,7 +178,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     justifyContent: 'center',
     alignItems: 'center',
-    //paddingHorizontal: 24,
   },
   title: {
     fontSize: 32,
@@ -277,21 +273,15 @@ const styles = StyleSheet.create({
     paddingTop: 36,
     alignItems: 'center',
     justifyContent: 'flex-start',
-
-    // Glassmorphism
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // negro semi-transparente
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
     borderWidth: 2,
-    borderColor: '#222', // gris claro
-    overflow: 'hidden', // importante para que el blur no se desborde
-
-    // Sombra
+    borderColor: '#222',
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -6 },
     shadowOpacity: 0.4,
     shadowRadius: 12,
     elevation: 10,
-
-    // Posición
     marginTop: 10,
     bottom: -40,
   },
@@ -317,6 +307,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-
-
 });
