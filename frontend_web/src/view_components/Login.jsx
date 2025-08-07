@@ -266,6 +266,20 @@ const handleImageUpload = (e) => {
   }
 };
 
+//  ----------------- abrir modal de forgot password -----------
+const [showForgot, setShowForgot] = useState(false);
+
+useEffect(() => {
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      setShowForgot(false);
+    }
+  };
+
+  document.addEventListener('keydown', handleKeyDown);
+  return () => document.removeEventListener('keydown', handleKeyDown);
+}, []);
+
 
   return (
     
@@ -328,7 +342,7 @@ const handleImageUpload = (e) => {
             onClick={togglePasswordVisibility}
           />
         </label>
-        <h3 className='p-forgot eas'>Forgot password?</h3>
+        <h3 className='p-forgot eas' onClick={() => setShowForgot(true)}>Forgot password?</h3>
         <button className='btn-send eas' type="submit" disabled={loading}>
           {loading ? 'Iniciando sesión...' : 'Login'}
         </button>
@@ -521,6 +535,28 @@ const handleImageUpload = (e) => {
         </Link>
 
       </div> */}
+
+
+      {/* -------------- SETSHOWFORGOT ------------ */}
+
+      {showForgot && (
+      <div
+          className="modal-settings-background flex-center"
+          onClick={e =>
+            e.target.classList.contains('modal-settings-background') &&
+            setShowForgot(false)
+          }
+        >
+          <div className="modal-forgot flex-center">
+            <h1>Forgot password</h1>
+            <input className='inputforgotp' type="email" />
+            <label className='label-ifp2'>E-mail</label>
+            <input className='inputforgotp ifp2' type="password" />
+            <label className='label-ifp2'>Safety word</label>
+            <button>Save</button>
+          </div>
+        </div>
+    )}
       
 
     </div>
