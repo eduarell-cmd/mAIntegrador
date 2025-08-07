@@ -14,7 +14,6 @@ from validaciones.validaciones import *
 import bcrypt
 import json
 from deepFace.face_handler import verificar_rostro
-from deepFace.faceid import verificar_rostro_laptop
 from validaciones.horaapi import *
 from validaciones.clima import *
 from gemini import geminiprompt, normalizar_emocion
