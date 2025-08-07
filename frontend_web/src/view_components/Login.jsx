@@ -23,6 +23,15 @@ export default function Login() {
   const [showLogin, setShowLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showForgot, setShowForgot] = useState(false);
+
+  const [forgotData, setForgotData] = useState({
+    correo: '',
+    palabra_de_seguridad: '',
+  });
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState('');
+  const [forgotMessage, setForgotMessage] = useState('');
 
   const navigate = useNavigate();
 
@@ -78,6 +87,29 @@ export default function Login() {
       setError(error.message || 'Error en el login. Verifica tus credenciales.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotChange = (e) => {
+    const { name, value } = e.target;
+    setForgotData(prev => ({ ...prev, [name]: value }));
+    setForgotError('');
+    setForgotMessage('');
+  };
+
+  const handleForgotSubmit = async (e) => {
+    e.preventDefault();
+    setForgotLoading(true);
+    setForgotError('');
+    setForgotMessage('');
+
+    try {
+      const response = await axios.post('http://localhost:8000/request-password-reset', forgotData);
+      setForgotMessage(response.data.message);
+    } catch (err) {
+      setForgotError(err.response?.data?.detail || 'Ocurrió un error. Verifica tus datos.');
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -266,8 +298,6 @@ const handleImageUpload = (e) => {
   }
 };
 
-//  ----------------- abrir modal de forgot password -----------
-const [showForgot, setShowForgot] = useState(false);
 
 useEffect(() => {
   const handleKeyDown = (e) => {
@@ -540,23 +570,63 @@ useEffect(() => {
       {/* -------------- SETSHOWFORGOT ------------ */}
 
       {showForgot && (
-      <div
+        <div
           className="modal-settings-background flex-center"
-          onClick={e =>
+          onClick={(e) =>
             e.target.classList.contains('modal-settings-background') &&
             setShowForgot(false)
           }
         >
-          <div className="modal-forgot flex-center">
+          {/* Envolvemos el contenido en un formulario */}
+          <form className="modal-forgot flex-center" onSubmit={handleForgotSubmit}>
+            <button
+              type="button" // Para que no envíe el formulario
+              className="close-btn" // Reutilizando una clase que ya tienes
+              onClick={() => setShowForgot(false)}
+              style={{ position: 'absolute', top: '15px', right: '15px' }} // Estilo rápido para el botón
+            >
+              ✖
+            </button>
+
             <h1>Forgot password</h1>
-            <input className='inputforgotp' type="email" />
-            <label className='label-ifp2'>E-mail</label>
-            <input className='inputforgotp ifp2' type="password" />
-            <label className='label-ifp2'>Safety word</label>
-            <button>Save</button>
-          </div>
+
+            {/* --- MENSAJES DE ESTADO --- */}
+            {forgotMessage && <p style={{ color: 'lightgreen', textAlign: 'center' }}>{forgotMessage}</p>}
+            {forgotError && <p style={{ color: 'red', textAlign: 'center' }}>{forgotError}</p>}
+
+            {/* --- INPUTS CONECTADOS AL ESTADO --- */}
+            {/* Ocultamos los inputs si ya se envió el correo para no confundir */}
+            {!forgotMessage && (
+              <>
+                <label className='label-ifp2' style={{ alignSelf: 'flex-start', marginLeft: '10%' }}>E-mail</label>
+                <input
+                  className='inputforgotp'
+                  type="email"
+                  name="correo" // Nombre para el state
+                  value={forgotData.correo} // Conexión al state
+                  onChange={handleForgotChange} // Función que actualiza el state
+                  required
+                />
+
+                <label className='label-ifp2' style={{ alignSelf: 'flex-start', marginLeft: '10%' }}>Safety word</label>
+                <input
+                  className='inputforgotp ifp2'
+                  type="password"
+                  name="palabra_de_seguridad" // Nombre para el state
+                  value={forgotData.palabra_de_seguridad} // Conexión al state
+                  onChange={handleForgotChange} // Función que actualiza el state
+                  required
+                />
+
+                {/* --- BOTÓN CON LÓGICA --- */}
+                <button type="submit" disabled={forgotLoading}>
+                  {forgotLoading ? 'Enviando...' : 'Save'}
+                </button>
+              </>
+            )}
+          </form>
         </div>
-    )}
+      )}
       
 
     </div>

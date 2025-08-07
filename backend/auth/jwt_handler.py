@@ -29,6 +29,8 @@ class JWTHandler:
         self.secret_key = os.getenv("JWT_SECRET_KEY", "tu_clave_secreta_super_segura_cambiala_en_produccion")
         print(f"[DEBUG] JWT_SECRET_KEY usada por el backend: {self.secret_key}")
         
+        self.reset_secret_key = os.getenv("JWT_RESET_SECRET_KEY", "tu_otra_clave_para_reset_cambiala")
+
         # Algoritmo de firma
         self.algorithm = "HS256"
         

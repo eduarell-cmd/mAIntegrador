@@ -92,7 +92,7 @@ async def request_password_reset(request_data: PasswordResetRequest):
     token = jwt_handler.create_password_reset_token(token_data)
 
     # 4. Enviar el correo
-    reset_link = f"http://localhost:3000/reset-password/{token}" # Cambia esto por tu URL de frontend
+    reset_link = f"http://localhost:8000/reset-password/{token}" # Cambia esto por tu URL de frontend
     
     message = MessageSchema(
         subject="Cambio de contraseña",
