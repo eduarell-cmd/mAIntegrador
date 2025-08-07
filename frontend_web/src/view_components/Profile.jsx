@@ -118,7 +118,7 @@ export default function Profile() {
       const userId = userData ? JSON.parse(userData)._id : null;
       if (!userId) throw new Error('No se encontró el user_id en localStorage');
 
-      const res = await fetch(`https://9b80f26f1d2c.ngrok-free.app/promedioemocion/${userId}`);
+      const res = await fetch(`http://52.207.227.125:8000/promedioemocion/${userId}`);
       if (!res.ok) throw new Error("Error en la API");
       const data = await res.json();
 
@@ -152,7 +152,7 @@ export default function Profile() {
       const userId = userData ? JSON.parse(userData)._id : null;
       if (!userId) throw new Error('No se encontró user_id');
 
-      const res = await fetch(`https://9b80f26f1d2c.ngrok-free.app/consejos_hoy/${userId}`);
+      const res = await fetch(`http://52.207.227.125:8000/consejos_hoy/${userId}`);
       if (!res.ok) throw new Error("Error en API de consejos");
       const data = await res.json();
 
@@ -182,7 +182,7 @@ export default function Profile() {
       const userId = userData ? JSON.parse(userData)._id : null;
       if (!userId) throw new Error('No se encontró el user_id en localStorage');
 
-      const res = await fetch("https://9b80f26f1d2c.ngrok-free.app/pruebaemocion", {
+      const res = await fetch("http://52.207.227.125:8000/pruebaemocion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId })
@@ -210,7 +210,7 @@ export default function Profile() {
       const userId = userData ? JSON.parse(userData)._id : null;
       if (!userId) throw new Error('No se encontró user_id');
 
-      const res = await fetch(`https://9b80f26f1d2c.ngrok-free.app/tracker/${userId}`);
+      const res = await fetch(`http://52.207.227.125:8000/tracker/${userId}`);
       const data = await res.json();
 
       if (data.dias) {
@@ -227,7 +227,7 @@ export default function Profile() {
       const userId = userData ? JSON.parse(userData)._id : null;
       if (!userId) throw new Error('No user_id found');
 
-      const res = await fetch(`https://9b80f26f1d2c.ngrok-free.app/weekly_emotions/${userId}`);
+      const res = await fetch(`http://52.207.227.125:8000/weekly_emotions/${userId}`);
       if (!res.ok) throw new Error("API Error");
       const data = await res.json();
       
@@ -243,7 +243,7 @@ export default function Profile() {
     if (token) {
       try {
         // Llama al endpoint de logout, enviando el token en el header Y un body
-        await fetch('https://9b80f26f1d2c.ngrok-free.app/auth/logout', { // ✅ URL con prefijo /auth
+        await fetch('http://52.207.227.125:8000/auth/logout', { // ✅ URL con prefijo /auth
           method: 'POST',
           headers: {
             'Content-Type': 'application/json', // Necesario para enviar un body JSON
@@ -292,7 +292,7 @@ export default function Profile() {
 
     try {
       // 2. Llama al endpoint de la API con el método PUT
-      const response = await fetch(`https://9b80f26f1d2c.ngrok-free.app/profile/${user._id}`, {
+      const response = await fetch(`http://52.207.227.125:8000/profile/${user._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
