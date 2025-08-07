@@ -9,8 +9,10 @@ import {
   SafeAreaView,
   ImageBackground,
   ActivityIndicator,
-  Alert
+  Alert,
+  Button
 } from 'react-native';
+import { Camera } from 'expo-camera';
 import DownArrowIcon from '../assets/icons/downArrow.png';
 import happyFace from '../assets/images/happy.png';
 import sadImageFace from '../assets/images/sad-face.png';
@@ -145,6 +147,22 @@ const handleLogout = async () => {
 
   // El estado para el índice del consejo ya lo tienes, puedes mantenerlo
   const [indiceConsejo, setIndiceConsejo] = React.useState(0);
+
+   // --- NUEVOS ESTADOS PARA EL ESCÁNER QR ---
+  const [hasPermission, setHasPermission] = useState(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scannedData, setScannedData] = useState(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Pide permiso de cámara al cargar la pantalla
+      (async () => {
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        setHasPermission(status === 'granted');
+      })();
+      refreshProfileData();
+    }, [refreshProfileData])
+  );
 
   const fetchProfileData = async () => {
     console.log("--- Iniciando fetchProfileData ---");
@@ -315,6 +333,54 @@ const handleLogout = async () => {
     }
   };
 
+   // --- NUEVAS FUNCIONES PARA EL ESCÁNER QR ---
+  const handleScanPress = () => {
+    if (hasPermission === null) {
+      Alert.alert("Requesting camera permission...");
+      return;
+    }
+    if (hasPermission === false) {
+      Alert.alert("No access to camera", "Please grant camera permission in your device settings.");
+      return;
+    }
+    setScannedData(null); // Resetea el dato escaneado anterior
+    setIsScanning(true); // Abre la vista del escáner
+  };
+
+  const handleBarCodeScanned = ({ type, data }) => {
+    setIsScanning(false); // Cierra la vista del escáner
+    setScannedData(data);
+    // Aquí puedes manejar el dato escaneado. Por ahora, solo lo mostramos.
+    Alert.alert(
+      'QR Code Scanned!',
+      `Data: ${data}`,
+      [{ text: 'OK' }]
+    );
+    // Ejemplo: si el QR contiene un ID de usuario, podrías navegar a su perfil
+    // if (type === 'org.iso.QRCode' && data.startsWith('user_')) {
+    //   navigation.navigate('AnotherProfile', { userId: data });
+    // }
+  };
+
+  // --- VISTA DEL ESCÁNER QR ---
+  if (isScanning) {
+    return (
+      <View style={styles.scannerContainer}>
+        <Camera
+          onBarCodeScanned={scannedData ? undefined : handleBarCodeScanned}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <View style={styles.scannerOverlay}>
+            <Text style={styles.scannerText}>Scan a QR Code</Text>
+            <View style={styles.scannerBox} />
+            <TouchableOpacity style={styles.closeButton} onPress={() => setIsScanning(false)}>
+                <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   if (loading) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background}}>
@@ -356,6 +422,12 @@ const handleLogout = async () => {
           <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
           <Text style={styles.logoutText}>⏻ Log out</Text>
           </TouchableOpacity>
+          {/* --- NUEVO BOTÓN PARA ESCANEAR QR --- */}
+          <View style={styles.actionButtonContainer}>
+            <TouchableOpacity style={styles.qrButton} onPress={handleScanPress}>
+                <Text style={styles.qrButtonText}>📷 Scan QR</Text>
+            </TouchableOpacity>
+          </View>
         {/* Tracking Record + Emoción */}
         <View style={styles.rowContainer}>
           {/* Tracking Record */}
@@ -911,7 +983,130 @@ logoutBtn: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  }
+  },
+  // --- NUEVOS ESTILOS PARA EL BOTÓN QR Y EL ESCÁNER ---
+  actionButtonContainer: {
+    marginHorizontal: 10,
+    marginBottom: 20, // Espacio antes del siguiente contenedor
+  },
+  qrButton: {
+    backgroundColor: COLORS.secondary,
+    paddingVertical: 15,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  qrButtonText: {
+    color: COLORS.white,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  scannerContainer: {
+    flex: 1,
+    backgroundColor: 'black',
+  },
+  scannerOverlay: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scannerText: {
+    fontSize: 22,
+    color: 'white',
+    fontWeight: 'bold',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  scannerBox: {
+    width: 250,
+    height: 250,
+    borderWidth: 2,
+    borderColor: COLORS.secondary,
+    borderRadius: 10,
+  },
+  closeButton: {
+    position: 'absolute',
+    bottom: 50,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 20,
+  },
+  closeButtonText: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  countdownText: {
+    fontSize: 40,
+    fontWeight: 'bold',
+    color: COLORS.secondary,
+  },
+  // --- (El resto de tus estilos) ---
+  userInfoContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(255,255,255,0.3)',
+    borderWidth: 1.5,
+    shadowColor: '#ffffff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 0,
+    alignItems: 'center',
+    marginTop: 30,
+    marginHorizontal: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    height: 150,
+  },
+  explanationContainer: {
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: 'rgba(255,255,255,0.3)',
+    borderWidth: 1.5,
+    shadowColor: '#ffffff',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    borderRadius: 30,
+    justifyContent: 'center',
+    marginHorizontal: 10,
+  },
+  circleButton: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: COLORS.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    borderColor: '#aaa',
+    borderWidth: 3,
+    marginVertical: 20,
+  },
+  cameraIcon: {
+    fontSize: 30,
+  },
+  explanationText: {
+    color: COLORS.white,
+    fontSize: 16,
+    textAlign: 'center',
+  },
 });
 
 export default ProfileScreen;

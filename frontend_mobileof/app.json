@@ -1,8 +1,20 @@
 {
   "expo": {
-    "name": "M.AI",
-    "slug": "M.AI",
+    "name": "frontend_mobileof",
+    "slug": "frontend_mobileof",
     "version": "1.0.0",
-    "icon": "./assets/app-logo.png"
+    "extra": {
+      "apiUrl": "http://52.207.227.125:8000"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera",
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ]
+    ]
   }
 }

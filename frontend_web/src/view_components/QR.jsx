@@ -10,7 +10,6 @@ import './QR.css';
 const API_URL = "http://52.207.227.125:8000";
 
 export default function QR() {
-    // Definimos el estado para el componente
     const [qrData, setQrData] = useState(null);
     const [sessionId, setSessionId] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -21,17 +20,13 @@ export default function QR() {
     useEffect(() => {
         let intervalId;
 
-        // Función para obtener los datos del QR desde el backend
         const fetchQrData = async () => {
             try {
-                // Petición al endpoint de FastAPI para generar la sesión
                 const response = await axios.get(`${API_URL}/auth/qr/generate`);
                 setSessionId(response.data.session_id);
                 setQrData(response.data.qr_data);
                 setIsLoading(false);
-
-                // Iniciamos el polling después de obtener el sessionId
-                intervalId = setInterval(checkQrStatus, 3000); // Polling cada 3 segundos
+                intervalId = setInterval(checkQrStatus, 3000);
             } catch (err) {
                 console.error("Error al generar el QR:", err);
                 setError("No se pudo generar el código QR. Intenta de nuevo.");
@@ -39,31 +34,25 @@ export default function QR() {
             }
         };
 
-        // Función para checar el estado de la sesión de QR
         const checkQrStatus = async () => {
-            if (!sessionId) return; // Salir si aún no tenemos el sessionId
-            
+            if (!sessionId) return;
             try {
-                // Petición al endpoint de FastAPI para checar el estado
                 const response = await axios.get(`${API_URL}/auth/qr/status/${sessionId}`);
                 
                 if (response.data.status === 'authenticated') {
-                    console.log("¡Login exitoso! Token:", response.data.token);
+                    console.log("¡Login exitoso! Token recibido.");
                     
-                    // 1. Guardar el token en el almacenamiento local del navegador
-                    localStorage.setItem('authToken', response.data.token);
-                    
-                    // 2. Detener el polling
                     clearInterval(intervalId); 
                     
-                    // 3. Redirigir al usuario a la página principal
-                    navigate('/dashboard'); // Cambia '/dashboard' a la ruta que necesites
+                    // 🚨 Modificación clave: Navegamos al componente `Mirror`
+                    // y pasamos el sessionId como estado.
+                    navigate('/mirror', { state: { sessionId: sessionId, token: response.data.token } });
                 }
             } catch (err) {
                 if (err.response && err.response.status === 410) {
                     console.error("Sesión expirada.");
                     setError("Sesión expirada. Por favor, recarga la página para obtener un nuevo QR.");
-                    clearInterval(intervalId); // Detener el polling si la sesión expiró
+                    clearInterval(intervalId);
                 } else {
                     console.error("Error durante el polling:", err);
                 }
@@ -72,13 +61,11 @@ export default function QR() {
 
         fetchQrData();
 
-        // Esta es la función de limpieza de useEffect. Se ejecuta cuando el
-        // componente se desmonta para evitar fugas de memoria.
         return () => {
             clearInterval(intervalId);
         };
 
-    }, [navigate]); // El effect se ejecuta solo una vez al inicio
+    }, [navigate, sessionId]);
 
     return (
         <div className='QRView flex-center'>
