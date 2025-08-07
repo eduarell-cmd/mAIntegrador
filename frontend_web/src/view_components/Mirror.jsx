@@ -36,7 +36,7 @@ export default function Mirror() {
 
   // Obtener el día del backend
   useEffect(() => {
-    fetch("https://9b80f26f1d2c.ngrok-free.app/mirror")
+    fetch("http://52.207.227.125:8000/mirror")
       .then(res => res.json())
       .then(data => setDia(data.dia))
       .catch(err => console.error(err));
@@ -118,7 +118,7 @@ export default function Mirror() {
   // Obtener clima desde backend
   useEffect(() => {
     console.log("Fetch al Clima")
-    fetch("https://9b80f26f1d2c.ngrok-free.app/weather")
+    fetch("http://52.207.227.125:8000/weather")
       .then(res => res.json())
       .then(data => {
         setTemperatura(data.temperature);
