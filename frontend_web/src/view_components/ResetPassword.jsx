@@ -43,7 +43,7 @@ export default function ResetPassword() {
         token: token,
         nueva_password: passwords.nueva_password
       };
-      const response = await axios.post('http://localhost:8000/reset-password', payload);
+      const response = await axios.post('https://1a0f5b29f58b.ngrok-free.app/reset-password', payload);
       setMessage(response.data.message + ' Serás redirigido al login en 3 segundos.');
 
       // Redirigir al login después de un momento
