@@ -573,6 +573,20 @@ h4 {margin: 0; font-weight: 400; font-size: 1rem;}
         border: none;
         box-shadow: none;
     }
+    .middle-su-content {
+        grid-template-columns: 1fr;
+        height: 60rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .right-su-side {
+        transform: translate(0);
+    }
+
+    .openRF {
+        height: 75rem;
+    }
 }
 
 @media (min-width: 1024px) and (max-width: 1500px){
