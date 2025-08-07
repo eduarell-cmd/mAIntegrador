@@ -547,13 +547,13 @@ useEffect(() => {
             setShowForgot(false)
           }
         >
-          <div className="modal-logout">
+          <div className="modal-forgot flex-center">
             <h1>Forgot password</h1>
             <input className='inputforgotp' type="email" />
-            <label>E-mail</label>
+            <label className='label-ifp2'>E-mail</label>
             <input className='inputforgotp ifp2' type="password" />
-            <label>Safety word</label>
-            
+            <label className='label-ifp2'>Safety word</label>
+            <button>Save</button>
           </div>
         </div>
     )}
