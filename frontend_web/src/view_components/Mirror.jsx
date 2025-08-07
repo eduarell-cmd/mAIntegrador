@@ -36,7 +36,7 @@ export default function Mirror() {
 
   // Obtener el día del backend
   useEffect(() => {
-    fetch("http://localhost:8000/mirror")
+    fetch("http://52.207.227.125:8000/mirror")
       .then(res => res.json())
       .then(data => setDia(data.dia))
       .catch(err => console.error(err));
@@ -44,7 +44,7 @@ export default function Mirror() {
 
     useEffect(() => {
     // Reemplaza localhost con la IP de tu servidor si es necesario
-    const socket = new WebSocket("ws://localhost:8000/ws/mirror");
+    const socket = new WebSocket("ws://52.207.227.125:8000/ws/mirror");
 
     // Función que se ejecuta cuando el servidor envía un mensaje
     socket.onmessage = (event) => {
@@ -118,7 +118,7 @@ export default function Mirror() {
   // Obtener clima desde backend
   useEffect(() => {
     console.log("Fetch al Clima")
-    fetch("http://localhost:8000/weather")
+    fetch("http://52.207.227.125:8000/weather")
       .then(res => res.json())
       .then(data => {
         setTemperatura(data.temperature);
