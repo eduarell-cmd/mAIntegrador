@@ -154,7 +154,7 @@ export default function Mirror() {
         <div className="verticalLine"></div>
         <div className="tip-texts">
           <h3 className="noti-title">
-            {emocion ? `You look ${emocion}!` : `No emotion detected!`}
+            {emocion ? `You look ${emocion}!` : `No vinculated account!`}
           </h3>
           <p className="noti-text">
             {consejo ? consejo : "Please press the button located in your app to analyze your face and receive a personalized tip!"}

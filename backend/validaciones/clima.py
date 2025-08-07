@@ -22,6 +22,7 @@ async def get_weather():
         "clearsky_night": "Clear Night Sky",
         "partlycloudy_day": "Partly Cloudy",
         "partlycloudy_night": "Partly Cloudy (night)",
+        "fair_day" : "Fair Day",
         "cloudy": "Cloudy",
         "lightrain": "Light Rain",
         "heavyrain": "Heavy Rain",
@@ -30,7 +31,17 @@ async def get_weather():
         "lightssnow": "Light Snow",
         "heavysnow": "Heavy Snow",
         "fog": "Foggy",
-        "windy": "Windy"
+        "windy": "Windy",
+        "fair_night": "Fair Night",
+        "rain": "Rain",
+        "sleet": "Sleet",
+        "snow": "Snow",
+        "rainshowers_day": "Rain Showers",
+        "rainshowers_night": "Rain Showers (night)",
+        "lightrainshowers_day": "Light Rain Showers",
+        "lightrainshowers_night": "Light Rain Showers (night)",
+        "heavyrainshowers_day": "Heavy Rain Showers",
+        "heavyrainshowers_night": "Heavy Rain Showers (night)"
     }
     condition_text = SYMBOL_TRANSLATIONS.get(code, code)
 

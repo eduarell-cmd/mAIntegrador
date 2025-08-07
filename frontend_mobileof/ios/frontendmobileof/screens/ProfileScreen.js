@@ -140,6 +140,9 @@ const handleLogout = async () => {
   const [emotionChart, setEmotionChart] = React.useState([]);
   const [trackerDays, setTrackerDays] = React.useState(Array(31).fill(false));
 
+  const [countdown, setCountdown] = useState(null);
+  const [isCountingDown, setIsCountingDown] = useState(false);
+
   // El estado para el índice del consejo ya lo tienes, puedes mantenerlo
   const [indiceConsejo, setIndiceConsejo] = React.useState(0);
 
@@ -183,54 +186,52 @@ const handleLogout = async () => {
 
   const refreshProfileData = useCallback(async (showLoading = true) => {
   if (showLoading) setLoading(true);
+    try {
+      const token = await getAccessToken();
+      if (!token) return navigation.replace('Login');
+      
+      const decodedToken = jwtDecode(token);
+      const currentUserId = decodedToken.user_id;
+      if (!currentUserId) throw new Error("ID de usuario no encontrado.");
 
-  try {
-    const token = await getAccessToken();
-    if (!token) return navigation.replace('Login');
-    
-    const decodedToken = jwtDecode(token);
-    const currentUserId = decodedToken.user_id;
-    if (!currentUserId) throw new Error("ID de usuario no encontrado.");
+      const headers = { 'Authorization': `Bearer ${token}` };
 
-    const headers = { 'Authorization': `Bearer ${token}` };
+      const [promedioRes, semanalRes, trackerRes, consejosRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/promedioemocion/${currentUserId}`, { headers }),
+        fetch(`${API_BASE_URL}/weekly_emotions/${currentUserId}`, { headers }),
+        fetch(`${API_BASE_URL}/tracker/${currentUserId}`, { headers }),
+        fetch(`${API_BASE_URL}/consejos_hoy/${currentUserId}`, { headers }),
+      ]);
 
-    const [promedioRes, semanalRes, trackerRes, consejosRes] = await Promise.all([
-      fetch(`${API_BASE_URL}/promedioemocion/${currentUserId}`, { headers }),
-      fetch(`${API_BASE_URL}/weekly_emotions/${currentUserId}`, { headers }),
-      fetch(`${API_BASE_URL}/tracker/${currentUserId}`, { headers }),
-      fetch(`${API_BASE_URL}/consejos_hoy/${currentUserId}`, { headers }),
-    ]);
-
-    if (promedioRes.ok) {
-        const data = await promedioRes.json();
-        setDailyEmotion(data.emocion_dominante_hoy);
-        const chartData = Object.keys(data.promedio).map(key => ({
-            name: key, value: data.promedio[key], color: emotionColors[key] || '#ccc', icon: emocionesInfo[key]?.imagen,
-        }));
-        setEmotionChart(chartData);
+      if (promedioRes.ok) {
+          const data = await promedioRes.json();
+          setDailyEmotion(data.emocion_dominante_hoy);
+          const chartData = Object.keys(data.promedio).map(key => ({
+              name: key, value: data.promedio[key], color: emotionColors[key] || '#ccc', icon: emocionesInfo[key]?.imagen,
+          }));
+          setEmotionChart(chartData);
+      }
+      if (semanalRes.ok) {
+          const data = await semanalRes.json();
+          setWeeklyEmotions(data.weekly_emotions);
+      }
+      if (trackerRes.ok) {
+          const data = await trackerRes.json();
+          const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+          setTrackerDays(data.dias.slice(0, daysInMonth));
+      }
+      if (consejosRes.ok) {
+          const data = await consejosRes.json();
+          setConsejos(data.consejos || []);
+          setIndiceConsejo(0);
+      }
+    } catch (error) {
+      console.error("Error al refrescar los datos:", error);
+    } finally {
+      if (showLoading) setLoading(false);
     }
-    if (semanalRes.ok) {
-        const data = await semanalRes.json();
-        setWeeklyEmotions(data.weekly_emotions);
-    }
-    if (trackerRes.ok) {
-        const data = await trackerRes.json();
-        const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-        setTrackerDays(data.dias.slice(0, daysInMonth));
-    }
-    if (consejosRes.ok) {
-        const data = await consejosRes.json();
-        setConsejos(data.consejos || []);
-        setIndiceConsejo(0);
-    }
-  } catch (error) {
-    console.error("Error al refrescar los datos:", error);
-  } finally {
-    if (showLoading) setLoading(false);
-  }
-}, [navigation]);
+  }, [navigation]);
 
-  
   useFocusEffect(
     useCallback(() => {
       refreshProfileData();
@@ -240,7 +241,9 @@ const handleLogout = async () => {
   const handleFaceAnalysis = async () => {
     if (isAnalyzing) return;
     setIsAnalyzing(true);
-    Alert.alert("Analizando...", "Estamos analizando tu expresión, por favor espera.");
+    
+    // CAMBIO 1: Se eliminó la alerta "Analizando..." de aquí para una mejor UX.
+    // La UI ya muestra que se está analizando.
 
     try {
       const token = await getAccessToken();
@@ -249,41 +252,58 @@ const handleLogout = async () => {
         'Authorization': `Bearer ${token}`,
       };
 
-      // 1. Llama a /geminiprompt para obtener el análisis
       const geminiRes = await fetch(`${API_BASE_URL}/geminiprompt`, {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify(user), // Usa el objeto 'user' del estado
+        body: JSON.stringify(user),
       });
 
+      // CAMBIO 2: Manejo específico de errores HTTP como el de rostro no coincidente (403).
       if (!geminiRes.ok) {
-        throw new Error("Respuesta inválida del servidor de análisis.");
+        // Si el error es '403 Forbidden', es nuestro error de rostro.
+        if (geminiRes.status === 403) {
+            const errorData = await geminiRes.json();
+            // Lanza un error con el mensaje específico del backend.
+            throw new Error(errorData.detail || "El rostro no coincide con el perfil.");
+        }
+        // Para cualquier otro error del servidor.
+        throw new Error("Ocurrió un error en el servidor. Inténtalo de nuevo.");
       }
-      const analysisData = await geminiRes.json();
-
-      // 2. Llama a /guardar_consejo para almacenar el resultado
-      if (analysisData.consejo) {
-        await fetch(`${API_BASE_URL}/guardar_consejo`, {
-          method: 'POST',
-          headers: headers,
-          body: JSON.stringify({
-            user_id: jwtDecode(token).user_id,
-            emocion_foto: analysisData.emocion_foto,
-            emocion: analysisData.emocion,
-            consejo: analysisData.consejo,
-          }),
-        });
-      }
-
-      // 3. Refresca los datos del perfil para mostrar la nueva info
+      
+      // Si todo sale bien, refresca los datos y muestra el éxito.
       await refreshProfileData(false);
       Alert.alert("¡Éxito!", "Tu perfil ha sido actualizado.");
 
     } catch (error) {
-      Alert.alert("Error", `Ocurrió un problema durante el análisis: ${error.message}`);
+      // El bloque catch ahora mostrará el mensaje de error específico que lanzamos.
+      Alert.alert(
+        "Error en el Análisis", 
+        error.message + "\nVuelve a presionar el botón para escanear de nuevo."
+      );
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  useEffect(() => {
+    if (!isCountingDown) return;
+    if (countdown <= 0) {
+      setIsCountingDown(false);
+      setCountdown(null);
+      handleFaceAnalysis();
+      return;
+    }
+    const timerId = setTimeout(() => {
+      setCountdown(countdown - 1);
+    }, 1000);
+    return () => clearTimeout(timerId);
+  }, [countdown, isCountingDown]);
+
+  const handleTakePhotoWithTimer = () => {
+    if (isAnalyzing || isCountingDown) return;
+    setIsCountingDown(true);
+    // CAMBIO 3: Volvemos a poner el contador en 5 segundos.
+    setCountdown(5);
   };
 
   const anteriorConsejo = () => {
@@ -295,7 +315,7 @@ const handleLogout = async () => {
     }
   };
 
-    if (loading) {
+  if (loading) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background}}>
         <ActivityIndicator size="large" color={COLORS.secondary} />
@@ -381,27 +401,30 @@ const handleLogout = async () => {
           </View>
         </View>
 
-        {/* Botón cámara */}
         <View style={styles.explanationContainer}>
-          <Text style={styles.sectionTitle}>Take a photo</Text>
-          <TouchableOpacity 
-            style={styles.circleButton} 
-            onPress={handleFaceAnalysis} 
-            disabled={isAnalyzing}
-          >
-            {isAnalyzing ? (
-              <ActivityIndicator size="large" color={COLORS.secondary} />
-            ) : (
-              <Text style={styles.cameraIcon}>📷</Text>
-            )}
-          </TouchableOpacity>
-          <Text style={styles.explanationText}>
-            {isAnalyzing 
-              ? "Analyzing your face..." 
-              : "Press to have the mirror capture your current expression and analyze your face."
-            }
-          </Text>
-        </View>
+            <Text style={styles.sectionTitle}>Take a photo</Text>
+            <TouchableOpacity 
+              style={styles.circleButton} 
+              onPress={handleTakePhotoWithTimer} // <--- Usa la nueva función
+              disabled={isAnalyzing || isCountingDown} // <--- Deshabilita en ambos casos
+            >
+              {isAnalyzing ? (
+                <ActivityIndicator size="large" color={COLORS.secondary} />
+              ) : isCountingDown ? (
+                <Text style={styles.countdownText}>{countdown}</Text> // <--- Muestra el número
+              ) : (
+                <Text style={styles.cameraIcon}>📷</Text>
+              )}
+            </TouchableOpacity>
+            <Text style={styles.explanationText}>
+              {isAnalyzing 
+                ? "Analyzing your face..." 
+                : isCountingDown 
+                ? `Voltea a la camara del espejo, la foto se tomará en ${countdown}...` // <--- Muestra el mensaje
+                : "Press to have the mirror capture your current expression and analyze your face."
+              }
+            </Text>
+          </View>
 
         {/* --- SECCIÓN DEL CONSEJO PSICOLÓGICO --- */}
         <View style={styles.userTipContainer}>

@@ -29,6 +29,8 @@ class JWTHandler:
         self.secret_key = os.getenv("JWT_SECRET_KEY", "tu_clave_secreta_super_segura_cambiala_en_produccion")
         print(f"[DEBUG] JWT_SECRET_KEY usada por el backend: {self.secret_key}")
         
+        self.reset_secret_key = os.getenv("JWT_RESET_SECRET_KEY", "tu_otra_clave_para_reset_cambiala")
+
         # Algoritmo de firma
         self.algorithm = "HS256"
         
@@ -179,6 +181,49 @@ class JWTHandler:
         
         # Crear nuevo access token
         return self.create_access_token(user_data)
+
+    def create_password_reset_token(self, data: Dict[str, Any]) -> str:
+        """
+        Crea un token específico y de corta duración para resetear la contraseña.
+        """
+        to_encode = data.copy()
+        # El token expirará en 15 minutos
+        expire = datetime.utcnow() + timedelta(minutes=15)
+        to_encode.update({
+            "exp": expire,
+            "iat": datetime.utcnow(),
+            "type": "password_reset" # Tipo de token específico
+        })
+        # Usa la nueva clave secreta para mayor seguridad
+        encoded_jwt = jwt.encode(to_encode, self.reset_secret_key, algorithm=self.algorithm)
+        return encoded_jwt
+
+    def verify_password_reset_token(self, token: str) -> Dict[str, Any]:
+        """
+        Verifica un token de reseteo de contraseña.
+        """
+        try:
+            # Usa la clave secreta de reseteo para decodificar
+            payload = jwt.decode(token, self.reset_secret_key, algorithms=[self.algorithm])
+            
+            if payload.get("type") != "password_reset":
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Tipo de token incorrecto."
+                )
+            
+            return payload
+            
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="El enlace de reseteo ha expirado."
+            )
+        except jwt.JWTError:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="El enlace de reseteo es inválido."
+            )
 
 # Instancia global del manejador JWT
 jwt_handler = JWTHandler() 
