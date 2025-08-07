@@ -247,7 +247,7 @@ export default function Login() {
 const handleVerificarRostroSubmit = async (e) => {
   e.preventDefault();
   try {
-    const res = await fetch("http://52.207.227.125:8000/facerecog");
+    const res = await fetch("https://demo-victorian-stars-cents.trycloudflare.com/facerecog");
     const data = await res.json();
     console.log("Respuesta del backend:", data);
 
