@@ -15,7 +15,7 @@
  * 4. Si el refresh falla, se redirige al login
  */
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://52.207.227.125:8000';
 
 class AuthService {
     constructor() {
