@@ -6,38 +6,10 @@ import time
 import numpy as np
 import os
 import subprocess
-import platform
 import requests
 from io import BytesIO
 
 # --- Funciones de Captura de Cámara ---
-
-def capturar_foto_cv2(output_path: str) -> bool:
-    """
-    Captura una foto usando OpenCV. Funciona en Windows, macOS y la mayoría de Linux de escritorio.
-    """
-    try:
-        # El índice 0 es generalmente la cámara web predeterminada.
-        cap = cv2.VideoCapture(1)
-        if not cap.isOpened():
-            print("❌ Error: No se pudo acceder a la cámara con OpenCV.")
-            return False
-        
-        print("📷 Voltea a la cámara... Capturando con OpenCV.")
-        time.sleep(2)
-        ret, frame = cap.read()
-        cap.release()
-        
-        if not ret:
-            print("❌ Error: No se pudo capturar la imagen con OpenCV.")
-            return False
-            
-        cv2.imwrite(output_path, frame)
-        print(f"✅ Foto guardada en {output_path}")
-        return True
-    except Exception as e:
-        print(f"❌ Error durante la captura con OpenCV: {e}")
-        return False
 
 def capturar_foto_libcamera(output_path: str) -> bool:
     """
@@ -45,14 +17,14 @@ def capturar_foto_libcamera(output_path: str) -> bool:
     """
     try:
         print(f"📷 Ejecutando comando libcamera para Raspberry Pi...")
-        # Usamos un timeout para que la cámara se abra, enfoque y tome la foto.
+        # Usa un timeout para que la cámara se abra, enfoque y tome la foto.
         command = ["libcamera-jpeg", "-o", output_path, "--timeout", "2000", "--nopreview"]
         result = subprocess.run(command, check=True, capture_output=True, text=True)
         print("✅ Comando libcamera ejecutado con éxito.")
         print("STDOUT:", result.stdout)
         return os.path.exists(output_path)
     except FileNotFoundError:
-        print("❌ Error: El comando 'libcamera-jpeg' no se encontró. ¿Estás en una Raspberry Pi con la cámara configurada?")
+        print("❌ Error: El comando 'libcamera-jpeg' no se encontró. ¿Está instalado 'libcamera-apps'?")
         return False
     except subprocess.CalledProcessError as e:
         print(f"❌ Error ejecutando libcamera-jpeg: {e}")
@@ -85,7 +57,7 @@ def recortar_centro(imagen, porcentaje_ancho=0.4, porcentaje_alto=0.9):
 
 def verificar_rostro(image_url: str):
     """
-    Función unificada que detecta la plataforma, captura una foto, y la compara
+    Función unificada que captura una foto en Raspberry Pi, la compara
     con una imagen de referencia para verificar la identidad y analizar emociones.
     """
     resultado = {
@@ -112,29 +84,17 @@ def verificar_rostro(image_url: str):
         response.raise_for_status()
         ref_content = response.content
         known_image = face_recognition.load_image_file(BytesIO(ref_content))
-        # Asegurarse de que se detectó un rostro en la imagen de referencia
         if not face_recognition.face_encodings(known_image):
             resultado["error"] = "No se pudo detectar un rostro en la imagen de perfil."
             return resultado
         known_face_encoding = face_recognition.face_encodings(known_image)[0]
         known_face_encodings = [known_face_encoding]
 
-        # 2. Capturar foto detectando la plataforma
-        foto_capturada = False
-        system = platform.system()
+        # 2. Capturar foto usando libcamera
+        foto_capturada = capturar_foto_libcamera(foto_path)
         
-        if system == "Linux":
-            print("🐧 Sistema Linux detectado. Intentando con libcamera (para Raspberry Pi)...")
-            foto_capturada = capturar_foto_libcamera(foto_path)
-            if not foto_capturada:
-                print("⚠️ libcamera falló o no está disponible. Intentando con OpenCV...")
-                foto_capturada = capturar_foto_cv2(foto_path)
-        else:
-            print(f"💻 Sistema {system} detectado. Usando OpenCV...")
-            foto_capturada = capturar_foto_cv2(foto_path)
-
         if not foto_capturada:
-            resultado["error"] = "❌ No se pudo capturar una foto desde la cámara."
+            resultado["error"] = "❌ No se pudo capturar una foto desde la cámara. Asegúrate de que 'libcamera-jpeg' esté disponible y la cámara funcione."
             return resultado
         
         print("📸 Foto capturada exitosamente.")
@@ -145,9 +105,8 @@ def verificar_rostro(image_url: str):
             resultado["error"] = "❌ No se pudo leer la imagen capturada."
             return resultado
         
-        # Opcional: Recortar para mejorar el enfoque
         imagen_recortada = recortar_centro(imagen_capturada, porcentaje_ancho=0.5, porcentaje_alto=0.9)
-        cv2.imwrite(foto_path, imagen_recortada) # Sobrescribir con la imagen recortada
+        cv2.imwrite(foto_path, imagen_recortada)
 
         unknown_image = face_recognition.load_image_file(foto_path)
         unknown_face_encodings = face_recognition.face_encodings(unknown_image)
@@ -155,7 +114,6 @@ def verificar_rostro(image_url: str):
         if not unknown_face_encodings:
             resultado["error"] = "No se detectó ningún rostro en la foto tomada."
             print("❌ No se detectó ningún rostro en la foto.")
-            # No retornamos aquí para poder limpiar la foto
         else:
             es_misma_persona = False
             for face_encoding in unknown_face_encodings:
@@ -167,7 +125,6 @@ def verificar_rostro(image_url: str):
             resultado["es_misma_persona"] = es_misma_persona
             print(f"¿Es la misma persona? {'✅ Sí' if es_misma_persona else '❌ No'}")
 
-
         # 4. Analizar emociones si es la misma persona
         if resultado["es_misma_persona"]:
             img_array = reducir_resolucion_array(foto_path)
@@ -175,19 +132,14 @@ def verificar_rostro(image_url: str):
                 try:
                     analysis = DeepFace.analyze(img_array, actions=['emotion'], enforce_detection=False)
                     emociones = analysis[0]['emotion']
-                    
                     resultado["emociones"] = {k: f"{v:.2f}" for k, v in emociones.items()}
                     resultado["emocion_cruda"] = analysis[0]['dominant_emotion']
-                    
-                    # Mapeo a emociones "amigables"
                     friendly_emotions = {
                          "angry": "frustrated", "disgust": "uncomfortable", "fear": "worried",
                          "happy": "happy", "sad": "down", "surprise": "surprised", "neutral": "calm"
                     }
                     resultado["emocion_dominante"] = friendly_emotions.get(resultado["emocion_cruda"], resultado["emocion_cruda"])
-                    
                     print(f"🧠 Emoción dominante detectada: {resultado['emocion_dominante']}")
-
                 except Exception as e:
                     resultado["error"] = f"❌ Error analizando las emociones: {e}"
 
@@ -196,12 +148,10 @@ def verificar_rostro(image_url: str):
     except Exception as e:
         resultado["error"] = f"❌ Error general en verificar_rostro: {e}"
     finally:
-        # 5. Limpiar la foto temporal
         if os.path.exists(foto_path):
             try:
                 os.remove(foto_path)
                 print(f"🗑️ Foto temporal eliminada: {foto_path}")
             except Exception as e:
                 print(f"⚠️ No se pudo eliminar la foto temporal: {e}")
-
     return resultado
