@@ -664,3 +664,10 @@ h4 {margin: 0; font-weight: 400; font-size: 1rem;}
 
 @media (min-width: 1000px) and (max-width: 1423px) {}
 
+.inputforgotp {
+    width: 30%;
+}
+
+.ifp2 {
+    bottom: 30%;
+}
