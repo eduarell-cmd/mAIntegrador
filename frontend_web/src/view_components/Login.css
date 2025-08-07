@@ -573,6 +573,20 @@ h4 {margin: 0; font-weight: 400; font-size: 1rem;}
         border: none;
         box-shadow: none;
     }
+    .middle-su-content {
+        grid-template-columns: 1fr;
+        height: 60rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .right-su-side {
+        transform: translate(0);
+    }
+
+    .openRF {
+        height: 75rem;
+    }
 }
 
 @media (min-width: 1024px) and (max-width: 1500px){
@@ -666,7 +680,7 @@ h4 {margin: 0; font-weight: 400; font-size: 1rem;}
 
 .modal-forgot {
     height: 75vh;
-    width: 50vw;
+    width: 30vw;
     background-color: rgba(0, 0, 0, 0.8);
     border-radius: 5vh;
     box-shadow: rgba(255, 255, 255, 0.292) 0 0 30px 5px;
