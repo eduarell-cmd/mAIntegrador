@@ -6,8 +6,12 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
+from pydantic import BaseModel, EmailStr
+from dotenv import load_dotenv
+import os
 from validaciones.validaciones import *
-import bcrypt # type: ignore
+import bcrypt
 import json
 from deepFace.face_handler import verificar_rostro
 from deepFace.faceid import verificar_rostro_laptop
@@ -21,7 +25,32 @@ from auth.jwt_handler import *
 # Importar el sistema de autenticación
 from auth.auth_routes import auth_router, logout
 from auth.middleware import get_current_user, get_current_user_optional
+from auth.jwt_handler import jwt_handler
+
 app = FastAPI()
+
+load_dotenv()
+
+conf = ConnectionConfig(
+    MAIL_USERNAME = os.getenv("MAIL_USERNAME"),
+    MAIL_PASSWORD = os.getenv("MAIL_PASSWORD"),
+    MAIL_FROM = os.getenv("MAIL_FROM"),
+    MAIL_PORT = int(os.getenv("MAIL_PORT")),
+    MAIL_SERVER = os.getenv("MAIL_SERVER"),
+    MAIL_STARTTLS = True,
+    MAIL_SSL_TLS = False,
+    USE_CREDENTIALS = True,
+    VALIDATE_CERTS = True
+)
+
+# Modelos Pydantic para la recuperación de contraseña
+class PasswordResetRequest(BaseModel):
+    correo: EmailStr
+    palabra_de_seguridad: str
+
+class NewPassword(BaseModel):
+    token: str
+    nueva_password: str
 
 class ConnectionManager:
     def __init__(self):
@@ -42,6 +71,88 @@ class ConnectionManager:
 
 # Crea una instancia del manejador
 manager = ConnectionManager()
+
+@app.post("/request-password-reset")
+async def request_password_reset(request_data: PasswordResetRequest):
+    # 1. Buscar al usuario por correo
+    user = await personas_collection.find_one({"correo": request_data.correo})
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="El correo electrónico no fue encontrado.")
+
+    # 2. Verificar la palabra de seguridad (comparación directa de texto)
+    palabra_guardada_en_db = user.get("palabra_de_seguridad")
+    palabra_proporcionada_por_usuario = request_data.palabra_de_seguridad
+
+    if palabra_guardada_en_db != palabra_proporcionada_por_usuario:
+        raise HTTPException(status_code=401, detail="La palabra de seguridad es incorrecta.")
+
+    # 3. Generar un token JWT con expiración corta
+    token_data = {"user_id": str(user["_id"])}
+    token = jwt_handler.create_password_reset_token(token_data)
+
+    # 4. Enviar el correo
+    reset_link = f"http://52.207.227.125:8000/reset-password/{token}" # Cambia esto por tu URL de frontend
+    
+    message = MessageSchema(
+        subject="Cambio de contraseña",
+        recipients=[request_data.correo],
+        body=f"""
+            <p>Hola {user['nombre']},</p>
+            <p>Recibimos una solicitud para restablecer tu contraseña. Haz click en el siguiente enlace para continuar:</p>
+            <p><a href="{reset_link}">Haz click aquí para cambiar tu contraseña</a></p>
+            <p>Si no solicitaste esto, puedes ignorar este correo.</p>
+            <p>Este enlace expirará en 15 minutos.</p>
+        """,
+        subtype="html"
+    )
+
+    fm = FastMail(conf)
+    await fm.send_message(message)
+
+    return JSONResponse(status_code=200, content={"message": "Se ha enviado un correo con las instrucciones."})
+
+@app.post("/reset-password")
+async def reset_password(data: NewPassword):
+    # 1. Decodificar y validar el token que viene del frontend
+    payload = jwt_handler.verify_password_reset_token(data.token)
+    
+    if not payload:
+        raise HTTPException(
+            status_code=400, 
+            detail="Payload invalido o expirado."
+        )
+
+    user_id = payload.get("user_id")
+
+    # 2. Validar que la nueva contraseña tenga un largo mínimo
+    if len(data.nueva_password) < 8:
+         raise HTTPException(
+            status_code=400, 
+            detail="La contraseña debe tener al menos 8 caracteres."
+        )
+
+    # 3. Hashear la nueva contraseña antes de guardarla (¡Esto es muy importante!)
+    hashed_password = bcrypt.hashpw(data.nueva_password.encode('utf-8'), bcrypt.gensalt())
+
+    # 4. Actualizar la contraseña en la base de datos
+    result = await personas_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        # Guardamos el hash decodificado como string
+        {"$set": {"password": hashed_password.decode('utf-8')}} 
+    )
+
+    if result.modified_count == 1:
+        return JSONResponse(
+            status_code=200, 
+            content={"message": "Contraseña actualizada exitosamente."}
+        )
+    
+    # Si por alguna razón no se modificó el documento, levanta un error
+    raise HTTPException(
+        status_code=500, 
+        detail="No se pudo actualizar la contraseña. Intenta de nuevo."
+    )
 
 # Endpoint para que Mirror.jsx se conecte
 @app.websocket("/ws/mirror")

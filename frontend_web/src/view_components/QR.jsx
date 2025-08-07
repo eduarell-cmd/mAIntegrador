@@ -87,8 +87,11 @@ export default function QR() {
                 {error && <p style={{ color: 'red' }}>{error}</p>}
                 {qrData && !error && !isLoading && (
                     <>
-                        <h2>Inicia sesión escaneando este QR</h2>
-                        <QRCode value={qrData} />
+                        <h2 className='qr-title'>Link account</h2>
+                        <div className='qr-code'>
+                            <QRCode value={qrData} />
+                        </div>
+                        <h2 className='qr-title'>by scanning the QR code</h2>
                     </>
                 )}
             </div>
