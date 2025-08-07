@@ -36,7 +36,7 @@ export default function Mirror() {
 
   // Obtener el día del backend
   useEffect(() => {
-    fetch("https://demo-victorian-stars-cents.trycloudflare.com/mirror")
+    fetch("https://1a0f5b29f58b.ngrok-free.app/mirror")
       .then(res => res.json())
       .then(data => setDia(data.dia))
       .catch(err => console.error(err));
@@ -118,7 +118,7 @@ export default function Mirror() {
   // Obtener clima desde backend
   useEffect(() => {
     console.log("Fetch al Clima")
-    fetch("https://demo-victorian-stars-cents.trycloudflare.com/weather")
+    fetch("https://1a0f5b29f58b.ngrok-free.app/weather")
       .then(res => res.json())
       .then(data => {
         setTemperatura(data.temperature);
