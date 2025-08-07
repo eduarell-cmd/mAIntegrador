@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'; // Importa si usas React Router
 import './QR.css';
 
 // Define la URL de tu API de FastAPI.
-const API_URL = "http://52.207.227.125:8000";
+const API_URL = "https://9b80f26f1d2c.ngrok-free.app";
 
 export default function QR() {
     // Definimos el estado para el componente

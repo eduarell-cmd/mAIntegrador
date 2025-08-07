@@ -104,7 +104,7 @@ export default function Login() {
     setForgotMessage('');
 
     try {
-      const response = await axios.post('http://localhost:8000/request-password-reset', forgotData);
+      const response = await axios.post('https://9b80f26f1d2c.ngrok-free.app/request-password-reset', forgotData);
       setForgotMessage(response.data.message);
     } catch (err) {
       setForgotError(err.response?.data?.detail || 'Ocurrió un error. Verifica tus datos.');
@@ -247,7 +247,7 @@ export default function Login() {
 const handleVerificarRostroSubmit = async (e) => {
   e.preventDefault();
   try {
-    const res = await fetch("http://52.207.227.125:8000/facerecog");
+    const res = await fetch("https://9b80f26f1d2c.ngrok-free.app/facerecog");
     const data = await res.json();
     console.log("Respuesta del backend:", data);
 

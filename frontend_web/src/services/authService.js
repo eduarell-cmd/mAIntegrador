@@ -15,7 +15,7 @@
  * 4. Si el refresh falla, se redirige al login
  */
 
-const API_BASE_URL = 'http://52.207.227.125:8000';
+const API_BASE_URL = 'https://9b80f26f1d2c.ngrok-free.app';
 
 class AuthService {
     constructor() {
