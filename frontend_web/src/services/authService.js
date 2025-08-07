@@ -15,7 +15,7 @@
  * 4. Si el refresh falla, se redirige al login
  */
 
-const API_BASE_URL = 'https://demo-victorian-stars-cents.trycloudflare.com';
+const API_BASE_URL = 'https://1a0f5b29f58b.ngrok-free.app';
 
 class AuthService {
     constructor() {
