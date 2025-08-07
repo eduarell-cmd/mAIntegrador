@@ -664,8 +664,24 @@ h4 {margin: 0; font-weight: 400; font-size: 1rem;}
 
 @media (min-width: 1000px) and (max-width: 1423px) {}
 
+.modal-forgot {
+    height: 75vh;
+    width: 50vw;
+    background-color: rgba(0, 0, 0, 0.8);
+    border-radius: 5vh;
+    box-shadow: rgba(255, 255, 255, 0.292) 0 0 30px 5px;
+    flex-direction: column;
+    justify-content: space-evenly;
+    position: relative;
+}
+
+.label-ifp2 {
+    top: 1rem;
+}
+
 .inputforgotp {
-    width: 30%;
+    width: 50%;
+    height: 3rem;
 }
 
 .ifp2 {
