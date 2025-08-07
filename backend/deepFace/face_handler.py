@@ -18,7 +18,7 @@ def capturar_foto_cv2(output_path: str) -> bool:
     """
     try:
         # El índice 0 es generalmente la cámara web predeterminada.
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(1)
         if not cap.isOpened():
             print("❌ Error: No se pudo acceder a la cámara con OpenCV.")
             return False
